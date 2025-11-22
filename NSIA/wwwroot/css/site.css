@@ -1,4 +1,4 @@
-@font-face {
+﻿@font-face {
     font-family: 'Vazir';
     src: url('/fonts/Vazir.ttf') format('truetype');
     font-weight: lighter;
@@ -20,11 +20,31 @@
 }
 
 /* Apply to body or other elements */
-body {
-    font-family: 'Vazir', sans-serif;
+html, body {
     min-height: 100vh;
-
+    font-family: 'Vazir', sans-serif;
+    margin: 0;
 }
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    position: relative;
+}
+
+.content {
+    flex: 1 0 auto; /* محتوا فضای خالی را پر می‌کند */
+}
+
+footer {
+    position:absolute;
+    right: 0;
+    left: 0;
+    bottom:0;
+    background-color: #f8f9fa;
+}
+
 
 /* Sidebar */
 .sidebar {
