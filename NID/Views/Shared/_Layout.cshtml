@@ -1,0 +1,58 @@
+﻿<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - NID</title>
+    <script type="importmap"></script>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/NID.styles.css" asp-append-version="true" />
+
+    <style>
+        .hero {
+        background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://picsum.photos/1920/1080?grayscale');
+        background-size: cover;
+        background-position: center;
+        color: #fff;
+        padding: 140px 0;
+        text-align: center;
+        }
+        .feature-icon { font-size: 3rem; color: #0d6efd; }
+        .card-hover:hover { transform: translateY(-10px); transition: 0.3s; box-shadow: 0 8px 20px rgba(0,0,0,0.2); }
+        footer { background-color: #212529; color: #fff; }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+            <div class="container">
+                <a class="navbar-brand fw-bold" href="#">تذکره آنلاین</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item"><a class="nav-link" href="#features">ویژگی‌ها</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#about">درباره ما</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#contact">تماس با ما</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="py-3 text-center">
+        <p class="mb-0">© 2025 اداره ملی احصاییه و معلومات. تمامی حقوق محفوظ است.</p>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

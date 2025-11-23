@@ -1,0 +1,124 @@
+﻿<!DOCTYPE html>
+<html lang="en" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - اداره ملی احصائیه</title>
+    <script type="importmap"></script>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/NID.styles.css" asp-append-version="true" />
+    <style>
+
+        .sidebar {
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 250px;
+            background-color: #0d6efd;
+            color: #fff;
+        }
+
+            .sidebar a {
+                display: block;
+                color: #fff;
+                padding: 15px;
+                text-decoration: none;
+            }
+
+                .sidebar a:hover {
+                    background-color: #0b5ed7;
+                    text-decoration: none;
+                }
+
+        .content {
+            margin-right: 250px;
+            padding: 20px;
+        }
+
+        .navbar-custom {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 250px;
+            z-index: 1000;
+            background-color: #fff;
+            border-bottom: 1px solid #dee2e6;
+        }
+    </style>
+</head>
+<body>
+    <!-- نوبار -->
+    <nav class="navbar navbar-expand-lg navbar-light navbar-custom shadow-sm">
+        <div class="container-fluid">
+            <span class="navbar-text me-auto">
+                خوش آمدید، <strong>نام کاربر</strong>
+            </span>
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Page("/", new { area = "" })" method="post">
+                        <button type="submit" class="nav-link btn btn-link text-dark">خروج</button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+
+    <!-- سایدبار -->
+    <div class="sidebar">
+        <h4 class="text-center my-4">پنل مدیریت</h4>
+        <a href="#"><i class="bi bi-speedometer2"></i> داشبورد</a>
+        <a href="#"><i class="bi bi-people"></i> کاربران</a>
+        <a href="#"><i class="bi bi-file-earmark-text"></i> گزارش‌ها</a>
+        <a href="#"><i class="bi bi-gear"></i> تنظیمات</a>
+    </div>
+    <div class="content">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+    <div aria-live="polite" aria-atomic="true" class="position-relative">
+        <div class="toast-container position-fixed bottom-0 start-0 p-3">
+            <!-- start-0 = left -->
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="toast align-items-center text-bg-success border-0 show" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="d-flex flex-row-reverse">
+                        <!-- flip content for RTL -->
+                        <div class="toast-body text-end">
+                            <!-- align text to right -->
+                            @TempData["SuccessMessage"]
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+            }
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="toast align-items-center text-bg-danger border-0 show" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="d-flex flex-row-reverse">
+                        <div class="toast-body text-end">
+                            @TempData["ErrorMessage"]
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+    <script>
+        var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+        var toastList = toastElList.map(function (toastEl) {
+            return new bootstrap.Toast(toastEl, { delay: 3000 }); // 3 sec
+        });
+        toastList.forEach(toast => toast.show());
+    </script>
+
+</body>
+</html>

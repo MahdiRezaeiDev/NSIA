@@ -1,0 +1,55 @@
+﻿@model NID.ViewModel.CreateUserViewModel
+@{
+    ViewData["Title"] = "ایجاد حساب کاربری";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">افزودن کاربر جدید</h2>
+
+    <form asp-action="Create" method="post" novalidate>
+        <div class="mb-3">
+            <label asp-for="FirstName" class="form-label">نام</label>
+            <input asp-for="FirstName" class="form-control" />
+            <span asp-validation-for="FirstName" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="LastName" class="form-label">نام خانوادگی</label>
+            <input asp-for="LastName" class="form-control" />
+            <span asp-validation-for="LastName" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Email" class="form-label">ایمیل</label>
+            <input asp-for="Email" class="form-control" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Password" class="form-label">رمز عبور</label>
+            <input asp-for="Password" class="form-control" type="password" />
+            <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="ConfirmPassword" class="form-label">تایید رمز عبور</label>
+            <input asp-for="ConfirmPassword" class="form-control" type="password" />
+            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Role" class="form-label">نقش کاربر</label>
+            <select asp-for="Role" class="form-select">
+                <option value="User">کاربر</option>
+                <option value="Admin">مدیر</option>
+            </select>
+            <span asp-validation-for="Role" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-success">ذخیره</button>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
