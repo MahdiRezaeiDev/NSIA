@@ -232,4 +232,5 @@ C:\Users\mahdi\source\repos\NID\NID\bin\Debug\net10.0\runtimes\win-arm\native\e_
 C:\Users\mahdi\source\repos\NID\NID\bin\Debug\net10.0\runtimes\win-arm64\native\e_sqlite3.dll
 C:\Users\mahdi\source\repos\NID\NID\bin\Debug\net10.0\runtimes\win-x64\native\e_sqlite3.dll
 C:\Users\mahdi\source\repos\NID\NID\bin\Debug\net10.0\runtimes\win-x86\native\e_sqlite3.dll
-C:\Users\mahdi\source\repos\NID\NID\obj\Debug\net10.0\compressed\d75cd33fy9-{0}-juzrm9w2rl-juzrm9w2rl.gz
+C:\Users\mahdi\source\repos\NID\NID\obj\Debug\net10.0\NID.sourcelink.json
+C:\Users\mahdi\source\repos\NID\NID\obj\Debug\net10.0\compressed\d75cd33fy9-{0}-zdprynyxqm-zdprynyxqm.gz
