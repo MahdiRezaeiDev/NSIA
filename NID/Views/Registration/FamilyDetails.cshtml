@@ -1,0 +1,149 @@
+@model NID.Models.Family
+
+@{
+    ViewData["Title"] = "جزئیات خانواده";
+}
+
+<div class="dashboard-container">
+    <div class="page-header">
+        <div class="header-content">
+            <h1 class="page-title">جزئیات خانواده</h1>
+            <p class="page-subtitle">مشاهده اطلاعات کامل خانواده و اعضا</p>
+        </div>
+    </div>
+
+    <div class="content-card">
+        <!-- Family Information -->
+        <div class="section-card mb-4">
+            <div class="section-header">
+                <div class="section-icon">
+                    <i class="bi bi-house-heart"></i>
+                </div>
+                <h3 class="section-title">اطلاعات خانواده</h3>
+            </div>
+            
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">نام خانواده:</label>
+                    <div class="form-control-custom">@Model.FamilyName</div>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">کد خانواده:</label>
+                    <div class="form-control-custom family-code">@Model.FamilyCode</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Members List -->
+        <div class="section-card">
+            <div class="section-header">
+                <div class="section-icon">
+                    <i class="bi bi-people"></i>
+                </div>
+                <h3 class="section-title">اعضای خانواده</h3>
+                <span class="badge bg-primary">@Model.Members.Count عضو</span>
+            </div>
+
+            <div class="members-container">
+                @foreach (var member in Model.Members)
+                {
+                    <div class="member-card">
+                        <div class="member-header">
+                            <h5 class="member-title">
+                                <i class="bi bi-person-circle"></i>
+                                @member.FirstName @member.LastName
+                            </h5>
+                            <span class="member-relationship">@member.Relationship</span>
+                        </div>
+                        
+                        <div class="member-content">
+                            <div class="row g-3">
+                                <div class="col-md-3 text-center">
+                                    @if (!string.IsNullOrEmpty(member.PhotoPath))
+                                    {
+                                        <img src="@member.PhotoPath" 
+                                             alt="@member.FirstName @member.LastName" 
+                                             class="member-photo-preview" />
+                                    }
+                                    else
+                                    {
+                                        <div class="member-photo-placeholder">
+                                            <i class="bi bi-person-fill"></i>
+                                        </div>
+                                    }
+                                </div>
+                                
+                                <div class="col-md-9">
+                                    <div class="row g-2">
+                                        <div class="col-sm-6">
+                                            <label class="form-label">تاریخ تولد:</label>
+                                            <div class="form-control-custom">@member.BirthDate.ToShortDateString()</div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <label class="form-label">شماره تذکره:</label>
+                                            <div class="form-control-custom latin-numbers">@member.NationalId</div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <label class="form-label">جنسیت:</label>
+                                            <div class="form-control-custom">@(member.Gender == "Male" ? "مرد" : "زن")</div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <label class="form-label">نقش در خانواده:</label>
+                                            <div class="form-control-custom text-primary fw-bold">@member.Relationship</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="form-actions mt-4">
+            <a href="@Url.Action("ListFamilies", "Registration")" class="btn-outline-custom">
+                <i class="bi bi-arrow-right"></i>
+                بازگشت به لیست خانواده‌ها
+            </a>
+            <a href="@Url.Action("EditFamily", "Registration", new { id = Model.Id })" class="action-btn edit-btn">
+                <i class="bi bi-pencil-square"></i>
+                ویرایش خانواده
+            </a>
+            <a href="@Url.Action("ExportFamilyPdf", "Registration", new { id = Model.Id })" class="action-btn view-btn">
+                <i class="bi bi-file-earmark-pdf"></i>
+                دریافت PDF
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .family-code {
+        background: var(--light-bg);
+        color: var(--primary-blue);
+        font-family: monospace;
+        font-weight: 600;
+        letter-spacing: 1px;
+    }
+    
+    .form-actions {
+        display: flex;
+        gap: 15px;
+        justify-content: flex-start;
+        padding: 20px 0;
+        border-top: 1px solid var(--border-color);
+    }
+    
+    @@media (max-width: 768px) {
+        .form-actions {
+            flex-direction: column;
+        }
+        
+        .form-actions .btn-outline-custom,
+        .form-actions .action-btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>

@@ -82,6 +82,10 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmVnaXN0cmF0aW9uXEVkaXRGYW1pbHlGb3JtLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/mahdi/source/repos/NID/NID/Views/Registration/FamilyDetails.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmVnaXN0cmF0aW9uXEZhbWlseURldGFpbHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/mahdi/source/repos/NID/NID/Views/Registration/FamilyForm.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmVnaXN0cmF0aW9uXEZhbWlseUZvcm0uY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
