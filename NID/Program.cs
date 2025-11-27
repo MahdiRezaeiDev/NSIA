@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Diagnostics;
 using NID.Data;
 using NID.Models;
 using NID.Seeders;
@@ -15,8 +16,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
            .LogTo(Console.WriteLine, LogLevel.Information)
 );
 
-builder.Services.AddSingleton<FamilyPdfService>();
-
+builder.Services.AddScoped<FamilyPdfService>();
 // Configure Identity
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
@@ -34,10 +34,14 @@ builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-// Middleware
-if (!app.Environment.IsDevelopment())
+// Middleware Configuration
+if (app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
+    app.UseDeveloperExceptionPage();
+}
+else
+{
+    app.UseExceptionHandler("/Error");
     app.UseHsts();
 }
 
@@ -47,18 +51,48 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
+// Enhanced Error Handling Middleware
+app.UseStatusCodePagesWithReExecute("/Error/{0}");
+
+// Custom 404 handling for unmatched routes
+app.Use(async (context, next) =>
+{
+    await next();
+    
+    if (context.Response.StatusCode == 404 && !context.Response.HasStarted)
+    {
+        var originalPath = context.Request.Path;
+        var originalQueryString = context.Request.QueryString;
+        
+        // Log the 404 error
+        var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
+        logger.LogWarning("404 Error: {OriginalPath}{QueryString}", originalPath, originalQueryString);
+        
+        context.Request.Path = "/Error/404";
+        await next();
+    }
+});
+
 // Routes
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}"
 );
+
+// Additional route for Error controller
+app.MapControllerRoute(
+    name: "error",
+    pattern: "Error/{statusCode?}",
+    defaults: new { controller = "Error", action = "HttpStatusCodeHandler" }
+);
+
 app.MapRazorPages();
 
+// Seed default admin
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     await SeedDefaultAdmin.SeedAsync(services);
 }
-
 
 app.Run();

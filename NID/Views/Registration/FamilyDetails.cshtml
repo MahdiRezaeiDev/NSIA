@@ -59,37 +59,41 @@
                         <div class="member-content">
                             <div class="row g-3">
                                 <div class="col-md-3 text-center">
-                                    @if (!string.IsNullOrEmpty(member.PhotoPath))
-                                    {
-                                        <img src="@member.PhotoPath" 
-                                             alt="@member.FirstName @member.LastName" 
-                                             class="member-photo-preview" />
-                                    }
-                                    else
-                                    {
-                                        <div class="member-photo-placeholder">
-                                            <i class="bi bi-person-fill"></i>
-                                        </div>
-                                    }
+                                    <div class="member-photo-container">
+                                        @if (!string.IsNullOrEmpty(member.PhotoPath))
+                                        {
+                                            <img src="@member.PhotoPath" 
+                                                 alt="@member.FirstName @member.LastName" 
+                                                 class="member-photo-preview" />
+                                        }
+                                        else
+                                        {
+                                            <div class="member-photo-placeholder">
+                                                <i class="bi bi-person-fill"></i>
+                                            </div>
+                                        }
+                                    </div>
                                 </div>
                                 
                                 <div class="col-md-9">
-                                    <div class="row g-2">
-                                        <div class="col-sm-6">
-                                            <label class="form-label">تاریخ تولد:</label>
-                                            <div class="form-control-custom">@member.BirthDate.ToShortDateString()</div>
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <label class="form-label">شماره تذکره:</label>
-                                            <div class="form-control-custom latin-numbers">@member.NationalId</div>
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <label class="form-label">جنسیت:</label>
-                                            <div class="form-control-custom">@(member.Gender == "Male" ? "مرد" : "زن")</div>
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <label class="form-label">نقش در خانواده:</label>
-                                            <div class="form-control-custom text-primary fw-bold">@member.Relationship</div>
+                                    <div class="member-details">
+                                        <div class="row g-2">
+                                            <div class="col-sm-6">
+                                                <label class="form-label">تاریخ تولد:</label>
+                                                <div class="form-control-custom">@member.BirthDate.ToShortDateString()</div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <label class="form-label">شماره تذکره:</label>
+                                                <div class="form-control-custom latin-numbers">@member.NationalId</div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <label class="form-label">جنسیت:</label>
+                                                <div class="form-control-custom">@(member.Gender == "Male" ? "مرد" : "زن")</div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <label class="form-label">نقش در خانواده:</label>
+                                                <div class="form-control-custom text-primary fw-bold">@member.Relationship</div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -130,7 +134,104 @@
         padding: 20px 0;
         border-top: 1px solid var(--border-color);
     }
-    
+
+    /* Photo container with scroll */
+    .member-photo-container {
+        position: relative;
+        max-height: 200px;
+        overflow-y: auto;
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+        background: var(--light-bg);
+    }
+
+    .member-photo-preview {
+        width: 100%;
+        height: auto;
+        display: block;
+        object-fit: contain;
+    }
+
+    .member-photo-placeholder {
+        width: 100%;
+        height: 150px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--light-bg);
+        color: #eeeeee;
+        font-size: 3rem;
+        border-radius: 8px;
+    }
+
+    /* Member card layout improvements */
+    .member-card {
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+        background: white;
+        transition: all 0.3s ease;
+    }
+
+    .member-card:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        transform: translateY(-2px);
+    }
+
+    .member-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .member-title {
+        margin: 0;
+        color: var(--text-dark);
+        font-size: 1.1rem;
+    }
+
+    .member-relationship {
+        background: var(--primary-blue);
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+
+    .member-content {
+        display: flex;
+        align-items: flex-start;
+    }
+
+    .member-details {
+        flex: 1;
+    }
+
+    /* Custom scrollbar for photo container */
+    .member-photo-container::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .member-photo-container::-webkit-scrollbar-track {
+        background: var(--light-bg);
+        border-radius: 3px;
+    }
+
+    .member-photo-container::-webkit-scrollbar-thumb {
+        background: var(--border-color);
+        border-radius: 3px;
+    }
+
+    .member-photo-container::-webkit-scrollbar-thumb:hover {
+        background: #eeeeee;
+    }
+
+    /* Responsive design */
     @@media (max-width: 768px) {
         .form-actions {
             flex-direction: column;
@@ -141,5 +242,52 @@
             width: 100%;
             justify-content: center;
         }
+
+        .member-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .member-content .row {
+            flex-direction: column;
+        }
+
+        .member-photo-container {
+            max-height: 150px;
+            margin-bottom: 15px;
+        }
+
+        .member-details {
+            width: 100%;
+        }
+    }
+
+    @@media (max-width: 576px) {
+        .member-card {
+            padding: 15px;
+        }
+
+        .member-photo-container {
+            max-height: 120px;
+        }
+
+        .member-photo-placeholder {
+            height: 100px;
+            font-size: 2rem;
+        }
+    }
+
+    /* Ensure proper text alignment for RTL */
+    .member-title, 
+    .member-relationship,
+    .form-label {
+        text-align: right;
+    }
+
+    .latin-numbers {
+        direction: ltr;
+        text-align: right;
+        font-family: 'Courier New', monospace;
     }
 </style>

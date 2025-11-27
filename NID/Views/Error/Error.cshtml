@@ -1,0 +1,46 @@
+@{
+    ViewData["Title"] = "خطا در سیستم";
+}
+
+<div class="error-container">
+    <div class="error-content text-center">
+        <div class="error-icon">
+            <i class="bi bi-exclamation-triangle"></i>
+        </div>
+        <h1 class="error-title">خطا</h1>
+        <h2 class="error-subtitle">مشکلی در سیستم رخ داده است</h2>
+        
+        <p class="error-description">
+            متأسفیم، در حال حاضر سیستم با مشکل مواجه شده است. تیم فنی ما در حال بررسی است.
+        </p>
+        
+        @if (User.IsInRole("Admin") && ViewBag.StackTrace != null)
+        {
+            <details class="error-details mt-3">
+                <summary>جزئیات خطا (فقط برای مدیران)</summary>
+                <pre class="text-start mt-2 p-3 bg-light rounded"><code>@ViewBag.StackTrace</code></pre>
+            </details>
+        }
+        
+        <div class="error-actions mt-4">
+            <a href="/" class="btn btn-primary">
+                <i class="bi bi-house"></i>
+                بازگشت به صفحه اصلی
+            </a>
+            <button onclick="location.reload()" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-clockwise"></i>
+                تلاش مجدد
+            </button>
+            <a href="javascript:history.back()" class="btn btn-outline-primary">
+                <i class="bi bi-arrow-right"></i>
+                بازگشت
+            </a>
+        </div>
+        
+        <div class="error-help mt-4">
+            <small class="text-muted">
+                اگر مشکل ادامه داشت، لطفاً با پشتیبانی تماس بگیرید.
+            </small>
+        </div>
+    </div>
+</div>

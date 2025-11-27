@@ -1,0 +1,142 @@
+@{
+ViewData["Title"] = "صفحه یافت نشد - 404";
+}
+
+<div class="error-container">
+    <div class="error-content text-center">
+        <div class="error-icon">
+            <i class="bi bi-search"></i>
+        </div>
+        <h1 class="error-title">۴۰۴</h1>
+        <h2 class="error-subtitle">صفحه مورد نظر یافت نشد</h2>
+
+        @if (!string.IsNullOrEmpty(ViewBag.OriginalPath))
+        {
+        <div class="error-details">
+            <p><strong>آدرس درخواستی:</strong> @ViewBag.OriginalPath@ViewBag.OriginalQueryString</p>
+        </div>
+        }
+
+        <p class="error-description">
+            متأسفیم، صفحه‌ای که به دنبال آن هستید وجود ندارد، حذف شده یا آدرس تغییر کرده است.
+        </p>
+
+        <div class="error-actions">
+            <a href="/" class="btn btn-primary">
+                <i class="bi bi-house"></i>
+                بازگشت به صفحه اصلی
+            </a>
+            <a href="javascript:history.back()" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-right"></i>
+                بازگشت به صفحه قبل
+            </a>
+            <a href="@Url.Action("Index", "Home")#contact" class="btn btn-outline-primary">
+                <i class="bi bi-envelope"></i>
+                گزارش مشکل
+            </a>
+        </div>
+
+        <div class="error-help mt-4">
+            <small class="text-muted">
+                اگر فکر می‌کنید این یک خطاست، لطفاً با پشتیبانی تماس بگیرید.
+            </small>
+        </div>
+    </div>
+</div>
+
+<style>
+    .error-container {
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    }
+
+    .error-content {
+        max-width: 600px;
+        background: white;
+        padding: 3rem;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+    }
+
+    .error-icon {
+        font-size: 5rem;
+        color: var(--accent-gold);
+        margin-bottom: 2rem;
+    }
+
+    .error-title {
+        font-size: 6rem;
+        font-weight: 800;
+        color: var(--primary-blue);
+        margin-bottom: 1rem;
+        line-height: 1;
+    }
+
+    .error-subtitle {
+        font-size: 1.8rem;
+        color: var(--text-dark);
+        margin-bottom: 1.5rem;
+    }
+
+    .error-details {
+        background: var(--light-bg);
+        padding: 1rem;
+        border-radius: 10px;
+        margin-bottom: 1.5rem;
+        border-right: 4px solid var(--accent-gold);
+    }
+
+    .error-details p {
+        margin: 0;
+        font-family: monospace;
+        color: var(--text-light);
+    }
+
+    .error-description {
+        font-size: 1.1rem;
+        color: var(--text-light);
+        margin-bottom: 2.5rem;
+        line-height: 1.6;
+    }
+
+    .error-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .error-help {
+        border-top: 1px solid var(--border-color);
+        padding-top: 1rem;
+    }
+
+    /* Responsive */
+    @@media (max-width: 768px) {
+        .error-content {
+            padding: 2rem 1.5rem;
+            margin: 1rem;
+        }
+
+        .error-title {
+            font-size: 4rem;
+        }
+
+        .error-subtitle {
+            font-size: 1.5rem;
+        }
+
+        .error-actions {
+            flex-direction: column;
+        }
+
+        .error-actions .btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>

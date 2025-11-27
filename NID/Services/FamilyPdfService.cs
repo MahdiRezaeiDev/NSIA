@@ -16,7 +16,7 @@ namespace NID.Services
                 container.Page(page =>
                 {
                     page.Margin(30);
-                    page.DefaultTextStyle(x => x.FontSize(12).FontFamily("Tahoma"));
+                    page.DefaultTextStyle(x => x.FontSize(12).FontFamily("Yekan"));
 
                     page.Header().Row(row =>
                     {
