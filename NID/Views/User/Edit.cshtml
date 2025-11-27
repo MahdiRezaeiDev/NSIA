@@ -137,7 +137,7 @@
                             <i class="bi bi-check-lg"></i>
                             ذخیره تغییرات
                         </button>
-                        <a href="@Url.Action("List", "User")" class="btn-outline-custom">
+                        <a href="@Url.Action("Index", "User")" class="btn-outline-custom">
                             <i class="bi bi-arrow-right"></i>
                             انصراف و بازگشت
                         </a>
@@ -155,11 +155,11 @@
                             @*     <img src="@Model.ProfileImage" alt="@Model.FirstName" class="avatar-img-large" /> *@
                             @* } *@
                             @* else *@
-                            {
+                            @* { *@
                                 <div class="avatar-placeholder-large">
                                     <i class="bi bi-person"></i>
                                 </div>
-                            }
+                            @* } *@
                         </div>
                         <h4>@Model.FirstName @Model.LastName</h4>
                         <div class="user-details-summary">
