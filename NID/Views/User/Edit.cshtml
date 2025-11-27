@@ -35,7 +35,7 @@
                                     نام
                                     <span class="required-star">*</span>
                                 </label>
-                                <input asp-for="FirstName" class="form-control-custom" placeholder="نام کاربر" />
+                                <input asp-for="FirstName" class="form-control" placeholder="نام کاربر" />
                                 <span asp-validation-for="FirstName" class="validation-message"></span>
                             </div>
 
@@ -45,7 +45,7 @@
                                     نام خانوادگی
                                     <span class="required-star">*</span>
                                 </label>
-                                <input asp-for="LastName" class="form-control-custom" placeholder="نام خانوادگی کاربر" />
+                                <input asp-for="LastName" class="form-control" placeholder="نام خانوادگی کاربر" />
                                 <span asp-validation-for="LastName" class="validation-message"></span>
                             </div>
                         </div>
@@ -56,7 +56,7 @@
                                 آدرس ایمیل
                                 <span class="required-star">*</span>
                             </label>
-                            <input asp-for="Email" class="form-control-custom" type="email" placeholder="example@domain.com" />
+                            <input asp-for="Email" class="form-control" type="email" placeholder="example@domain.com" />
                             <span asp-validation-for="Email" class="validation-message"></span>
                         </div>
                     </div>
@@ -81,7 +81,7 @@
                                     <i class="bi bi-key"></i>
                                     رمز عبور جدید
                                 </label>
-                                <input asp-for="Password" class="form-control-custom" type="password" placeholder="رمز عبور جدید (اختیاری)" />
+                                <input asp-for="Password" class="form-control" type="password" placeholder="رمز عبور جدید (اختیاری)" />
                                 <span asp-validation-for="Password" class="validation-message"></span>
                                 <div class="help-text">
                                     <small>در صورت تغییر، رمز عبور باید حداقل 6 کاراکتر باشد</small>
@@ -93,7 +93,7 @@
                                     <i class="bi bi-key-fill"></i>
                                     تأیید رمز عبور جدید
                                 </label>
-                                <input asp-for="ConfirmPassword" class="form-control-custom" type="password" placeholder="تکرار رمز عبور جدید" />
+                                <input asp-for="ConfirmPassword" class="form-control" type="password" placeholder="تکرار رمز عبور جدید" />
                                 <span asp-validation-for="ConfirmPassword" class="validation-message"></span>
                             </div>
                         </div>
@@ -113,7 +113,7 @@
                                 نقش کاربری
                                 <span class="required-star">*</span>
                             </label>
-                            <select asp-for="Role" class="form-control-custom">
+                            <select asp-for="Role" class="form-control">
                                 <option value="User">👤 کاربر عادی</option>
                                 <option value="Admin">🛡️ مدیر سیستم</option>
                             </select>
