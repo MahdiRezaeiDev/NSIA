@@ -30,7 +30,7 @@
                                 آدرس ایمیل
                                 <span class="required-star">*</span>
                             </label>
-                            <input asp-for="Input.Email" type="email" class="form-control-custom" 
+                            <input asp-for="Input.Email" type="email" class="form-control" 
                                    placeholder="example@domain.com" aria-required="true" />
                             <span asp-validation-for="Input.Email" class="validation-message"></span>
                         </div>
@@ -41,7 +41,7 @@
                                 رمز عبور
                                 <span class="required-star">*</span>
                             </label>
-                            <input asp-for="Input.Password" class="form-control-custom" 
+                            <input asp-for="Input.Password" class="form-control" 
                                    autocomplete="current-password" aria-required="true" 
                                    placeholder="رمز عبور خود را وارد کنید" />
                             <span asp-validation-for="Input.Password" class="validation-message"></span>
