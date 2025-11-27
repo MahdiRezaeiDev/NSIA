@@ -102,11 +102,7 @@
 
         <!-- Action Buttons -->
         <div class="form-actions mt-4">
-            <a href="@Url.Action("ListFamilies", "Registration")" class="btn-outline-custom">
-                <i class="bi bi-arrow-right"></i>
-                بازگشت به لیست خانواده‌ها
-            </a>
-            <a href="@Url.Action("EditFamily", "Registration", new { id = Model.Id })" class="action-btn edit-btn">
+            <a href="@Url.Action("EditFamilyForm", "Registration", new { id = Model.Id })" class="action-btn edit-btn">
                 <i class="bi bi-pencil-square"></i>
                 ویرایش خانواده
             </a>
