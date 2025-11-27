@@ -76,17 +76,24 @@
                                     پنل کاربری
                                 </a>
                                 <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" href="@Url.Action("Dashboard", "Home")"><i class="bi bi-speedometer2"></i> داشبورد</a></li>
-                                    <li><a class="dropdown-item" href="@Url.Action("Profile", "Account")"><i class="bi bi-person"></i> پروفایل</a></li>
+                                    <li><a class="dropdown-item" href="@Url.Action("Index", "Home")"><i class="bi bi-speedometer2"></i> داشبورد</a></li>
                                     <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item text-danger" href="@Url.Action("Logout", "Account")"><i class="bi bi-box-arrow-left"></i> خروج</a></li>
+                                    
+                                    <li>
+                                        <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Page("/", new { area = "" })" method="post">
+                                            <button type="submit" class="dropdown-item text-danger">
+                                                <i class="fas fa-sign-out-alt"></i>
+                                                خروج
+                                            </button>
+                                        </form>
+                                    </li>
                                 </ul>
                             </li>
                         }
                         else
                         {
                             <li class="nav-item">
-                                <a class="nav-link nav-link-primary" href="@Url.Action("Login", "Account")">
+                                <a class="nav-link nav-link-primary" href="@Url.Action("Index", "Admin")">
                                     <i class="bi bi-box-arrow-in-left"></i>
                                     ورود به سیستم
                                 </a>
