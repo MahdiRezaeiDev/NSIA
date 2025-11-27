@@ -24,35 +24,64 @@ namespace NID.Services
                 container.Page(page =>
                 {
                     page.Size(PageSizes.A4);
-                    page.Margin(2, Unit.Centimetre);
+                    page.Margin(1.5f, Unit.Centimetre);
                     page.DefaultTextStyle(x => x.FontSize(11).FontFamily("Yekan"));
 
-                    page.Header().Element(ComposeHeader);
+                    page.Header().Element(c => ComposeHeader(c, family));
                     page.Content().Element(container => ComposeContent(container, family));
-                    page.Footer().Element(ComposeFooter);
+                    // Remove default footer
                 });
             })
             .GeneratePdf();
         }
 
-        private void ComposeHeader(IContainer container)
+        private void ComposeHeader(IContainer container, Family family)
         {
-            container.Row(row =>
+            container.Column(column =>
             {
-                // Right side - Organization info
-                row.RelativeItem().Column(column =>
+                // Main header row
+                column.Item().Row(row =>
                 {
-                    column.Item().AlignRight().Text("اداره ملی احصائیه و معلومات")
-                        .SemiBold().FontSize(16).FontColor(Colors.Blue.Darken3);
+                    // Logo on the right
+                    row.ConstantItem(80).Height(70).AlignRight().Element(logoContainer =>
+                    {
+                        var logoPath = Path.Combine(_environment.WebRootPath, "images", "logo.png");
+                        if (File.Exists(logoPath))
+                        {
+                            logoContainer.Image(File.ReadAllBytes(logoPath));
+                        }
+                        else
+                        {
+                            logoContainer.Width(60).Height(60).Placeholder("لوگو");
+                        }
+                    });
 
-                    column.Item().AlignRight().Text("سیستم تذکره الکترونیکی")
-                        .FontSize(12).FontColor(Colors.Grey.Medium);
+                    // Organization info in center
+                    row.RelativeItem().AlignCenter().Column(orgColumn =>
+                    {
+                        orgColumn.Item().Text("جمهوری اسلامی افغانستان")
+                            .SemiBold().FontSize(14).FontColor(Colors.Blue.Darken3);
+
+                        orgColumn.Item().Text("اداره ملی احصائیه و معلومات")
+                            .SemiBold().FontSize(16).FontColor(Colors.Blue.Darken4);
+
+                        orgColumn.Item().Text("سیستم تذکره الکترونیکی")
+                            .FontSize(12).FontColor(Colors.Grey.Darken2);
+                    });
+
+                    // Report info on the left
+                    row.ConstantItem(120).AlignLeft().Column(infoColumn =>
+                    {
+                        infoColumn.Item().Text("گزارش اطلاعات خانواده")
+                            .SemiBold().FontSize(12).FontColor(Colors.Blue.Medium);
+
+                        infoColumn.Item().Text(DateTime.Now.ToString("yyyy/MM/dd", new CultureInfo("fa-IR")))
+                            .FontSize(10).FontColor(Colors.Grey.Medium);
+                    });
                 });
 
-                // Left side - Date
-                row.ConstantItem(80).AlignLeft()
-                   .Text(DateTime.Now.ToString("yyyy/MM/dd", new CultureInfo("fa-IR")))
-                   .FontSize(10).FontColor(Colors.Grey.Medium);
+                // Separator line
+                column.Item().PaddingTop(5).LineHorizontal(1).LineColor(Colors.Grey.Lighten1);
             });
         }
 
@@ -62,10 +91,13 @@ namespace NID.Services
             {
                 // Family Information Section
                 column.Item().Element(c => ComposeFamilyInfo(c, family));
-                column.Item().PaddingTop(20);
+                column.Item().PaddingTop(25);
 
                 // Members Section
                 column.Item().Element(c => ComposeMembersInfo(c, family));
+
+                // Custom Footer
+                column.Item().PaddingTop(30).Element(ComposeCustomFooter);
             });
         }
 
@@ -73,30 +105,36 @@ namespace NID.Services
         {
             container.Border(1).BorderColor(Colors.Grey.Lighten2).Padding(15).Column(column =>
             {
-                column.Item().AlignCenter().Text("اطلاعات خانواده")
-                    .SemiBold().FontSize(14).FontColor(Colors.Blue.Darken2);
+                column.Item().AlignCenter().Text("مشخصات عمومی خانواده")
+                    .SemiBold().FontSize(16).FontColor(Colors.Blue.Darken3);
 
-                column.Item().PaddingTop(10).Table(table =>
+                column.Item().PaddingTop(15).Table(table =>
                 {
                     table.ColumnsDefinition(columns =>
                     {
-                        columns.RelativeColumn();    // Value column
-                        columns.ConstantColumn(100); // Label column (swapped for RTL)
-                        columns.RelativeColumn();    // Value column
-                        columns.ConstantColumn(100); // Label column (swapped for RTL)
+                        columns.RelativeColumn();    // Value
+                        columns.ConstantColumn(120); // Label
+                        columns.RelativeColumn();    // Value
+                        columns.ConstantColumn(120); // Label
                     });
 
-                    // First row - RTL order
-                    table.Cell().AlignRight().Text(family.FamilyName);
-                    table.Cell().AlignRight().Text("نام خانواده:").SemiBold();
-                    table.Cell().AlignRight().Text(family.FamilyCode);
-                    table.Cell().AlignRight().Text("کد خانواده:").SemiBold();
+                    // Row 1
+                    table.Cell().AlignRight().PaddingVertical(8).Text(family.FamilyName).FontSize(11);
+                    table.Cell().AlignRight().PaddingVertical(8).Text("نام فامیل:").SemiBold().FontSize(11);
+                    table.Cell().AlignRight().PaddingVertical(8).Text(family.FamilyCode).FontSize(11);
+                    table.Cell().AlignRight().PaddingVertical(8).Text("کود فامیل:").SemiBold().FontSize(11);
 
-                    // Second row - RTL order
-                    table.Cell().AlignRight().Text(family.Members?.Count.ToString() ?? "0");
-                    table.Cell().AlignRight().Text("تعداد اعضا:").SemiBold();
-                    table.Cell().AlignRight().Text(family.CreatedDate.ToString("yyyy/MM/dd", new CultureInfo("fa-IR")));
-                    table.Cell().AlignRight().Text("تاریخ ثبت:").SemiBold();
+                    // Row 2
+                    table.Cell().AlignRight().PaddingVertical(8).Text(family.Members?.Count.ToString() ?? "0").FontSize(11);
+                    table.Cell().AlignRight().PaddingVertical(8).Text("تعداد اعضا:").SemiBold().FontSize(11);
+                    table.Cell().AlignRight().PaddingVertical(8).Text(family.CreatedDate.ToString("yyyy/MM/dd", new CultureInfo("fa-IR"))).FontSize(11);
+                    table.Cell().AlignRight().PaddingVertical(8).Text("تاریخ ثبت:").SemiBold().FontSize(11);
+
+                    // Row 3 - Additional family info if available
+                    table.Cell().AlignRight().PaddingVertical(8).Text(family.UpdatedDate.ToString("yyyy/MM/dd", new CultureInfo("fa-IR"))).FontSize(11);
+                    table.Cell().AlignRight().PaddingVertical(8).Text("آخرین更新:").SemiBold().FontSize(11);
+                    table.Cell().AlignRight().PaddingVertical(8).Text(GetFamilyStatus(family)).FontSize(11);
+                    table.Cell().AlignRight().PaddingVertical(8).Text("وضعیت:").SemiBold().FontSize(11);
                 });
             });
         }
@@ -105,8 +143,8 @@ namespace NID.Services
         {
             container.Column(column =>
             {
-                column.Item().PaddingBottom(10).AlignRight().Text("اعضای خانواده")
-                    .SemiBold().FontSize(14).FontColor(Colors.Blue.Darken2);
+                column.Item().PaddingBottom(15).AlignCenter().Text("مشخصات تفصیلی اعضای فامیل")
+                    .SemiBold().FontSize(16).FontColor(Colors.Blue.Darken3);
 
                 if (family.Members?.Any() == true)
                 {
@@ -121,118 +159,147 @@ namespace NID.Services
                         _ => 6
                     }).ThenBy(m => m.BirthDate);
 
+                    int memberNumber = 1;
                     foreach (var member in sortedMembers)
                     {
                         column.Item().PaddingBottom(20).Border(1).BorderColor(Colors.Grey.Lighten2)
-                            .Padding(15).Column(memberColumn =>
+                            .Background(Colors.Grey.Lighten5)
+                            .Padding(20).Column(memberColumn =>
                             {
-                                // Member Header - RTL layout
-                                memberColumn.Item().PaddingBottom(10).Row(row =>
+                                // Member Header with Number
+                                memberColumn.Item().PaddingBottom(15).Row(row =>
                                 {
-                                    // Relationship badge on the right
-                                    row.ConstantItem(120).AlignRight().Text(GetRelationshipText(member.Relationship))
-                                        .FontSize(10).FontColor(Colors.Blue.Medium).SemiBold();
+                                    row.RelativeItem().AlignRight().Text($"عضو شماره {memberNumber}: {member.FirstName} {member.LastName}")
+                                        .SemiBold().FontSize(14).FontColor(Colors.Blue.Darken2);
 
-                                    // Name on the left (takes remaining space)
-                                    row.RelativeItem().AlignRight().Text($"{member.FirstName} {member.LastName}")
-                                        .SemiBold().FontSize(12).FontColor(Colors.Blue.Darken1);
+                                    row.ConstantItem(100).AlignRight().Text(GetRelationshipText(member.Relationship))
+                                        .FontSize(11).FontColor(Colors.White);
                                 });
 
-                                // Member Photo
-                                if (!string.IsNullOrEmpty(member.PhotoPath))
+                                // Photo and Basic Info Row
+                                memberColumn.Item().PaddingBottom(15).Row(row =>
                                 {
-                                    var photoPath = Path.Combine(_environment.WebRootPath, member.PhotoPath.TrimStart('~', '/'));
-                                    
-                                    if (File.Exists(photoPath))
+                                    // Photo Section
+                                    row.ConstantItem(150).AlignCenter().Column(photoColumn =>
                                     {
-                                        try
+                                        if (!string.IsNullOrEmpty(member.PhotoPath))
                                         {
-                                            memberColumn.Item().PaddingBottom(10).AlignCenter()
-                                                .Image(File.ReadAllBytes(photoPath))
-                                                .FitHeight();
+                                            var photoPath = Path.Combine(_environment.WebRootPath, member.PhotoPath.TrimStart('~', '/'));
+                                            if (File.Exists(photoPath))
+                                            {
+                                                try
+                                                {
+                                                    photoColumn.Item().Border(1).BorderColor(Colors.Grey.Lighten1)
+                                                        .Image(File.ReadAllBytes(photoPath))
+                                                        .FitHeight();
+                                                }
+                                                catch
+                                                {
+                                                    photoColumn.Item().Height(120).Width(120).Placeholder("خطا در بارگذاری عکس");
+                                                }
+                                            }
+                                            else
+                                            {
+                                                photoColumn.Item().Height(120).Width(120).Placeholder("عکس موجود نیست");
+                                            }
                                         }
-                                        catch
+                                        else
                                         {
-                                            memberColumn.Item().PaddingBottom(10).AlignCenter()
-                                                .Height(100).Width(150)
-                                                .Placeholder("خطا در بارگذاری عکس");
+                                            photoColumn.Item().Height(120).Width(120).Placeholder("عکس موجود نیست");
                                         }
-                                    }
-                                    else
-                                    {
-                                        memberColumn.Item().PaddingBottom(10).AlignCenter()
-                                            .Height(100).Width(150)
-                                            .Placeholder("عکس یافت نشد");
-                                    }
-                                }
-                                else
-                                {
-                                    memberColumn.Item().PaddingBottom(10).AlignCenter()
-                                        .Height(100).Width(150)
-                                        .Placeholder("عکس موجود نیست");
-                                }
-
-                                // Member Details Table - RTL order
-                                memberColumn.Item().Table(table =>
-                                {
-                                    table.ColumnsDefinition(columns =>
-                                    {
-                                        columns.RelativeColumn();    // Value column
-                                        columns.ConstantColumn(50);  // Label column
-                                        columns.RelativeColumn();    // Value column  
-                                        columns.ConstantColumn(70);  // Label column
-                                        columns.RelativeColumn();    // Value column
-                                        columns.ConstantColumn(80);  // Label column
+                                        photoColumn.Item().PaddingTop(5).Text("عکس")
+                                            .FontSize(9).FontColor(Colors.Grey.Medium).AlignCenter();
                                     });
 
-                                    // First row - Values first, then labels (RTL)
-                                    table.Cell().AlignRight().Text(member.NationalId).FontSize(9);
-                                    table.Cell().AlignRight().Text("شماره تذکره:").SemiBold().FontSize(9);
-                                    table.Cell().AlignRight().Text(member.BirthDate.ToString("yyyy/MM/dd", new CultureInfo("fa-IR"))).FontSize(9);
-                                    table.Cell().AlignRight().Text("تاریخ تولد:").SemiBold().FontSize(9);
-                                    table.Cell().AlignRight().Text(GetGenderText(member.Gender)).FontSize(9);
-                                    table.Cell().AlignRight().Text("جنسیت:").SemiBold().FontSize(9);
+                                    // Basic Info Table
+                                    row.RelativeItem().PaddingLeft(15).Table(table =>
+                                    {
+                                        table.ColumnsDefinition(columns =>
+                                        {
+                                            columns.RelativeColumn();    // Value
+                                            columns.ConstantColumn(100); // Label
+                                            columns.RelativeColumn();    // Value
+                                            columns.ConstantColumn(100); // Label
+                                        });
 
-                                    // Second row - Values first, then labels (RTL)
-                                    table.Cell().AlignRight().Text(CalculateAge(member.BirthDate).ToString()).FontSize(9);
-                                    table.Cell().AlignRight().Text("سن:").SemiBold().FontSize(9);
-                                    table.Cell().AlignRight().Text(GetMemberStatus(member)).FontSize(9);
-                                    table.Cell().AlignRight().Text("وضعیت:").SemiBold().FontSize(9);
+                                        // Personal Information
+                                        table.Cell().AlignRight().PaddingVertical(6).Text(member.NationalId).FontSize(10);
+                                        table.Cell().AlignRight().PaddingVertical(6).Text("شماره تذکره:").SemiBold().FontSize(10);
+                                        table.Cell().AlignRight().PaddingVertical(6).Text(member.BirthDate.ToString("yyyy/MM/dd", new CultureInfo("fa-IR"))).FontSize(10);
+                                        table.Cell().AlignRight().PaddingVertical(6).Text("تاریخ تولد:").SemiBold().FontSize(10);
+
+                                        table.Cell().AlignRight().PaddingVertical(6).Text(GetGenderText(member.Gender)).FontSize(10);
+                                        table.Cell().AlignRight().PaddingVertical(6).Text("جنسیت:").SemiBold().FontSize(10);
+                                        table.Cell().AlignRight().PaddingVertical(6).Text(CalculateAge(member.BirthDate).ToString()).FontSize(10);
+                                        table.Cell().AlignRight().PaddingVertical(6).Text("سن:").SemiBold().FontSize(10);
+
+                                        table.Cell().AlignRight().PaddingVertical(6).Text(GetMemberStatus(member)).FontSize(10);
+                                        table.Cell().AlignRight().PaddingVertical(6).Text("وضعیت:").SemiBold().FontSize(10);
+                                        table.Cell().AlignRight().PaddingVertical(6).Text(member.CreatedDate.ToString("yyyy/MM/dd", new CultureInfo("fa-IR"))).FontSize(10);
+                                        table.Cell().AlignRight().PaddingVertical(6).Text("تاریخ ثبت:").SemiBold().FontSize(10);
+                                    });
+                                });
+
+                                // Additional Details Table
+                                memberColumn.Item().Table(detailsTable =>
+                                {
+                                    detailsTable.ColumnsDefinition(columns =>
+                                    {
+                                        columns.RelativeColumn(); // Value
+                                        columns.ConstantColumn(120); // Label
+                                        columns.RelativeColumn(); // Value  
+                                        columns.ConstantColumn(120); // Label
+                                    });
+
+                                    // Additional member details can be added here
+                                    detailsTable.Cell().AlignRight().PaddingVertical(4).Text(GetRelationshipText(member.Relationship)).FontSize(10);
+                                    detailsTable.Cell().AlignRight().PaddingVertical(4).Text("نقش در خانواده:").SemiBold().FontSize(10);
+                                    detailsTable.Cell().AlignRight().PaddingVertical(4).Text(!string.IsNullOrEmpty(member.PhotoPath) ? "دارد" : "ندارد").FontSize(10);
+                                    detailsTable.Cell().AlignRight().PaddingVertical(4).Text("عکس:").SemiBold().FontSize(10);
                                 });
                             });
+
+                        memberNumber++;
                     }
                 }
                 else
                 {
-                    column.Item().AlignCenter().Text("هیچ عضوی ثبت نشده است")
-                        .Italic().FontColor(Colors.Grey.Medium).FontSize(12);
+                    column.Item().AlignCenter().PaddingVertical(40).Text("⸻ هیچ عضوی در این فامیل ثبت نشده است ⸻")
+                        .Italic().FontSize(14).FontColor(Colors.Grey.Medium);
                 }
             });
         }
 
-        private void ComposeFooter(IContainer container)
+        private void ComposeCustomFooter(IContainer container)
         {
-            container.AlignCenter().Row(row =>
+            container.BorderTop(1).BorderColor(Colors.Grey.Lighten2).PaddingTop(10).Column(column =>
             {
-                // Page numbers on the left
-                row.ConstantItem(50).AlignRight().Text(text =>
-                {
-                    text.CurrentPageNumber().FontSize(9);
-                    text.Span(" / ").FontSize(9);
-                    text.TotalPages().FontSize(9);
-                });
-
-                // "Page" text
-                row.ConstantItem(40).AlignRight().Text("صفحه")
+                column.Item().AlignCenter().Text("این سند به طور اتوماتیک توسط سیستم تذکره الکترونیکی تولید شده است")
                     .FontSize(9).FontColor(Colors.Grey.Medium);
 
-                // Report generation date on the right
-                row.RelativeItem().AlignLeft().Text(text =>
+                column.Item().PaddingTop(5).AlignCenter().Row(row =>
                 {
-                    text.Span("تاریخ تولید گزارش: ").FontSize(9).SemiBold();
-                    text.Span(DateTime.Now.ToString("yyyy/MM/dd HH:mm", new CultureInfo("fa-IR"))).FontSize(9);
+                    row.RelativeItem().AlignLeft().Text(text =>
+                    {
+                        text.Span("تاریخ تولید: ").SemiBold().FontSize(9);
+                        text.Span(DateTime.Now.ToString("yyyy/MM/dd HH:mm", new CultureInfo("fa-IR"))).FontSize(9);
+                    });
+
+                    row.ConstantItem(100).AlignCenter().Text(text =>
+                    {
+                        text.Span("صفحه ").FontSize(9);
+                        text.CurrentPageNumber().FontSize(9);
+                    });
+
+                    row.RelativeItem().AlignRight().Text("NID System v1.0")
+                        .FontSize(9).FontColor(Colors.Grey.Medium);
                 });
             });
+        }
+
+        private string GetFamilyStatus(Family family)
+        {
+            return family.Members?.Count > 0 ? "فعال" : "غیرفعال";
         }
 
         private string GetGenderText(string gender)
@@ -249,12 +316,12 @@ namespace NID.Services
         {
             return relationship switch
             {
-                FamilyRelationship.Self => "سرپرست",
+                FamilyRelationship.Self => "سرپرست خانواده",
                 FamilyRelationship.Husband => "شوهر",
                 FamilyRelationship.Wife => "همسر",
                 FamilyRelationship.Son => "پسر",
                 FamilyRelationship.Daughter => "دختر",
-                FamilyRelationship.Other => "سایر",
+                FamilyRelationship.Other => "سایر اقارب",
                 _ => "نامشخص"
             };
         }
