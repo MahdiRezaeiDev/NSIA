@@ -1,0 +1,276 @@
+@model NID.ViewModel.EditFamilyRegistrationViewModel
+
+@{
+    ViewData["Title"] = "ویرایش خانواده";
+}
+
+<style>
+    body { background: #f3f5fa; direction: rtl; font-family: 'Yekan', sans-serif; }
+
+    .nid-header { background: #1a2c5b; color: #fff; border-bottom: 4px solid #d4a637; }
+    .section-title { border-right: 4px solid #d4a637; padding-right: 10px; font-weight: bold; color: #1a2c5b; margin-bottom: 1rem; font-size: 1.1rem; }
+    .nid-card { background: #fff; border: 1px solid #dfe3ec; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    .nid-card-header { background: #1a2c5b; color: white; padding: 10px 15px; border-radius: 10px 10px 0 0; font-size: 1.1rem; font-weight: bold; border-bottom: 3px solid #d4a637; }
+    .add-member-btn { background: #1a2c5b; color: white; border: none; border-radius: 8px; padding: 8px 18px; font-size: .95rem; }
+    .add-member-btn:hover { background: #16264e; color: #fff; }
+    .submit-btn { background: #d4a637; color: #1a2c5b; border-radius: 8px; border: none; font-size: 1.1rem; padding: 10px 40px; font-weight: bold; }
+    .submit-btn:hover { background: #b68c2e; color: #fff; }
+    .remove-member-btn { background: #e74c3c; color: #fff; border: none; border-radius: 6px; padding: 4px 12px; font-size: .85rem; }
+    .remove-member-btn:hover { background: #c0392b; }
+    .nid-dropzone { border: 2px dashed #1a2c5b; background: #f8f9fc; border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; transition: .2s; }
+    .nid-dropzone.dragover { background: #e8edff; border-color: #d4a637; }
+    .nid-dropzone img.preview { max-height: 110px; margin-top: 10px; border-radius: 10px; border: 1px solid #ccc; }
+</style>
+
+<div class="container py-5">
+    <div class="nid-header text-center py-4 mb-4 rounded-3 shadow-sm">
+        <h3 class="mb-2">ویرایش خانواده - NID</h3>
+        <small class="text-light-50">کد خانواده: @Model.FamilyId</small>
+    </div>
+
+    <form asp-action="EditFamily" method="post" enctype="multipart/form-data" id="familyForm">
+        <input type="hidden" asp-for="FamilyId" />
+        <input type="hidden" asp-for="MainPersonId" />
+
+        <!-- Family Info -->
+        <div class="nid-card">
+            <label class="section-title">اطلاعات خانواده</label>
+            <div class="mb-3">
+                <label class="form-label fw-bold">نام خانواده <span class="text-danger">*</span></label>
+                <input asp-for="FamilyName" class="form-control form-control-lg" />
+                <span asp-validation-for="FamilyName" class="text-danger small"></span>
+            </div>
+        </div>
+
+        <!-- Main Person -->
+        <div class="nid-card">
+            <div class="nid-card-header">فرد اصلی</div>
+            <div class="p-3">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">نام <span class="text-danger">*</span></label>
+                        <input asp-for="MainFirstName" class="form-control" />
+                        <span asp-validation-for="MainFirstName" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">نام خانوادگی <span class="text-danger">*</span></label>
+                        <input asp-for="MainLastName" class="form-control" />
+                        <span asp-validation-for="MainLastName" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">شماره تذکره <span class="text-danger">*</span></label>
+                        <input asp-for="MainNationalId" class="form-control" />
+                        <span asp-validation-for="MainNationalId" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">تاریخ تولد <span class="text-danger">*</span></label>
+                        <input asp-for="MainBirthDate" type="date" class="form-control" />
+                        <span asp-validation-for="MainBirthDate" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">جنسیت <span class="text-danger">*</span></label>
+                        <select asp-for="MainGender" class="form-select">
+                            <option value="Male" selected="@(Model.MainGender == "Male" ? "selected" : null)">مرد</option>
+                            <option value="Female" selected="@(Model.MainGender == "Female" ? "selected" : null)">زن</option>
+                        </select>
+                    </div>
+
+                    <!-- Main Photo -->
+                    <div class="col-12">
+                        <label class="form-label">عکس تذکره</label>
+                        <div class="nid-dropzone" onclick="selectFile(this)">
+                            @if (!string.IsNullOrEmpty(Model.MainPhotoPath))
+                            {
+                                <p class="mb-1">عکس فعلی موجود است. برای تغییر کلیک کنید</p>
+                                <small class="text-muted">اختیاری - فرمت مجاز: JPG, PNG</small>
+                                <img class="preview" src="@Model.MainPhotoPath" />
+                                <input type="hidden" asp-for="MainPhotoPath" />
+                            }
+                            else
+                            {
+                                <p class="mb-1">برای آپلود، کلیک کنید یا فایل را بکشید و رها کنید</p>
+                                <small class="text-muted">اختیاری - فرمت مجاز: JPG, PNG</small>
+                                <img class="preview d-none" />
+                            }
+                            <input asp-for="MainPhotoFile" type="file" accept="image/*" class="d-none" onchange="previewDropzone(this)" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Family Members -->
+        <div class="nid-card">
+            <div class="nid-card-header">اعضای خانواده</div>
+            <div class="p-3" id="membersContainer">
+                @for (int i = 0; i < Model.Members.Count; i++)
+                {
+                    <div class="nid-card mt-3 member-card">
+                        <input type="hidden" asp-for="Members[i].Id" />
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <label class="section-title mb-0">عضو @(i+1)</label>
+                            <button type="button" onclick="removeMember(this)" class="remove-member-btn">حذف</button>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">نام <span class="text-danger">*</span></label>
+                                <input asp-for="Members[i].FirstName" class="form-control" />
+                                <span asp-validation-for="Members[i].FirstName" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">نام خانوادگی <span class="text-danger">*</span></label>
+                                <input asp-for="Members[i].LastName" class="form-control" />
+                                <span asp-validation-for="Members[i].LastName" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">شماره تذکره <span class="text-danger">*</span></label>
+                                <input asp-for="Members[i].NationalId" class="form-control" />
+                                <span asp-validation-for="Members[i].NationalId" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">تاریخ تولد <span class="text-danger">*</span></label>
+                                <input asp-for="Members[i].BirthDate" type="date" class="form-control" />
+                                <span asp-validation-for="Members[i].BirthDate" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">جنسیت <span class="text-danger">*</span></label>
+                                <select asp-for="Members[i].Gender" class="form-select">
+                                    <option value="Male" selected="@(Model.Members[i].Gender=="Male"?"selected":null)">مرد</option>
+                                    <option value="Female" selected="@(Model.Members[i].Gender=="Female"?"selected":null)">زن</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">نسبت</label>
+                                <select asp-for="Members[i].Relationship" class="form-select">
+                                    <option value="Husband" selected="@(Model.Members[i].Relationship==FamilyRelationship.Husband?"selected":null)">شوهر</option>
+                                    <option value="Wife" selected="@(Model.Members[i].Relationship==FamilyRelationship.Wife?"selected":null)">همسر</option>
+                                    <option value="Son" selected="@(Model.Members[i].Relationship==FamilyRelationship.Son?"selected":null)">پسر</option>
+                                    <option value="Daughter" selected="@(Model.Members[i].Relationship==FamilyRelationship.Daughter?"selected":null)">دختر</option>
+                                    <option value="Other" selected="@(Model.Members[i].Relationship==FamilyRelationship.Other?"selected":null)">سایر</option>
+                                </select>
+                            </div>
+
+                            <!-- Member Photo -->
+                            <div class="col-md-6">
+                                <label class="form-label">عکس تذکره</label>
+                                <div class="nid-dropzone" onclick="selectFile(this)">
+                                    @if (!string.IsNullOrEmpty(Model.Members[i].PhotoPath))
+                                    {
+                                        <p class="mb-1">عکس فعلی موجود است. برای تغییر کلیک کنید</p>
+                                        <small class="text-muted">اختیاری</small>
+                                        <img class="preview" src="@Model.Members[i].PhotoPath" />
+                                        <input type="hidden" asp-for="Members[i].PhotoPath" />
+                                    }
+                                    else
+                                    {
+                                        <p class="mb-1">برای آپلود، کلیک کنید یا فایل را بکشید و رها کنید</p>
+                                        <small class="text-muted">اختیاری</small>
+                                        <img class="preview d-none" />
+                                    }
+                                    <input asp-for="Members[i].PhotoFile" type="file" accept="image/*" class="d-none" onchange="previewDropzone(this)" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+            <div class="text-end mt-3">
+                <button type="button" onclick="addMember()" class="add-member-btn">+ اضافه کردن عضو جدید</button>
+            </div>
+        </div>
+
+        <div class="text-center mt-4">
+            <button type="submit" class="submit-btn">ذخیره تغییرات</button>
+            <a href="@Url.Action("ListFamilies")" class="btn btn-outline-secondary me-2">انصراف</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+<script>
+    let memberIndex = @Model.Members.Count;
+
+    function addMember() {
+        const container = document.getElementById("membersContainer");
+        const html = `
+        <div class="nid-card mt-3 member-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <label class="section-title mb-0">عضو ${memberIndex + 1}</label>
+                <button type="button" onclick="removeMember(this)" class="remove-member-btn">حذف</button>
+            </div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">نام <span class="text-danger">*</span></label>
+                    <input class="form-control" name="Members[${memberIndex}].FirstName" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">نام خانوادگی <span class="text-danger">*</span></label>
+                    <input class="form-control" name="Members[${memberIndex}].LastName" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">شماره تذکره</label>
+                    <input class="form-control" name="Members[${memberIndex}].NationalId" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">تاریخ تولد</label>
+                    <input type="date" class="form-control" name="Members[${memberIndex}].BirthDate" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">جنسیت</label>
+                    <select class="form-select" name="Members[${memberIndex}].Gender">
+                        <option value="Male">مرد</option>
+                        <option value="Female">زن</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">نسبت</label>
+                    <select class="form-select" name="Members[${memberIndex}].Relationship">
+                        <option value="Husband">شوهر</option>
+                        <option value="Wife">همسر</option>
+                        <option value="Son">پسر</option>
+                        <option value="Daughter">دختر</option>
+                        <option value="Other">سایر</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">عکس تذکره</label>
+                    <div class="nid-dropzone" onclick="selectFile(this)">
+                        <p class="mb-1">برای آپلود، کلیک کنید یا فایل را بکشید و رها کنید</p>
+                        <small class="text-muted">اختیاری</small>
+                        <img class="preview d-none" />
+                        <input type="file" accept="image/*" class="d-none" name="Members[${memberIndex}].PhotoFile" onchange="previewDropzone(this)" />
+                    </div>
+                </div>
+            </div>
+        </div>`;
+        container.insertAdjacentHTML("beforeend", html);
+        memberIndex++;
+    }
+
+    function removeMember(btn) { btn.closest(".member-card").remove(); }
+
+    function selectFile(box) { box.querySelector("input[type=file]").click(); }
+
+    function previewDropzone(input) {
+        const box = input.closest(".nid-dropzone");
+        const img = box.querySelector(".preview");
+        if(input.files && input.files[0]){
+            const reader = new FileReader();
+            reader.onload = e => { img.src = e.target.result; img.classList.remove("d-none"); }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    document.addEventListener("dragover", e => { e.preventDefault(); const box = e.target.closest(".nid-dropzone"); if(box) box.classList.add("dragover"); });
+    document.addEventListener("dragleave", e => { const box = e.target.closest(".nid-dropzone"); if(box) box.classList.remove("dragover"); });
+    document.addEventListener("drop", e => {
+        e.preventDefault();
+        const box = e.target.closest(".nid-dropzone");
+        if(!box) return;
+        box.classList.remove("dragover");
+        const input = box.querySelector("input[type=file]");
+        input.files = e.dataTransfer.files;
+        previewDropzone(input);
+    });
+</script>
+}

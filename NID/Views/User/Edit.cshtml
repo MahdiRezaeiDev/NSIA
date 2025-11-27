@@ -42,8 +42,12 @@
         <div class="mb-3">
             <label asp-for="Role" class="form-label">نقش کاربر</label>
             <select asp-for="Role" class="form-select">
-                <option value="User" selected="@Model.Role == " User"">کاربر</option>
-                <option value="Admin" selected="@Model.Role == " Admin"">مدیر</option>
+                <option value="User" selected="@Model.Role == User" >
+                     کاربر
+                </option>
+                <option value="Admin" selected="@Model.Role == Admin">
+                    مدیر
+                </option>
             </select>
             <span asp-validation-for="Role" class="text-danger"></span>
         </div>

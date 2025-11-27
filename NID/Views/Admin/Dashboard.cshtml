@@ -1,38 +1,301 @@
 ﻿@{
-    ViewData["Title"] = "داشبورد";
+    ViewData["Title"] = "داشبورد مدیریت";
 }
 
-<!-- محتوای اصلی -->
-<div class="content">
-    <h2>داشبورد</h2>
-    <p>خوش آمدید به پنل مدیریت تذکره آنلاین. از منوی سمت راست برای دسترسی به بخش‌های مختلف استفاده کنید.</p>
-    <div class="row g-4 mt-4">
-        <div class="col-md-4">
-            <div class="card p-3 shadow-sm">
-                <div class="card-body text-center">
-                    <i class="bi bi-people fs-1 text-primary mb-2"></i>
-                    <h5 class="card-title">تعداد کاربران</h5>
-                    <p class="card-text fs-4 fw-bold">1200</p>
+<div class="dashboard-container">
+    <!-- Header Section -->
+    <div class="dashboard-header">
+        <div class="header-content">
+            <h1 class="dashboard-title">داشبورد مدیریت</h1>
+            <p class="dashboard-subtitle">خوش آمدید به پنل مدیریت سیستم تذکره الکترونیکی</p>
+            <div class="welcome-message">
+                <i class="fas fa-calendar-alt me-2"></i>
+                امروز: @DateTime.Now.ToString("dddd, dd MMMM yyyy", new System.Globalization.CultureInfo("fa-IR"))
+            </div>
+        </div>
+        <div class="header-actions">
+            <button class="btn-refresh">
+                <i class="fas fa-sync-alt"></i>
+                بروزرسانی
+            </button>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+        <div class="stat-card stat-primary">
+            <div class="stat-icon">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-number">۱,۲۴۷</div>
+                <div class="stat-label">کل کاربران</div>
+                <div class="stat-trend trend-up">
+                    <i class="fas fa-arrow-up"></i>
+                    ۱۲٪ افزایش از ماه گذشته
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card p-3 shadow-sm">
-                <div class="card-body text-center">
-                    <i class="bi bi-file-earmark-text fs-1 text-success mb-2"></i>
-                    <h5 class="card-title">مجموع گزارش‌ها</h5>
-                    <p class="card-text fs-4 fw-bold">85</p>
+
+        <div class="stat-card stat-success">
+            <div class="stat-icon">
+                <i class="fas fa-home"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-number">۸۹۳</div>
+                <div class="stat-label">خانواده‌های ثبت‌شده</div>
+                <div class="stat-trend trend-up">
+                    <i class="fas fa-arrow-up"></i>
+                    ۸٪ افزایش از ماه گذشته
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card p-3 shadow-sm">
-                <div class="card-body text-center">
-                    <i class="bi bi-gear fs-1 text-warning mb-2"></i>
-                    <h5 class="card-title">تنظیمات فعال</h5>
-                    <p class="card-text fs-4 fw-bold">10</p>
+
+        <div class="stat-card stat-warning">
+            <div class="stat-icon">
+                <i class="fas fa-file-contract"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-number">۲,۱۵۶</div>
+                <div class="stat-label">تذکره‌های صادر شده</div>
+                <div class="stat-trend trend-up">
+                    <i class="fas fa-arrow-up"></i>
+                    ۱۵٪ افزایش از ماه گذشته
+                </div>
+            </div>
+        </div>
+
+        <div class="stat-card stat-info">
+            <div class="stat-icon">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-number">۹۸.۷٪</div>
+                <div class="stat-label">میزان رضایت</div>
+                <div class="stat-trend trend-up">
+                    <i class="fas fa-arrow-up"></i>
+                    ۲.۳٪ افزایش از ماه گذشته
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions-section">
+        <h3 class="section-title">
+            <i class="fas fa-bolt"></i>
+            اقدامات سریع
+        </h3>
+        <div class="actions-grid">
+            <a href="/Registration/Create" class="action-card">
+                <div class="action-icon">
+                    <i class="fas fa-user-plus"></i>
+                </div>
+                <div class="action-content">
+                    <h4>ثبت خانواده جدید</h4>
+                    <p>ثبت اطلاعات خانواده جدید در سیستم</p>
+                </div>
+                <div class="action-arrow">
+                    <i class="fas fa-arrow-left"></i>
+                </div>
+            </a>
+
+            <a href="/Registration/ListFamilies" class="action-card">
+                <div class="action-icon">
+                    <i class="fas fa-list"></i>
+                </div>
+                <div class="action-content">
+                    <h4>مدیریت خانواده‌ها</h4>
+                    <p>مشاهده و مدیریت تمام خانواده‌های ثبت‌شده</p>
+                </div>
+                <div class="action-arrow">
+                    <i class="fas fa-arrow-left"></i>
+                </div>
+            </a>
+
+            <a href="/Home/MyFamilies" class="action-card">
+                <div class="action-icon">
+                    <i class="fas fa-search"></i>
+                </div>
+                <div class="action-content">
+                    <h4>جستجوی خانواده</h4>
+                    <p>جستجو و مشاهده اطلاعات خانواده‌ها</p>
+                </div>
+                <div class="action-arrow">
+                    <i class="fas fa-arrow-left"></i>
+                </div>
+            </a>
+
+            <a href="#" class="action-card">
+                <div class="action-icon">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <div class="action-content">
+                    <h4>گزارش‌گیری</h4>
+                    <p>تهیه گزارش‌های آماری و تحلیلی</p>
+                </div>
+                <div class="action-arrow">
+                    <i class="fas fa-arrow-left"></i>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Recent Activity & Stats -->
+    <div class="dashboard-content">
+        <div class="content-grid">
+            <!-- Recent Activity -->
+            <div class="content-card">
+                <div class="card-header">
+                    <h4>
+                        <i class="fas fa-clock"></i>
+                        فعالیت‌های اخیر
+                    </h4>
+                    <a href="#" class="view-all">مشاهده همه</a>
+                </div>
+                <div class="activity-list">
+                    <div class="activity-item">
+                        <div class="activity-icon success">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="activity-content">
+                            <p>خانواده "احمدی" با موفقیت ثبت شد</p>
+                            <span class="activity-time">۲ دقیقه پیش</span>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon primary">
+                            <i class="fas fa-edit"></i>
+                        </div>
+                        <div class="activity-content">
+                            <p>اطلاعات خانواده "رحیمی" به‌روزرسانی شد</p>
+                            <span class="activity-time">۱۵ دقیقه پیش</span>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon info">
+                            <i class="fas fa-file-pdf"></i>
+                        </div>
+                        <div class="activity-content">
+                            <p>گزارخ PDF برای خانواده "کریمی" تولید شد</p>
+                            <span class="activity-time">۱ ساعت پیش</span>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon warning">
+                            <i class="fas fa-user-plus"></i>
+                        </div>
+                        <div class="activity-content">
+                            <p>عضو جدید به خانواده "محمدی" اضافه شد</p>
+                            <span class="activity-time">۲ ساعت پیش</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Status -->
+            <div class="content-card">
+                <div class="card-header">
+                    <h4>
+                        <i class="fas fa-server"></i>
+                        وضعیت سیستم
+                    </h4>
+                </div>
+                <div class="status-list">
+                    <div class="status-item">
+                        <div class="status-indicator online"></div>
+                        <span>سرور اصلی</span>
+                        <span class="status-badge success">فعال</span>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-indicator online"></div>
+                        <span>پایگاه داده</span>
+                        <span class="status-badge success">فعال</span>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-indicator online"></div>
+                        <span>سیستم امنیتی</span>
+                        <span class="status-badge success">فعال</span>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-indicator online"></div>
+                        <span>پشتیبان‌گیری</span>
+                        <span class="status-badge success">فعال</span>
+                    </div>
+                </div>
+                <div class="system-info">
+                    <div class="info-item">
+                        <span>آخرین بروزرسانی:</span>
+                        <span>امروز ۱۴:۳۰</span>
+                    </div>
+                    <div class="info-item">
+                        <span>نسخه سیستم:</span>
+                        <span>v2.1.4</span>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        // Refresh dashboard data
+        document.querySelector('.btn-refresh').addEventListener('click', function() {
+            const btn = this;
+            const originalHtml = btn.innerHTML;
+            
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> در حال بروزرسانی...';
+            btn.disabled = true;
+            
+            // Simulate API call
+            setTimeout(() => {
+                btn.innerHTML = originalHtml;
+                btn.disabled = false;
+                
+                // Show success message
+                showToast('داده‌ها با موفقیت بروزرسانی شدند', 'success');
+            }, 2000);
+        });
+
+        function showToast(message, type) {
+            // Simple toast implementation
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = `
+                <div class="toast-content">
+                    <i class="fas fa-${type === 'success' ? 'check' : 'exclamation'}-circle"></i>
+                    ${message}
+                </div>
+            `;
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        // Add animation to stats cards
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.stat-card, .action-card, .content-card').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(30px)';
+            el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(el);
+        });
+    </script>
+}

@@ -1,111 +1,292 @@
 ﻿@{
-    ViewData["Title"] = "صفحه اصلی";
+    ViewData["Title"] = "صفحه اصلی - تذکره آنلاین";
 }
-<!-- سکشن اصلی -->
+
+<!-- Hero Section -->
 <section class="hero">
-    <div class="container">
-        <h1 class="display-4 fw-bold mb-4">به تذکره آنلاین خوش آمدید</h1>
-        <p class="lead mb-4">سیستمی امن و سریع برای مدیریت اطلاعات هویتی شهروندان افغانستان</p>
-        <a href="#contact" class="btn btn-primary btn-lg me-2">ثبت‌نام کنید</a>
-        <a href="#features" class="btn btn-outline-light btn-lg">مشاهده ویژگی‌ها</a>
+    <div class="floating-elements">
+        <div class="floating-element element-1"></div>
+        <div class="floating-element element-2"></div>
     </div>
-</section>
-
-<!-- ویژگی‌ها -->
-<section id="features" class="py-5">
     <div class="container">
-        <h2 class="text-center mb-5">ویژگی‌های سیستم</h2>
-        <div class="row g-4">
-            <div class="col-md-4">
-                <div class="card h-100 text-center p-4 card-hover">
-                    <i class="bi bi-shield-lock feature-icon mb-3"></i>
-                    <div class="card-body">
-                        <h5 class="card-title">امنیت بالا</h5>
-                        <p class="card-text">اطلاعات شخصی شما با بالاترین استانداردهای امنیتی حفاظت می‌شود.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card h-100 text-center p-4 card-hover">
-                    <i class="bi bi-clock-history feature-icon mb-3"></i>
-                    <div class="card-body">
-                        <h5 class="card-title">دسترسی سریع</h5>
-                        <p class="card-text">دسترسی آسان به خدمات و اطلاعات هویتی در هر زمان و مکان.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card h-100 text-center p-4 card-hover">
-                    <i class="bi bi-people feature-icon mb-3"></i>
-                    <div class="card-body">
-                        <h5 class="card-title">شفافیت و قابلیت پیگیری</h5>
-                        <p class="card-text">فرآیندها به‌صورت شفاف و قابل پیگیری برای کاربران و اداره ملی احصاییه است.</p>
-                    </div>
-                </div>
+        <div class="hero-content fade-in-up">
+            <h1 class="hero-title">سیستم تذکره الکترونیکی NID</h1>
+            <p class="hero-subtitle">
+                پلتفرم امن و پیشرفته اداره ملی احصاییه برای مدیریت هوشمند اطلاعات هویتی شهروندان افغانستان
+            </p>
+            <div class="hero-buttons">
+                <a href="/Registration/FamilyForm" class="btn-primary-custom">
+                    <i class="fas fa-user-plus me-2"></i>
+                    ثبت‌نام خانوادگی
+                </a>
+                <a href="#features" class="btn-outline-custom">
+                    <i class="fas fa-info-circle me-2"></i>
+                    اطلاعات بیشتر
+                </a>
             </div>
         </div>
     </div>
 </section>
 
-<!-- درباره ما -->
-<section id="about" class="py-5 bg-light">
+<!-- Features Section -->
+<section id="features" class="features">
     <div class="container">
-        <h2 class="text-center mb-4">درباره تذکره آنلاین</h2>
-        <p class="text-center mx-auto" style="max-width: 700px;">
-            سیستم تذکره آنلاین اداره ملی احصاییه و معلومات، بستری امن و سریع برای مدیریت و ارائه اطلاعات هویتی شهروندان افغانستان فراهم می‌کند. هدف ما سهولت دسترسی به اطلاعات، کاهش کاغذبازی، و ارتقای شفافیت در خدمات دولتی است.
+        <h2 class="section-title">ویژگی‌های منحصر به فرد</h2>
+        <p class="section-subtitle">
+            سیستم تذکره الکترونیکی با بهره‌گیری از آخرین تکنولوژی‌های امنیتی و کاربرپسند طراحی شده است
         </p>
-        <div class="text-center mt-4">
-            <img src="https://picsum.photos/800/400" class="img-fluid rounded shadow" alt="درباره ما">
+        
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card fade-in-up">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3 class="feature-title">امنیت پیشرفته</h3>
+                    <p class="feature-description">
+                        اطلاعات شما با استفاده از الگوریتم‌های رمزنگاری پیشرفته محافظت می‌شود. 
+                        سیستم ما مطابق با استانداردهای بین‌المللی امنیت اطلاعات طراحی شده است.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card fade-in-up">
+                    <div class="feature-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <h3 class="feature-title">دسترسی سریع</h3>
+                    <p class="feature-description">
+                        امکان دسترسی ۲۴ ساعته به اطلاعات از هر نقطه‌ای از جهان. 
+                        رابط کاربری ساده و روان برای تجربه‌ای بی‌نظیر در استفاده از خدمات.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card fade-in-up">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3 class="feature-title">شفافیت کامل</h3>
+                    <p class="feature-description">
+                        کلیه فرآیندها به صورت شفاف و قابل پیگیری برای کاربران و مسئولین. 
+                        گزارش‌گیری دقیق و تحلیل‌های آماری پیشرفته.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card fade-in-up">
+                    <div class="feature-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3 class="feature-title">پشتیبانی چندسکویی</h3>
+                    <p class="feature-description">
+                        دسترسی از طریق تمامی دستگاه‌ها شامل کامپیوتر، تبلت و موبایل. 
+                        طراحی واکنش‌گرا برای تجربه کاربری یکسان در تمام پلتفرم‌ها.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card fade-in-up">
+                    <div class="feature-icon">
+                        <i class="fas fa-database"></i>
+                    </div>
+                    <h3 class="feature-title">پشتیبان‌گیری خودکار</h3>
+                    <p class="feature-description">
+                        سیستم پشتیبان‌گیری خودکار و امن از کلیه اطلاعات. 
+                        بازیابی سریع اطلاعات در صورت بروز هرگونه مشکل.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card fade-in-up">
+                    <div class="feature-icon">
+                        <i class="fas fa-headset"></i>
+                    </div>
+                    <h3 class="feature-title">پشتیبانی ۲۴/۷</h3>
+                    <p class="feature-description">
+                        تیم پشتیبانی حرفه‌ای آماده پاسخگویی به سوالات و حل مشکلات شما. 
+                        راهنمایی کامل در تمام مراحل استفاده از سیستم.
+                    </p>
+                </div>
+            </div>
         </div>
     </div>
 </section>
 
-<!-- تماس با ما -->
-<section id="contact" class="py-5">
+<!-- About Section -->
+<section id="about" class="about">
     <div class="container">
-        <h2 class="text-center mb-4">تماس با ما</h2>
-        <div class="row justify-content-center">
-            <div class="col-md-6">
-                <form>
-                    <div class="mb-3">
-                        <label class="form-label">نام</label>
-                        <input type="text" class="form-control" placeholder="نام خود را وارد کنید" />
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">ایمیل</label>
-                        <input type="email" class="form-control" placeholder="ایمیل خود را وارد کنید" />
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">پیام</label>
-                        <textarea rows="4" class="form-control" placeholder="پیام خود را بنویسید"></textarea>
-                    </div>
-                    <button class="btn btn-primary w-100">ارسال</button>
-                </form>
+        <div class="about-content">
+            <div class="about-text fade-in-up">
+                <h2 class="about-title">درباره سیستم تذکره الکترونیکی</h2>
+                <p class="about-description">
+                    سیستم تذکره الکترونیکی اداره ملی احصاییه و معلومات افغانستان، 
+                    گامی بلند در راستای دیجیتالی‌سازی خدمات دولتی و تسهیل دسترسی شهروندان 
+                    به اطلاعات هویتی است. این سیستم با بهره‌گیری از تکنولوژی‌های روز دنیا 
+                    طراحی شده تا امنیت، سرعت و دقت را برای کاربران به ارمغان آورد.
+                </p>
+                <ul class="about-features">
+                    <li>مدیریت هوشمند اطلاعات خانوادگی</li>
+                    <li>صدور تذکره الکترونیکی معتبر</li>
+                    <li>دسترسی امن به اطلاعات شخصی</li>
+                    <li>گزارش‌گیری و تحلیل‌های پیشرفته</li>
+                    <li>پشتیبانی از زبان‌های فارسی و پشتو</li>
+                </ul>
+            </div>
+            <div class="about-image fade-in-up">
+                <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="سیستم تذکره الکترونیکی">
             </div>
         </div>
     </div>
 </section>
-<section id="contact" class="py-5">
+
+<!-- Stats Section -->
+<section class="stats">
     <div class="container">
-        <h2 class="text-center mb-4">تماس با ما</h2>
-        <div class="row justify-content-center">
-            <div class="col-md-6">
-                <form>
-                    <div class="mb-3">
-                        <label class="form-label">نام</label>
-                        <input type="text" class="form-control" />
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">ایمیل</label>
-                        <input type="email" class="form-control" />
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">پیام</label>
-                        <textarea rows="4" class="form-control"></textarea>
-                    </div>
-                    <button class="btn btn-primary w-100">ارسال</button>
-                </form>
+        <div class="row text-center">
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-item fade-in-up">
+                    <div class="stat-number">۵۰,۰۰۰+</div>
+                    <div class="stat-label">خانواده ثبت‌نام شده</div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-item fade-in-up">
+                    <div class="stat-number">۹۹.۹%</div>
+                    <div class="stat-label">رضایت کاربران</div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-item fade-in-up">
+                    <div class="stat-number">۲۴/۷</div>
+                    <div class="stat-label">پشتیبانی آنلاین</div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-item fade-in-up">
+                    <div class="stat-number">۰</div>
+                    <div class="stat-label">مورد نقض امنیتی</div>
+                </div>
             </div>
         </div>
     </div>
 </section>
+
+<!-- Contact Section -->
+<section id="contact" class="contact">
+    <div class="container">
+        <div class="contact-card fade-in-up">
+            <h2 class="contact-title">تماس با ما</h2>
+            <div class="row">
+                <div class="col-lg-8">
+                    <form>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">نام کامل</label>
+                                    <input type="text" class="form-control-custom" placeholder="نام و نام خانوادگی">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">آدرس ایمیل</label>
+                                    <input type="email" class="form-control-custom" placeholder="example@email.com">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">موضوع</label>
+                            <input type="text" class="form-control-custom" placeholder="موضوع پیام">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">پیام</label>
+                            <textarea class="form-control-custom" rows="5" placeholder="متن پیام خود را بنویسید..."></textarea>
+                        </div>
+                        <button type="submit" class="btn-primary-custom w-100">
+                            <i class="fas fa-paper-plane me-2"></i>
+                            ارسال پیام
+                        </button>
+                    </form>
+                </div>
+                <div class="col-lg-4 mt-4 mt-lg-0">
+                    <div class="contact-info">
+                        <h3 class="contact-info-title">اطلاعات تماس</h3>
+                        
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            <div class="contact-text">
+                                <strong>آدرس</strong>
+                                <span>کابل، افغانستان</span>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <i class="fas fa-phone"></i>
+                            </div>
+                            <div class="contact-text">
+                                <strong>تلفن</strong>
+                                <span>+۹۳ ۷۸۰ ۱۲۳ ۴۵۶</span>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div class="contact-text">
+                                <strong>ایمیل</strong>
+                                <span>info@nid.gov.af</span>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="contact-text">
+                                <strong>ساعات کاری</strong>
+                                <span>شنبه تا چهارشنبه: ۸:۰۰ - ۱۶:۰۰</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script src="https://kit.fontawesome.com/your-fontawesome-kit.js"></script>
+    <script>
+        // Simple animation on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observe all fade-in-up elements
+        document.querySelectorAll('.fade-in-up').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(30px)';
+            el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(el);
+        });
+    </script>
+}

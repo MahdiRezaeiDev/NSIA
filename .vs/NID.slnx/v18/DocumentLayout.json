@@ -3,20 +3,16 @@
   "WorkspaceRootPath": "C:\\Users\\mahdi\\source\\repos\\NID\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{8FB2D28E-9215-044F-908E-8852783B99E3}|NID\\NID.csproj|c:\\users\\mahdi\\source\\repos\\nid\\nid\\areas\\identity\\pages\\account\\login.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{8FB2D28E-9215-044F-908E-8852783B99E3}|NID\\NID.csproj|solutionrelative:nid\\areas\\identity\\pages\\account\\login.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+      "AbsoluteMoniker": "D:0:0:{8FB2D28E-9215-044F-908E-8852783B99E3}|NID\\NID.csproj|c:\\users\\mahdi\\source\\repos\\nid\\nid\\controllers\\registrationcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8FB2D28E-9215-044F-908E-8852783B99E3}|NID\\NID.csproj|solutionrelative:nid\\controllers\\registrationcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{8FB2D28E-9215-044F-908E-8852783B99E3}|NID\\NID.csproj|c:\\users\\mahdi\\source\\repos\\nid\\nid\\views\\shared\\_identitylayout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{8FB2D28E-9215-044F-908E-8852783B99E3}|NID\\NID.csproj|solutionrelative:nid\\views\\shared\\_identitylayout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+      "AbsoluteMoniker": "D:0:0:{8FB2D28E-9215-044F-908E-8852783B99E3}|NID\\NID.csproj|c:\\users\\mahdi\\source\\repos\\nid\\nid\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8FB2D28E-9215-044F-908E-8852783B99E3}|NID\\NID.csproj|solutionrelative:nid\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{8FB2D28E-9215-044F-908E-8852783B99E3}|NID\\NID.csproj|c:\\users\\mahdi\\source\\repos\\nid\\nid\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
-      "RelativeMoniker": "D:0:0:{8FB2D28E-9215-044F-908E-8852783B99E3}|NID\\NID.csproj|solutionrelative:nid\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{8FB2D28E-9215-044F-908E-8852783B99E3}|NID\\NID.csproj|c:\\users\\mahdi\\source\\repos\\nid\\nid\\wwwroot\\css\\site.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
-      "RelativeMoniker": "D:0:0:{8FB2D28E-9215-044F-908E-8852783B99E3}|NID\\NID.csproj|solutionrelative:nid\\wwwroot\\css\\site.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
+      "AbsoluteMoniker": "D:0:0:{8FB2D28E-9215-044F-908E-8852783B99E3}|NID\\NID.csproj|c:\\users\\mahdi\\source\\repos\\nid\\nid\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{8FB2D28E-9215-044F-908E-8852783B99E3}|NID\\NID.csproj|solutionrelative:nid\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     }
   ],
   "DocumentGroupContainers": [
@@ -26,58 +22,45 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 0,
           "Children": [
             {
               "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "RegistrationController.cs",
+              "DocumentMoniker": "C:\\Users\\mahdi\\source\\repos\\NID\\NID\\Controllers\\RegistrationController.cs",
+              "RelativeDocumentMoniker": "NID\\Controllers\\RegistrationController.cs",
+              "ToolTip": "C:\\Users\\mahdi\\source\\repos\\NID\\NID\\Controllers\\RegistrationController.cs",
+              "RelativeToolTip": "NID\\Controllers\\RegistrationController.cs",
+              "ViewState": "AgIAAIoAAAAAAAAAAAAowBcAAAArAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-26T16:54:37.217Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 2,
-              "Title": "bootstrap.css",
-              "DocumentMoniker": "C:\\Users\\mahdi\\source\\repos\\NID\\NID\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.css",
-              "RelativeDocumentMoniker": "NID\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.css",
-              "ToolTip": "C:\\Users\\mahdi\\source\\repos\\NID\\NID\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.css",
-              "RelativeToolTip": "NID\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.css",
-              "ViewState": "AgIAAA0eAAAAAAAAAADwvyAeAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
-              "WhenOpened": "2025-11-24T05:45:58.947Z",
+              "Title": "appsettings.json",
+              "DocumentMoniker": "C:\\Users\\mahdi\\source\\repos\\NID\\NID\\appsettings.json",
+              "RelativeDocumentMoniker": "NID\\appsettings.json",
+              "ToolTip": "C:\\Users\\mahdi\\source\\repos\\NID\\NID\\appsettings.json",
+              "RelativeToolTip": "NID\\appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-11-25T09:21:14.438Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "_IdentityLayout.cshtml",
-              "DocumentMoniker": "C:\\Users\\mahdi\\source\\repos\\NID\\NID\\Views\\Shared\\_IdentityLayout.cshtml",
-              "RelativeDocumentMoniker": "NID\\Views\\Shared\\_IdentityLayout.cshtml",
-              "ToolTip": "C:\\Users\\mahdi\\source\\repos\\NID\\NID\\Views\\Shared\\_IdentityLayout.cshtml",
-              "RelativeToolTip": "NID\\Views\\Shared\\_IdentityLayout.cshtml",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAbAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-11-24T05:44:20.07Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "Login.cshtml",
-              "DocumentMoniker": "C:\\Users\\mahdi\\source\\repos\\NID\\NID\\Areas\\Identity\\Pages\\Account\\Login.cshtml",
-              "RelativeDocumentMoniker": "NID\\Areas\\Identity\\Pages\\Account\\Login.cshtml",
-              "ToolTip": "C:\\Users\\mahdi\\source\\repos\\NID\\NID\\Areas\\Identity\\Pages\\Account\\Login.cshtml",
-              "RelativeToolTip": "NID\\Areas\\Identity\\Pages\\Account\\Login.cshtml",
-              "ViewState": "AgIAAA8AAAAAAAAAAAAAACcAAAAvAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-11-24T05:43:38.925Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "site.css",
-              "DocumentMoniker": "C:\\Users\\mahdi\\source\\repos\\NID\\NID\\wwwroot\\css\\site.css",
-              "RelativeDocumentMoniker": "NID\\wwwroot\\css\\site.css",
-              "ToolTip": "C:\\Users\\mahdi\\source\\repos\\NID\\NID\\wwwroot\\css\\site.css",
-              "RelativeToolTip": "NID\\wwwroot\\css\\site.css",
-              "ViewState": "AgIAABsAAAAAAAAAAAAAwDQAAABMAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
-              "WhenOpened": "2025-11-24T05:29:15.208Z",
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\mahdi\\source\\repos\\NID\\NID\\Program.cs",
+              "RelativeDocumentMoniker": "NID\\Program.cs",
+              "ToolTip": "C:\\Users\\mahdi\\source\\repos\\NID\\NID\\Program.cs",
+              "RelativeToolTip": "NID\\Program.cs",
+              "ViewState": "AgIAACAAAAAAAAAAAAAcwCwAAAARAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-25T06:11:38.014Z",
               "EditorCaption": ""
             }
           ]

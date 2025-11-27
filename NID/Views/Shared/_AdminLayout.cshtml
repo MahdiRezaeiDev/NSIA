@@ -1,124 +1,190 @@
 ﻿<!DOCTYPE html>
-<html lang="en" dir="rtl">
+<html lang="fa" dir="rtl">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - اداره ملی احصائیه</title>
-    <script type="importmap"></script>
+
+    <!-- CSS Files -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/NID.styles.css" asp-append-version="true" />
-    <style>
 
-        .sidebar {
-            height: 100vh;
-            position: fixed;
-            top: 0;
-            right: 0;
-            width: 250px;
-            background-color: #0d6efd;
-            color: #fff;
-        }
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
-            .sidebar a {
-                display: block;
-                color: #fff;
-                padding: 15px;
-                text-decoration: none;
-            }
-
-                .sidebar a:hover {
-                    background-color: #0b5ed7;
-                    text-decoration: none;
-                }
-
-        .content {
-            margin-right: 250px;
-            padding: 20px;
-        }
-
-        .navbar-custom {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 250px;
-            z-index: 1000;
-            background-color: #fff;
-            border-bottom: 1px solid #dee2e6;
-        }
-    </style>
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
 </head>
-<body>
-    <!-- نوبار -->
-    <nav class="navbar navbar-expand-lg navbar-light navbar-custom shadow-sm">
-        <div class="container-fluid">
-            <span class="navbar-text me-auto">
-                خوش آمدید، <strong>نام کاربر</strong>
-            </span>
-            <ul class="navbar-nav">
-                <li class="nav-item">
-                    <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Page("/", new { area = "" })" method="post">
-                        <button type="submit" class="nav-link btn btn-link text-dark">خروج</button>
-                    </form>
-                </li>
-            </ul>
+<body class="admin-layout">
+<!-- Navbar -->
+<nav class="navbar navbar-custom">
+    <div class="container-fluid">
+        <!-- Sidebar Toggle for Mobile -->
+        <button class="sidebar-toggle" id="sidebarToggle">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <!-- Brand -->
+        <div class="navbar-brand-custom">
+            <i class="fas fa-id-card navbar-brand-icon"></i>
+            سیستم تذکره الکترونیکی
         </div>
+
+        <!-- User Info and Actions -->
+        <div class="user-info">
+            <div class="user-avatar">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="user-details">
+                <span class="user-name">نام کاربر</span>
+                <span class="user-role">مدیر سیستم</span>
+            </div>
+            <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Page("/", new { area = "" })" method="post">
+                <button type="submit" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    خروج
+                </button>
+            </form>
+        </div>
+    </div>
+</nav>
+
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <h3 class="sidebar-title">پنل مدیریت</h3>
+        <div class="sidebar-subtitle">اداره ملی احصائیه</div>
+    </div>
+
+    <nav class="sidebar-nav">
+        <a asp-controller="Admin" asp-action="Index" class="sidebar-item">
+            <i class="fas fa-tachometer-alt sidebar-icon"></i>
+            <span class="sidebar-text">داشبورد</span>
+        </a>
+
+        <a asp-controller="User" asp-action="Index" class="sidebar-item">
+            <i class="fas fa-users sidebar-icon"></i>
+            <span class="sidebar-text">مدیریت کاربران</span>
+            <span class="sidebar-badge">۱۲</span>
+        </a>
+
+        <a asp-controller="Registration" asp-action="Create" class="sidebar-item">
+            <i class="fas fa-user-plus sidebar-icon"></i>
+            <span class="sidebar-text">ثبت خانواده جدید</span>
+        </a>
+
+        <a asp-controller="Registration" asp-action="ListFamilies" class="sidebar-item">
+            <i class="fas fa-list-alt sidebar-icon"></i>
+            <span class="sidebar-text">لیست خانواده‌ها</span>
+            <span class="sidebar-badge">۸۹۳</span>
+        </a>
+
+        <a asp-controller="Home" asp-action="MyFamilies" class="sidebar-item">
+            <i class="fas fa-search sidebar-icon"></i>
+            <span class="sidebar-text">جستجوی خانواده</span>
+        </a>
+
+        <a href="#" class="sidebar-item">
+            <i class="fas fa-chart-bar sidebar-icon"></i>
+            <span class="sidebar-text">گزارش‌ها و آمار</span>
+        </a>
+
+        <a href="#" class="sidebar-item">
+            <i class="fas fa-cogs sidebar-icon"></i>
+            <span class="sidebar-text">تنظیمات سیستم</span>
+        </a>
     </nav>
+</div>
 
+<!-- Main Content -->
+<div class="main-content" id="mainContent">
+    <!-- Page Content -->
+    <main role="main" class="fade-in">
+        @RenderBody()
+    </main>
+</div>
 
-    <!-- سایدبار -->
-    <div class="sidebar">
-        <h4 class="text-center my-4">پنل مدیریت</h4>
-        <a href="#"><i class="bi bi-speedometer2"></i> داشبورد</a>
-        <a href="#"><i class="bi bi-people"></i> کاربران</a>
-        <a href="#"><i class="bi bi-file-earmark-text"></i> گزارش‌ها</a>
-        <a href="#"><i class="bi bi-gear"></i> تنظیمات</a>
-    </div>
-    <div class="content">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
-    <div aria-live="polite" aria-atomic="true" class="position-relative">
-        <div class="toast-container position-fixed bottom-0 start-0 p-3">
-            <!-- start-0 = left -->
-            @if (TempData["SuccessMessage"] != null)
-            {
-                <div class="toast align-items-center text-bg-success border-0 show" role="alert" aria-live="assertive" aria-atomic="true">
-                    <div class="d-flex flex-row-reverse">
-                        <!-- flip content for RTL -->
-                        <div class="toast-body text-end">
-                            <!-- align text to right -->
-                            @TempData["SuccessMessage"]
-                        </div>
-                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-                    </div>
-                </div>
-            }
-            @if (TempData["ErrorMessage"] != null)
-            {
-                <div class="toast align-items-center text-bg-danger border-0 show" role="alert" aria-live="assertive" aria-atomic="true">
-                    <div class="d-flex flex-row-reverse">
-                        <div class="toast-body text-end">
-                            @TempData["ErrorMessage"]
-                        </div>
-                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-                    </div>
-                </div>
-            }
+<!-- Toast Notifications -->
+<div class="toast-container-custom">
+    @if (TempData["SuccessMessage"] != null)
+    {
+    <div class="toast toast-custom toast-success show" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header-custom">
+            <div class="toast-icon">
+                <i class="fas fa-check"></i>
+            </div>
+            <strong class="toast-title">موفقیت</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body-custom">
+            @TempData["SuccessMessage"]
         </div>
     </div>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    @await RenderSectionAsync("Scripts", required: false)
-    <script>
-        var toastElList = [].slice.call(document.querySelectorAll('.toast'))
-        var toastList = toastElList.map(function (toastEl) {
-            return new bootstrap.Toast(toastEl, { delay: 3000 }); // 3 sec
-        });
-        toastList.forEach(toast => toast.show());
-    </script>
+    }
 
+    @if (TempData["ErrorMessage"] != null)
+    {
+    <div class="toast toast-custom toast-error show" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header-custom">
+            <div class="toast-icon">
+                <i class="fas fa-exclamation"></i>
+            </div>
+            <strong class="toast-title">خطا</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body-custom">
+            @TempData["ErrorMessage"]
+        </div>
+    </div>
+    }
+</div>
+
+<!-- Scripts -->
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="~/js/site.js" asp-append-version="true"></script>
+
+<script>
+    // Sidebar Toggle for Mobile
+    document.getElementById('sidebarToggle').addEventListener('click', function() {
+        document.getElementById('sidebar').classList.toggle('open');
+    });
+
+    // Close sidebar when clicking outside on mobile
+    document.addEventListener('click', function(event) {
+        const sidebar = document.getElementById('sidebar');
+        const toggle = document.getElementById('sidebarToggle');
+        const isClickInsideSidebar = sidebar.contains(event.target);
+        const isClickOnToggle = toggle.contains(event.target);
+
+        if (window.innerWidth <= 768 && !isClickInsideSidebar && !isClickOnToggle) {
+            sidebar.classList.remove('open');
+        }
+    });
+
+    // Auto-hide toasts
+    document.addEventListener('DOMContentLoaded', function() {
+        const toasts = document.querySelectorAll('.toast');
+        toasts.forEach(toast => {
+            const bsToast = new bootstrap.Toast(toast, { delay: 5000 });
+            bsToast.show();
+        });
+    });
+
+    // Active link highlighting
+    document.addEventListener('DOMContentLoaded', function() {
+        const currentPath = window.location.pathname;
+        const sidebarItems = document.querySelectorAll('.sidebar-item');
+
+        sidebarItems.forEach(item => {
+            if (item.getAttribute('href') === currentPath) {
+                item.classList.add('active');
+            }
+        });
+    });
+</script>
+
+@await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

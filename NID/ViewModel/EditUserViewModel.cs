@@ -18,12 +18,12 @@ namespace NID.ViewModel
 
         [DataType(DataType.Password)]
         [Display(Name = "رمز عبور جدید")]
-        public string Password { get; set; }
+        public string? Password { get; set; }
 
         [DataType(DataType.Password)]
         [Compare("Password", ErrorMessage = "رمز عبور و تایید آن مطابقت ندارند")]
         [Display(Name = "تایید رمز عبور جدید")]
-        public string ConfirmPassword { get; set; }
+        public string? ConfirmPassword { get; set; }
 
         [Required(ErrorMessage = "انتخاب نقش الزامی است")]
         public string Role { get; set; } = "User";
