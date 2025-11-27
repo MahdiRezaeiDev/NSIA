@@ -8,14 +8,14 @@
         <div class="floating-element element-1"></div>
         <div class="floating-element element-2"></div>
     </div>
-    <div class="container">
+    <div class="">
         <div class="hero-content fade-in-up">
             <h1 class="hero-title">سیستم تذکره الکترونیکی NID</h1>
             <p class="hero-subtitle">
                 پلتفرم امن و پیشرفته اداره ملی احصاییه برای مدیریت هوشمند اطلاعات هویتی شهروندان افغانستان
             </p>
             <div class="hero-buttons">
-                <a href="/Registration/FamilyForm" class="btn-primary-custom">
+                <a asp-controller="Registration" asp-action="FamilyForm" class="btn-primary-custom">
                     <i class="fas fa-user-plus me-2"></i>
                     ثبت‌نام خانوادگی
                 </a>
@@ -189,23 +189,23 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="form-label">نام کامل</label>
-                                    <input type="text" class="form-control-custom" placeholder="نام و نام خانوادگی">
+                                    <input type="text" class="form-control" placeholder="نام و نام خانوادگی">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="form-label">آدرس ایمیل</label>
-                                    <input type="email" class="form-control-custom" placeholder="example@email.com">
+                                    <input type="email" class="form-control" placeholder="example@email.com">
                                 </div>
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="form-label">موضوع</label>
-                            <input type="text" class="form-control-custom" placeholder="موضوع پیام">
+                            <input type="text" class="form-control" placeholder="موضوع پیام">
                         </div>
                         <div class="form-group">
                             <label class="form-label">پیام</label>
-                            <textarea class="form-control-custom" rows="5" placeholder="متن پیام خود را بنویسید..."></textarea>
+                            <textarea class="form-control" rows="5" placeholder="متن پیام خود را بنویسید..."></textarea>
                         </div>
                         <button type="submit" class="btn-primary-custom w-100">
                             <i class="fas fa-paper-plane me-2"></i>
@@ -264,7 +264,6 @@
 </section>
 
 @section Scripts {
-    <script src="https://kit.fontawesome.com/your-fontawesome-kit.js"></script>
     <script>
         // Simple animation on scroll
         const observerOptions = {

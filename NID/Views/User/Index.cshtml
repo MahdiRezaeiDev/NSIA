@@ -2,35 +2,470 @@
 @{
     ViewData["Title"] = "لیست کاربران";
 }
-<div class="container">
-    <div class="d-flex flex-row justify-content-between mb-3">
-        <h2>لیست کاربران</h2>
-        <a class="btn btn-success mb-2" href="@Url.Action("Create")">افزودن کاربر جدید</a>
+
+<div class="dashboard-container">
+    <!-- Header Section -->
+    <div class="page-header">
+        <div class="header-content">
+            <h1 class="page-title">مدیریت کاربران سیستم</h1>
+            <p class="page-subtitle">مدیریت و نظارت بر کاربران و سطوح دسترسی</p>
+        </div>
     </div>
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>نام</th>
-                <th>نام خانوادگی</th>
-                <th>ایمیل</th>
-                <th>نقش</th>
-                <th>عملیات</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var user in Model)
-            {
-                <tr>
-                    <td>@user.FirstName</td>
-                    <td>@user.LastName</td>
-                    <td>@user.Email</td>
-                    <td>@user.Role</td>
-                    <td>
-                        <a class="btn btn-sm btn-primary" href="@Url.Action("Edit", "User", new { id = user.Id })">ویرایش</a>
-                        <a class="btn btn-sm btn-danger" href="@Url.Action("Delete", "User", new { id = user.Id })">حذف</a>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+
+    <!-- Stats Summary -->
+    <div class="stats-grid mb-4">
+        <div class="stat-card stat-primary">
+            <div class="stat-icon">
+                <i class="bi bi-people-fill"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-number">@Model.Count</div>
+                <div class="stat-label">کاربران فعال</div>
+                <div class="stat-trend trend-up">
+                    <i class="bi bi-person-check"></i>
+                    کل کاربران
+                </div>
+            </div>
+        </div>
+        
+        @{
+            var adminCount = Model.Count(u => u.Role?.ToLower() == "admin");
+            var userCount = Model.Count(u => u.Role?.ToLower() == "user");
+        }
+        
+        <div class="stat-card stat-success">
+            <div class="stat-icon">
+                <i class="bi bi-shield-check"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-number">@adminCount</div>
+                <div class="stat-label">مدیران سیستم</div>
+                <div class="stat-trend trend-up">
+                    <i class="bi bi-person-gear"></i>
+                    دسترسی کامل
+                </div>
+            </div>
+        </div>
+        
+        <div class="stat-card stat-warning">
+            <div class="stat-icon">
+                <i class="bi bi-person-badge"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-number">@userCount</div>
+                <div class="stat-label">کاربران عادی</div>
+                <div class="stat-trend trend-up">
+                    <i class="bi bi-person"></i>
+                    دسترسی استاندارد
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions Bar -->
+    <div class="content-card mb-4">
+        <div class="card-header">
+            <h4>
+                <i class="bi bi-list-task"></i>
+                مدیریت کاربران
+            </h4>
+            <a href="@Url.Action("Create")" class="btn-primary-custom">
+                <i class="bi bi-person-plus"></i>
+                افزودن کاربر جدید
+            </a>
+        </div>
+    </div>
+
+    <!-- Users Table -->
+    <div class="content-card">
+        <div class="table-responsive">
+            <table class="users-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>اطلاعات کاربر</th>
+                        <th>ایمیل</th>
+                        <th>نقش</th>
+                        <th>وضعیت</th>
+                        <th class="text-center">عملیات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int i = 0; i < Model.Count; i++)
+                    {
+                        var user = Model[i];
+                        <tr class="fade-in-up">
+                            <td class="text-center">
+                                <div class="user-index">@(i + 1)</div>
+                            </td>
+                            <td>
+                                <div class="user-info">
+                                    <div class="user-avatar">
+                                        @* @if (!string.IsNullOrEmpty(user.ProfileImage)) *@
+                                        @* { *@
+                                        @*     <img src="@user.ProfileImage" alt="@user.FirstName" class="avatar-img" /> *@
+                                        @* } *@
+                                        @* else *@
+                                        {
+                                            <div class="avatar-placeholder">
+                                                <i class="bi bi-person"></i>
+                                            </div>
+                                        }
+                                    </div>
+                                    <div class="user-details">
+                                        <div class="user-name">@user.FirstName @user.LastName</div>
+                                        <div class="user-id">ID: @user.Id</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="email-cell">
+                                    <i class="bi bi-envelope"></i>
+                                    @user.Email
+                                </div>
+                            </td>
+                            <td>
+                                <span class="role-badge @(user.Role?.ToLower() == "admin" ? "role-admin" : "role-user")">
+                                    <i class="bi @(user.Role?.ToLower() == "admin" ? "bi-shield-check" : "bi-person")"></i>
+                                    @user.Role
+                                </span>
+                            </td>
+                            <td>
+                                <span class="status-badge status-active">
+                                    <i class="bi bi-circle-fill"></i>
+                                    فعال
+                                </span>
+                            </td>
+                            <td>
+                                <div class="action-buttons">
+                                    <a href="@Url.Action("Edit", "User", new { id = user.Id })" class="action-btn edit-btn" title="ویرایش کاربر">
+                                        <i class="bi bi-pencil-square"></i>
+                                        ویرایش
+                                    </a>
+                                    <form asp-action="Delete" asp-controller="User" asp-route-id="@user.Id" method="post" 
+                                          onsubmit="return confirm('آیا از حذف کاربر «@user.FirstName @user.LastName» مطمئن هستید؟');"
+                                          class="d-inline">
+                                        <button type="submit" class="remove-member-btn" title="حذف کاربر">
+                                            <i class="bi bi-trash"></i>
+                                            حذف
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Empty State -->
+        @if (!Model.Any())
+        {
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="bi bi-people"></i>
+                </div>
+                <h3 class="empty-title">هیچ کاربری ثبت نشده است</h3>
+                <p class="empty-description">
+                    در حال حاضر هیچ کاربری در سیستم ثبت نشده است.
+                    می‌توانید با استفاده از دکمه زیر اولین کاربر را ایجاد کنید.
+                </p>
+                <a href="@Url.Action("Create")" class="btn-primary-custom">
+                    <i class="bi bi-person-plus"></i>
+                    ایجاد کاربر جدید
+                </a>
+            </div>
+        }
+    </div>
 </div>
+
+<style>
+    /* Users Table Styles */
+    .users-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        background: var(--white);
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .users-table thead {
+        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
+    }
+
+    .users-table th {
+        padding: 18px 16px;
+        color: var(--white);
+        font-weight: 600;
+        font-size: 0.95rem;
+        border: none;
+        text-align: right;
+    }
+
+    .users-table tbody tr {
+        transition: all 0.3s ease;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .users-table tbody tr:last-child {
+        border-bottom: none;
+    }
+
+    .users-table tbody tr:hover {
+        background: rgba(212, 166, 55, 0.05);
+        transform: translateX(-5px);
+    }
+
+    .users-table td {
+        padding: 16px;
+        border: none;
+        vertical-align: middle;
+    }
+
+    /* User Info Styles */
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .user-avatar {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        overflow: hidden;
+        flex-shrink: 0;
+        border: 2px solid var(--accent-gold);
+    }
+
+    .avatar-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .avatar-placeholder {
+        width: 100%;
+        height: 100%;
+        background: var(--light-bg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-light);
+        font-size: 1.2rem;
+    }
+
+    .user-details {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .user-name {
+        font-weight: 600;
+        color: var(--text-dark);
+        font-size: 0.95rem;
+    }
+
+    .user-id {
+        font-size: 0.8rem;
+        color: var(--text-light);
+        font-family: monospace;
+    }
+
+    .user-index {
+        background: var(--light-bg);
+        color: var(--primary-blue);
+        width: 30px;
+        height: 30px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.9rem;
+        margin: 0 auto;
+    }
+
+    /* Email Cell */
+    .email-cell {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--text-dark);
+        font-size: 0.9rem;
+    }
+
+    .email-cell i {
+        color: var(--accent-gold);
+    }
+
+    /* Role Badges */
+    .role-badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .role-admin {
+        background: rgba(220, 53, 69, 0.1);
+        color: #dc3545;
+        border: 1px solid rgba(220, 53, 69, 0.2);
+    }
+
+    .role-user {
+        background: rgba(25, 135, 84, 0.1);
+        color: #198754;
+        border: 1px solid rgba(25, 135, 84, 0.2);
+    }
+
+    /* Status Badges */
+    .status-badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .status-active {
+        background: rgba(25, 135, 84, 0.1);
+        color: #198754;
+        border: 1px solid rgba(25, 135, 84, 0.2);
+    }
+
+    .status-active i {
+        font-size: 0.6rem;
+        color: #198754;
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+    }
+
+    .action-buttons .action-btn,
+    .action-buttons .remove-member-btn {
+        padding: 8px 12px;
+        font-size: 0.85rem;
+        white-space: nowrap;
+    }
+
+    /* Responsive Design */
+    @@media (max-width: 1024px) {
+        .users-table {
+            font-size: 0.9rem;
+        }
+        
+        .users-table th,
+        .users-table td {
+            padding: 12px 10px;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+            gap: 5px;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .table-responsive {
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .users-table thead {
+            display: none;
+        }
+        
+        .users-table tbody tr {
+            display: block;
+            margin-bottom: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 15px;
+        }
+        
+        .users-table td {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .users-table td:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        
+        .users-table td::before {
+            content: attr(data-label);
+            font-weight: 600;
+            color: var(--primary-blue);
+            font-size: 0.9rem;
+        }
+        
+        .user-index {
+            display: none;
+        }
+        
+        .action-buttons {
+            justify-content: flex-start;
+        }
+    }
+
+    @@media (max-width: 480px) {
+        .user-info {
+            flex-direction: column;
+            text-align: center;
+            gap: 8px;
+        }
+        
+        .user-details {
+            align-items: center;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+            width: 100%;
+        }
+        
+        .action-buttons .action-btn,
+        .action-buttons .remove-member-btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
+<script>
+    // Add data labels for responsive table
+    document.addEventListener('DOMContentLoaded', function() {
+        const table = document.querySelector('.users-table');
+        if (table) {
+            const headers = Array.from(table.querySelectorAll('thead th'));
+            const rows = table.querySelectorAll('tbody tr');
+            
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                cells.forEach((cell, index) => {
+                    if (headers[index]) {
+                        cell.setAttribute('data-label', headers[index].textContent);
+                    }
+                });
+            });
+        }
+    });
+</script>

@@ -369,5 +369,5 @@ C:\Users\mahdi\source\repos\NID\NID\bin\Debug\net10.0\runtimes\win-x86\native\li
 C:\Users\mahdi\source\repos\NID\NID\bin\Debug\net10.0\runtimes\win-x86\native\libwinpthread-1.dll
 C:\Users\mahdi\source\repos\NID\NID\bin\Debug\net10.0\runtimes\win-x86\native\qpdf.dll
 C:\Users\mahdi\source\repos\NID\NID\bin\Debug\net10.0\runtimes\win-x86\native\zlib1.dll
-C:\Users\mahdi\source\repos\NID\NID\obj\Debug\net10.0\compressed\jwspn9z817-{0}-54thcj4hkx-54thcj4hkx.gz
-C:\Users\mahdi\source\repos\NID\NID\obj\Debug\net10.0\compressed\d75cd33fy9-{0}-h4v7cl3xma-h4v7cl3xma.gz
+C:\Users\mahdi\source\repos\NID\NID\obj\Debug\net10.0\compressed\d75cd33fy9-{0}-munvpnr5kt-munvpnr5kt.gz
+C:\Users\mahdi\source\repos\NID\NID\obj\Debug\net10.0\compressed\jwspn9z817-{0}-uz4z691q1q-uz4z691q1q.gz
