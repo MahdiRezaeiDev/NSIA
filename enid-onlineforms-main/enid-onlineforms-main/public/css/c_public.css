@@ -1,0 +1,186 @@
+
+@font-face{font-family:'Bahij Halvetica';src:url(../fonts/bahij_helvetica_neue_bold_by_bahijvirtualacademy-dammcmt_0.62dee9f04acedcc5ec9c.ttf);font-weight:700};
+@font-face{font-family:'Bahij Halvetica';src:url(../fonts/Bahij_Helvetica_Neue-Light_1.95793cb75f0484cb76e5.ttf);font-weight:lighter};
+@font-face{font-family:'Bahij Halvetica';src:url(../fonts/bahij_helvetica_neue_roman_by_bahijvirtualacademy-dammd50_0.c89c9eb963cc00332e6c.ttf);font-weight:400}
+body{font-family:Raleway,'Bahij Halvetica',sans-serif;color:#282560!important;background:#fff}
+@font-face {
+    font-family: 'B Titr';
+    src: url('../fonts/BTitrBold.eot');
+    src: url('../fonts/BTitrBold.eot?#iefix') format('embedded-opentype'),
+        url('../fonts/BTitrBold.woff2') format('woff2'),
+        url('../fonts/BTitrBold.woff') format('woff'),
+        url('../fonts/BTitrBold.svg#BTitrBold') format('svg');
+    font-weight: bold;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'ui-grid';
+    src: url('../fonts/ui-grid.eot');
+    src: url('../fonts/ui-grid.eot?#iefix') format('embedded-opentype'),
+        url('../fonts/ui-grid.woff2') format('woff2'),
+        url('../fonts/ui-grid.woff') format('woff'),
+        url('../fonts/ui-grid.svg') format('svg');
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'B Mitra';
+    src: url('../fonts/BMitra.eot');
+    src: url('../fonts/BMitra.eot?#iefix') format('embedded-opentype'),
+        url('../fonts/BMitra.woff2') format('woff2'),
+        url('../fonts/BMitra.woff') format('woff'),
+        url('../fonts/BMitra.svg#BMitra') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'LateefRW';
+    src: url('../fonts/LateefGR-Regular.woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+
+
+
+
+
+.menu{
+    font-family: 'B Titr';
+}
+
+.btn-primary{
+    background-color:#00A79D;
+    border-color: #00A79D;
+}
+.card-header{
+    font-family:Raleway,Bahij Halvetica;   
+    font-size:150%;
+    font-weight:bolder;
+}
+.bg_main{
+    color:white;
+    background-color:#007bff;
+}
+
+input{
+    padding:15px !important;
+    font-size:20px !important;
+}
+label{
+
+    font-weight:bolder;
+    font-size:110%;
+}
+.field_border{
+    border-top:1px dashed gray;margin-bottom:10px; padding-bottom:10px;padding-top:10px; padding-bottom:10px;
+}
+.field-padding-top{
+    padding-top:2%;
+}
+.input-group-text{
+    background-color:#292361;
+    color:white;
+    font-weight:bolder;
+    font-size:110%;
+}
+.required_field{
+    color:red;
+    font-size:150%;
+}
+
+.dash-number{
+    font-size:250%;
+    color:white;
+    text-align: center;
+}
+
+.btn-cashier{
+    background-color:#00BFFF !important;
+    border-color:#00BFFF !important;
+    color:black;
+
+}
+
+.btn-distribution{
+    background-color:#B4FC15 !important;
+    border-color:#B4FC15 !important;
+    color:black;
+}
+.btn-biometric{
+    background-color:#FC15F6 !important;
+    border-color:#FC15F6 !important;
+    color:black;
+}
+
+.bg-cashier{
+    background-color:#00BFFF !important;
+    border-color:#00BFFF !important;
+    color:black;
+}
+.bg-distribution{
+    background-color:#B4FC15 !important;
+    border-color:#B4FC15 !important;
+    color:black;
+}
+.bg-biometric{
+    background-color:#FC15F6 !important;
+    border-color:#FC15F6 !important;
+    color:black;
+}
+
+.ui-grid-pager-control input{
+    width:100px !important;
+}
+.nav-item{
+    border-right:1px solid #292361;
+}
+.nav-link.active{
+    border:4px solid white;
+}
+.box{
+    border:2px solid #282560;
+    padding:24px;
+    margin:2%
+}
+
+.btn-secondary{
+    background-color:#282560;
+}
+.vertical-text {
+    -webkit-transform: rotate(90deg);
+    -webkit-backface-visibility: hidden;
+    transform-origin: 0;
+    margin:0px;
+    padding:0px;
+    font-size:60%;
+
+}
+
+.application-progress{
+    font-size:120%;
+    border:0px;
+    border-bottom:2px solid #292361;
+    font-weight: bolder;    
+    padding:0px;
+    padding-right:10px;
+    padding-bottom:10px;
+
+}
+
+.list-group-item.active{
+    border-bottom:3px solid #292361;
+}
+.my-container{
+    width:80vw;
+    margin-left:auto!important;
+    margin-right:auto!important;
+    padding:0px;
+    padding:0px;
+}
+.customValue {
+    padding-right:20px;
+    color:black;
+}

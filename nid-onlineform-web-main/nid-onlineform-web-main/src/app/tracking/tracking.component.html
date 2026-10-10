@@ -1,0 +1,23 @@
+                   <form action="/tracking" method="GET" (ngSubmit)="track()" class="mt-3">
+                     <div class="form-group">
+                       <input type="text" name="tracking_no" [(ngModel)]="tracking_no" class="form-control"
+                         placeholder="{{'type_your_application_no_here'|translate}}" aria-label="Tracking no"
+                         aria-describedby="button-addon2">
+
+                     </div>
+                     <div class="form-group">
+                      <input type="text" name="tracking_no" [(ngModel)]="contact_no" class="form-control"
+                      placeholder="{{'head_of_family_contact_number'|translate}}" aria-label="Tracking no"
+                      aria-describedby="button-addon2">
+                     </div>
+                     <div class="read-more"><button class="btn btn-outline-success btn-block mb-3" id="track" type="submit" tabindex="0">تعقیب <i
+                      class="fas fa-location-arrow"></i></button></div>
+                   </form>
+                   <div class="row">
+                     <div class="col-md-12">
+                        <a [href]="events?.printLink" *ngIf="events?.events?.length>0" class="btn btn-primary btn-block">پرنت <i class="fa fa-print"></i></a>
+                        <ul class="list-group">
+                          <li class="list-group-item" *ngFor="let e of events?.events"> {{e.date}} {{e.description}}</li>
+                        </ul>
+                     </div>
+                   </div>

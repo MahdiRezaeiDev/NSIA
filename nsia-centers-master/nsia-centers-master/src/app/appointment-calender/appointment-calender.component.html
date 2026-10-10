@@ -1,0 +1,33 @@
+<h2>تاریخ ملاقات</h2>
+<div *ngFor="let d of dates" class="mt-3">
+    <button class="btn btn-dark btn-block" (click)="openYear(d.year)"> 
+        <i class="fas fa-caret-down" *ngIf="d.open"></i>
+        <i class="fas fa-caret-left" *ngIf="!d.open"></i>
+        {{d.year}}
+    </button>
+    <div *ngIf="d.open">
+        
+        <div *ngFor="let m of d.months" class="mt-1">
+            <button class="btn btn-secondary btn-block" (click)="openMonth(d.year,m.value)">
+                <i class="fas fa-caret-down" *ngIf="m.open"></i>
+                <i class="fas fa-caret-left" *ngIf="!m.open"></i>
+                {{m.month}}
+            </button>
+            <div *ngIf="m.open">
+              
+                <div class="row" style="padding-right:15px;padding-left:15px">
+                    <div class="col-md-6" *ngFor="let d of m.days" style="margin:0px!important;padding:3px">
+                        <button [ngClass]="{'btn btn-warning btn-block':true,active:d.value ==selectedDate.value }" (click)="selectDate(d)">
+                            <p class="date-day">{{d.d}}</p>
+                           
+                            <p class="family-count" >{{d.total_family}} <i class="fas fa-users"></i></p> 
+                            <p class="individual-count" >{{d.total_individual}} <i class="fas fa-user"></i></p>
+                        
+                            </button>
+                            
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

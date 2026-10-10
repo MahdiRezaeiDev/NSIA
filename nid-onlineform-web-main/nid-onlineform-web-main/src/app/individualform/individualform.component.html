@@ -1,0 +1,784 @@
+<div id="top"></div>
+
+
+
+
+
+<div class="row" *ngIf="!submittedForm.reference_no && step > 0">
+ 
+  <div class="col-md-12 mt-5 mb-2">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
+
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-12">
+                <h2  class="text-center red-block">  {{'application_code'|translate}}: {{application_id}}</h2>
+                <strong>{{ 'form_retrieval_message'|translate}}</strong>
+              </div>
+
+          
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+   
+  </div>
+</div>
+<div class="row mb-5 mt-5">
+    <div class="col-md-6">
+        <button type="button" [ngClass]="{'btn btn-outline-primary btn-block':true,'active':step==1}">۱. {{'form_entry_tab'|translate}}</button>
+    </div>
+    <div class="col-md-6">
+        <button type="button" [ngClass]="{'btn btn-outline-primary btn-block':true,'active':step==2}">۲. {{'select_center_tab'|translate}}</button>
+    </div>
+
+    <div class="col-md-12 mt-1">
+        <ngb-progressbar type="success" [value]="getProgress()" [striped]="true"></ngb-progressbar>
+    </div>
+
+</div>
+  <div class="row">
+  <div class="col-md-12">
+
+    <div class="card">
+      <div class="card-header bg_main pointer" (click)="openStep(1)"> {{'head_of_family_details'|translate}}
+        <i [ngClass]="{fas:true,'fa-chevron-left': step!=1,'fa-chevron-down':step ==1,'float-right':true}"></i>
+      </div>
+
+
+      <div class="card-body" *ngIf="step==1">
+        <div class="row" *ngFor="let member of model.members; let memberKey = index" id="familymember-{{memberKey}}">
+          <div class="col-md-12"  *ngIf="member.getFieldValue('name')">
+            <div class="card-header lightBlue pointer" (click)="validateAndOpen(memberKey)">
+              
+              <i
+                [ngClass]="{fas:true,'fa-chevron-left': member.collapse,'fa-chevron-down':!member.collapse,'float-right':true}"></i>
+              <h3>{{memberKey+1}} {{member.getFieldValue('name')}} {{member.getFieldValue('surname')}}</h3>
+            </div>
+          </div>
+          <div class="col-md-12" *ngIf="!member.getFieldValue('name')">
+            <div class="card-header lightBlue pointer" (click)="validateAndOpen(memberKey)" >
+           
+              <i
+                [ngClass]="{fas:true,'fa-chevron-left': member.collapse,'fa-chevron-down':!member.collapse,'float-right':true}"></i>
+              <h5 *ngIf="!member.isHeadOfFamily()">{{'new_member_info'|translate}}</h5>
+              <h5 *ngIf="member.isHeadOfFamily()">{{'head_of_family_member_info'|translate}}</h5>
+            </div>
+          </div>
+          <div class="col-md-12" *ngIf="!member.collapse">
+            <div class="row">
+              <div class="col-md-12">
+                <button class="btn btn-danger smallButton float-right" *ngIf="!member.isHeadOfFamily()"
+                  (click)="removeMember(memberKey)"> <i class="fas fa-minus"></i> حذف </button>
+              </div>
+            </div>
+
+
+            <div *ngIf="!member.collapse" >
+              
+              <form [formGroup]="member.form" class="row">
+                <ng-container *ngFor="let field of member.fields; let fieldKey = index" >
+                  <div class="col-md-{{field.columnWidth}}">
+                
+                    <div  *ngIf="member && member.isVisible(field)">
+                      <div class="form-group" *ngIf="field.type=='text'">
+
+                        <label> <span
+                            [ngClass]="{'required_field':field.required,'whiteColor':!field.required}">*</span>
+                          {{field.name|translate}}</label>
+                        <input type="text" name="{{field.name}}" placeholder="{{field.placeholder}}" dir="rtl"   #textFields 
+                          [lang]="field.lang" [formControlName]="field.name" [maxlength]="field.maxLength"
+                          [ngClass]="{'form-control':true,'is-invalid':member.form.get(field.name).invalid && member.form.get(field.name).touched}"
+                          [required]="field.required"
+                          (focus)="resetFieldError(memberKey,field.name);" >
+
+                          <div class="invalid-feedback" *ngFor="let e of errors['members.'+memberKey+'.'+field.name]">
+                                {{e}}
+                          </div>
+
+                      </div>
+                      <div class="form-group" *ngIf="field.type=='hidden'">
+
+                        <input type="hidden" name="{{field.name}}" placeholder="{{field.placeholder}}" dir="rtl" [formControlName]="field.name"
+                          lang="fa"
+                          [ngClass]="{'form-control':true,'is-invalid':errors['members.'+memberKey+'.'+field.name]}">
+
+                      </div>
+                      <div class="form-group" *ngIf="field.type=='file'">
+                        <div class="row">
+                          <div class="col-md-6">
+                            <label>
+                              <span [ngClass]="{'required_field':field.required,'whiteColor':!field.required}">*</span>
+                              {{field.name|translate}}</label>
+                            <input type="file" name="{{field.name}}" placeholder="{{field.placeholder}}" dir="rtl" [formControlName]="field.name"
+                              (change)="uploadFile($event,field,member)" lang="fa"
+                              [ngClass]="{'form-control':true,'is-invalid':errors['members.'+memberKey+'.'+field.name]}">
+                          </div>
+                          <div class="col-md-6"><img [src]="field.value" class="img-thumbnail"
+                              style="max-height: 300px"></div>
+                        </div>
+
+
+
+
+
+                      </div>
+                      <div class="form-group" *ngIf="field.type=='number'">
+                        <label> <span
+                            [ngClass]="{'required_field':field.required,'whiteColor':!field.required}">*</span>
+                          {{field.name|translate}}</label>
+                        <input type="number" name="{{field.name}}" placeholder="{{field.placeholder}}" dir="rtl" [formControlName]="field.name"
+                         lang="fa" 
+                          [ngClass]="{'form-control':true,'is-invalid':errors['members.'+memberKey+'.'+field.name]}">
+
+                      </div>
+                      <div class="form-group" *ngIf="field.type=='mask'" class="mt-3">
+                        
+                        <label> <span
+                            [ngClass]="{'required_field':field.required,'whiteColor':!field.required}">*</span>
+                          {{field.name|translate}} </label>
+                        <input type="text" name="{{field.name}}" placeholder="{{field.placeholder}}" dir="rtl" 
+                          [mask]="field.mask" lang="fa" [formControlName]="field.name" [patterns]="numberPattern"  (input)="numberToEnglish($event,field.name,member)"
+                          [ngClass]="{'form-control':true,'is-invalid':errors['members.'+memberKey+'.'+field.name]}">
+
+                      </div>
+                      <div *ngIf="field.type=='radio'">
+                        <label>
+                          <span [ngClass]="{'required_field':field.required,'whiteColor':!field.required}">*</span>
+
+                          {{field.name|translate}}
+                        </label>
+                        <div class="form-check" *ngFor="let option of field.options">
+                          <input class="form-check-input" type="radio" name="{{field.name}}"  [formControlName]="field.name"
+                            id="{{option.id}}" value="{{option.value}}">
+                          <label class="form-check-label" for="{{option.id}}" ngbTooltip="{{option.tip}}"
+                            container="body">
+                            {{option.label}}
+                          </label>
+                        </div>
+                      </div>
+                      <div *ngIf="field.type=='select'" class="mt-3">
+                   
+                        <label>
+                          <span [ngClass]="{'required_field':field.required,'whiteColor':!field.required}">*</span>
+                          {{field.name|translate}}
+                        </label>
+                  
+                        <select class="form-control" name="{{field.name}}" [id]="field.name"  [formControlName]="field.name"
+                          (change)="member.fieldUpdated(field.name,getHeadOfFamily())"
+                          >
+                          <option *ngFor="let option of field.options" [value]="option.value">
+                            {{option.label}}
+                          </option>
+                        </select>
+
+                      </div>
+                      <div *ngIf="field.type=='country'">
+                        <label>
+                          <span [ngClass]="{'required_field':field.required,'whiteColor':!field.required}">*</span>
+                          {{field.name|translate}}
+                        </label>
+                        <select class="form-control" name="{{field.name}}"  [formControlName]="field.name"
+                          value="{{field.value}}" (change)="member.fieldUpdated(field.name,this.getHeadOfFamily())"
+                         >
+                          <option *ngFor="let option of countries" value="{{option.id}}">
+                            {{option.text}}
+                          </option>
+                        </select>
+
+                      </div>
+                      <div *ngIf="field.type=='multiselect'" class="mt-3">
+                        <label>{{field.name|translate}}</label>
+                        <select2 [data]="field.data" width="100%" height="200px" allowClear="true" 
+                          (valueChanged)="member.setFieldValue(field.name,$event.value);"
+                          [options]="{multiple: true,minimumResultsForSearch:10000}" [value]="field.value">
+                    
+                        </select2>
+                        <div class="invalid-feedback" *ngFor="let e of errors['members.'+memberKey+'.'+field.name]">
+                          {{e}}
+                        </div>
+                      </div>
+                      <div *ngIf="field.type=='radioHorizontal'">
+                        <label> <span
+                            [ngClass]="{'required_field':field.required,'whiteColor':!field.required}">*</span>
+                          {{field.name|translate}}</label>
+                        <div class="row" style="margin:5px">
+                          <div *ngFor="let option of field.options" class="col-md-1">
+                            <input class="form-check-input" type="radio" name="{{field.name}}"  [formControlName]="field.name"
+                              id="{{option.id}}" value="{{option.value}}">
+                            <label class="form-check-label" for="{{option.id}}">
+                              {{option.label}}
+                            </label>
+                          </div>
+                        </div>
+
+                      </div>
+                      <div *ngIf="field.type=='date'" class="mt-3">
+
+                        <label> <span
+                            [ngClass]="{'required_field':field.required,'whiteColor':!field.required}">*</span>
+                          {{field.name|translate}}</label>
+                          <div ngbDropdown class="d-inline-block mt-3" *ngIf="field.copyFrom?.actions?.length>0">
+                              <button class="btn btn-outline-primary" id="dropdown{{field.name}}{{memberKey}}" ngbDropdownToggle>کاپی <i class="fas fa-copy"></i></button>
+                              <div ngbDropdownMenu>
+                                <button ngbDropdownItem *ngFor="let f of field.copyFrom.actions" (click)="copyData(f.from,f.to,f.memberKeyFrom,f.memberKeyTo)"> {{f.label}} </button>
+                         
+                              </div>
+                            </div>
+                          
+                        <div class="row">
+                          <div *ngFor="let option of field.options" class="col-md-{{option.columnWidth}}">
+                            <label for="{{option.id}}">
+                              {{option.id|translate}}
+                            </label>
+                       
+                            <select *ngIf="option.id.indexOf('_day')!=-1" [formControlName]="option.id"
+                              [ngClass]="{'form-control':true}"
+                              dir="rtl" lang="fa" name="{{option.id}}">
+                              <option *ngFor="let d of days" [value]="d">{{d}}</option>
+                            </select>
+                            <select *ngIf="option.id.indexOf('_month')!=-1" [formControlName]="option.id"
+                              [ngClass]="{'form-control':true}"
+                              dir="rtl" lang="fa" name="{{option.id}}" >
+                              <option *ngFor="let d of months" [value]="d.id">{{d.text}}</option>
+                            </select>
+
+                            <select *ngIf="option.type!='textNumber' && option.id.indexOf('_year')!=-1" [formControlName]="option.id" 
+                              [ngClass]="{'form-control':true}"
+                              dir="rtl" lang="fa" name="{{option.id}}" (change)="member.fieldUpdated(option.id,getHeadOfFamily())">
+                              <option *ngFor="let d of years" [value]="d">{{d}}</option>
+                            </select>
+                            <input type="text" mask="{{option.mask}}"  [patterns]="numberPattern"  (input)="numberToEnglish($event,option.id,member)" [maxlength]="option.maxLength" *ngIf="option.id.indexOf('_year')!=-1 && option.type == 'textNumber'" keydown="numberToEnglish($event,option.id,member)" class="form-control" [formControlName]="option.id" (change)="member.fieldUpdated(option.id,getHeadOfFamily())" >
+                         
+                            <div *ngIf="option.mask">
+                              <input type="{{option.type}}" [formControlName]="option.id"
+                                *ngIf="option.id.indexOf('_day')==-1 && option.id.indexOf('_month')==-1 && option.id.indexOf('_year')==-1"
+                                [ngClass]="{'form-control':true}" placeholder="{{option.placeholder}}"
+                                dir="rtl" lang="fa" name="{{option.id}}"
+                                maxlength="{{option.maxLength}}" mask="{{option.mask}}"  [patterns]="numberPattern"  (input)="numberToEnglish($event,option.id,member)"> 
+                            </div>
+                            <div *ngIf="!option.mask">
+                              <input type="{{option.type}}" [formControlName]="option.id"
+                                *ngIf="option.id.indexOf('_day')==-1 && option.id.indexOf('_month')==-1 && option.id.indexOf('_year')==-1"
+                                [ngClass]="{'form-control':true}"
+                                dir="rtl" lang="fa" name="{{option.id}}"
+                                maxlength="{{option.maxLength}}">
+                            </div>
+                       
+                          
+
+                            <div class="invalid-feedback" *ngFor="let e of errors['members.'+memberKey+'.'+option.id]">
+                              {{e}}
+                            </div>
+
+                          </div>
+                       
+                       
+                        </div>
+                   
+                      </div>
+                      <div *ngIf="field.type=='dob_auto'" class="mt-3">
+
+                          <label> <span
+                              [ngClass]="{'required_field':field.required,'whiteColor':!field.required}">*</span>
+                            {{field.name|translate}}</label>
+                       
+                          <div class="row">
+                            <div *ngFor="let option of field.options" class="col-md-{{option.columnWidth}}">
+                              <label for="{{option.id}}">
+                                {{option.id|translate}}
+                                
+                              </label>
+                              <select2 [data]="days"  *ngIf="option.id.indexOf('_day')!=-1" width="100%" height="200px" [value]="member.form.get(option.id) && member.form.get(option.id).value" (valueChanged)="dateSelected($event,member,option.id);errors['members.'+memberKey+'.'+option.id]=[];member.fieldUpdated(field.name,getHeadOfFamily())">
+                                  <option value=""></option>
+                              </select2>
+                              <select2 [data]="months"  *ngIf="option.id.indexOf('_month')!=-1" width="100%" height="200px" [value]="member.form.get(option.id) && member.form.get(option.id).value" (valueChanged)="dateSelected($event,member,option.id);errors['members.'+memberKey+'.'+option.id]=[];member.fieldUpdated(field.name,getHeadOfFamily())">
+                                  <option value=""></option>
+                              </select2>
+                              <select2 [data]="years"   *ngIf="option.id.indexOf('_year')!=-1" width="100%" height="200px" [value]="member.form.get(option.id) && member.form.get(option.id).value" (valueChanged)="dateSelected($event,member,option.id);errors['members.'+memberKey+'.'+option.id]=[];member.fieldUpdated(field.name,getHeadOfFamily());">
+                                  <option value=""></option>
+                              </select2>
+                              
+                
+                            
+  
+                              <div class="invalid-feedback" *ngFor="let e of errors['members.'+memberKey+'.'+option.id]">
+                                {{e}}
+                              </div>
+  
+                            </div>
+                         
+                            <div *ngIf="member.form.errors?.ValidIssueDate && (member.form.touched || member.form.dirty) && field.name === 'id_issue_date'" class="invalid-feedback">
+                               
+                              {{ 'issue_date_should_be_after_dob'|translate}}
+                            </div>
+                          </div>
+                     
+                          <div class="col-md-12"
+                            *ngIf="field.name.indexOf('dob')!=-1 && member.getBirthDayGregorian(field.name) && field.showConversion">
+                            <div class="alert alert-info">
+  
+                              تاریخ میلادی {{member.getBirthDayGregorian(field.name)}}
+                            </div>
+                          </div>
+                        </div>
+                      <div *ngIf="field.type=='btn-group'" class="mt-2">
+                      
+                        <label> <span
+                            [ngClass]="{'required_field':field.required,'whiteColor':!field.required}">*</span>
+                          {{field.name|translate}}</label>
+                        
+                          <div class="row">
+                          
+                          <div *ngFor="let option of field.options" class="col-md-{{option.columnWidth}}">
+                            
+                            <button
+                              [disabled]="field.is_disabled"
+                              [ngClass]="{'btn btn-block':true,'btn-success':member.form.get(field.name).value === option.value,'btn-default':member.form.get(field.name).value != option.value}"
+                              (click)="member.form.get(field.name).setValue(option.value);member.fieldUpdated(field.name,this.getHeadOfFamily())">
+                              <i *ngIf="option.icon" [class]="option.icon"></i>
+                              {{option.id|translate}}
+                            </button>
+
+                            
+                          </div>
+                          <div class="col-md-12">
+                              <div class="invalid-feedback" *ngFor="let e of errors['members.'+memberKey+'.'+field.name]">
+                                  {{e}}
+                                </div>
+                          </div>
+                        </div>
+
+                      </div>
+
+                      <div *ngIf="field.type=='addressAutocomplete'" [formGroupName]="field.name" class="mt-2">
+                        <div class="row">
+                          <div class="col-md-6">
+                           
+                            <label> <span
+                                [ngClass]="{'required_field':field.required,'whiteColor':!field.required}">*</span>
+                              {{field.name|translate}}</label> &nbsp;
+                              
+                              <div ngbDropdown class="d-inline-block mt-3" *ngIf="field.copyFrom?.actions?.length>0">
+                                  <button class="btn btn-outline-primary" id="dropdown{{field.name}}{{memberKey}}" ngbDropdownToggle [ngbTooltip]="'copy_here'|translate">کاپی <i class="fas fa-copy"></i></button>
+                                  <div ngbDropdownMenu>
+                                    <button ngbDropdownItem *ngFor="let f of field.copyFrom.actions" (click)="copyData(f.from,f.to,f.memberKeyFrom,f.memberKeyTo)"> {{f.label}} </button>
+                             
+                                  </div>
+                                </div>
+                              <!--
+                            <div *ngIf="field.copyFrom" style="padding-right:5%">
+                              <input type="checkbox" [checked]="field.copied" 
+                                (change)="member.copyData(field.copyFrom,field.name,member.form)" class="form-check-input"
+                                id="{{field.name}}">
+                              <label class="form-check-label" for="{{field.name}}"
+                                style="color:#10A79B;font-size:70%;font-weight:normal">{{'copyFrom'|translate}}
+                                {{field.copyFrom|translate}} </label>
+                            </div>
+                            -->
+
+                          </div>
+                          <div class="col-md-6">
+                   
+                          
+                          </div>
+
+
+                        </div>
+                        <div class="row">
+                          <div class="col-md-3" *ngIf="!field.isHidden('country')">
+                            <label>{{'country'|translate}}</label>
+                          
+                            <select2 [data]="countries" width="100%" height="200px" [value]="field.value.country" id="{{field.name}}_memberKey" (change)="alert('test')"
+                              (valueChanged)="countrySelected(field.name,$event.value,member);">
+                              <option value=""></option>
+                            </select2>
+                            <div class="invalid-feedback"
+                              *ngFor="let e of errors['members.'+memberKey+'.'+field.name+'.country']">
+                              {{e}}
+                            </div>
+                          </div>
+                          <div [ngClass]="{'col-md-4':field.isHidden('country'),'col-md-3':!field.isHidden('country')}"
+                            *ngIf="!field.isHidden('province')">
+                            <label>ولایت</label>
+                            
+                            <input type="text" [maxlength]="field.maxLength" name="{{field.name}}" placeholder="ولایت" dir="rtl" formControlName="province" 
+                             lang="fa"
+                              [ngClass]="{'form-control':true,'is-invalid':errors['members.'+memberKey+'.province']}"
+                              *ngIf="member.form.get(field.name+'.country').value!=1">
+                         
+                            <select2 [data]="provinces" width="100%" height="200px"  [value]="field.value.province"
+                              *ngIf="member.form.get(field.name+'.country').value==1" allowClear="true" 
+                              (valueChanged)="provinceSelected($event,field.name,member,memberKey);">
+                              <option value=""></option>
+                            </select2>
+                            <div class="invalid-feedback"
+                              *ngFor="let e of errors['members.'+memberKey+'.'+field.name+'.province']">
+                              {{e}}
+                            </div>
+                          </div>
+                          <div [ngClass]="{'col-md-4':field.isHidden('country'),'col-md-3':!field.isHidden('country')}"
+                            *ngIf="!field.isHidden('district')">
+
+                            <label>{{'id_issue_district'|translate}}</label>
+                          
+                            <input type="text" name="{{field.name}}_district" placeholder="ولسوالی یا ناحیه" dir="rtl"
+                              lang="fa" formControlName="district"
+                              [ngClass]="{'form-control':true,'is-invalid':errors['members.'+memberKey+'.district']}"
+                              *ngIf="member.form.get(field.name+'.country').value!=1" [maxlength]="field.maxLength">
+
+                              <select2  *ngIf="member.form.get(field.name+'.country').value==1"  [data]="districts[memberKey+field.name]" width="100%" height="200px"  
+                                    [value]="field.value.district" (valueChanged)="districtSelected($event,field.name+'.district',member)"
+                                     >
+                                  <option value=""></option>
+                                </select2>
+                     
+
+                            <div class="invalid-feedback"
+                              *ngFor="let e of errors['members.'+memberKey+'.'+field.name+'.district']">
+                              {{e}}
+                            </div>
+                          </div>
+                          <div [ngClass]="{'col-md-4':field.isHidden('country'),'col-md-3':!field.isHidden('country')}"
+                            *ngIf="!field.isHidden('village')">
+                            <label> {{'village'|translate}}</label>
+                            <input type="text" name="{{field.name}}_village" [maxlength]="field.maxLength" class="form-control" formControlName="village" 
+                              placeholder="{{'village'|translate}}"  />
+                            <div class="invalid-feedback"
+                              *ngFor="let e of errors['members.'+memberKey+'.'+field.name+'.village']">
+                              {{e}}
+                            </div>
+                          </div>
+
+                          
+
+
+
+                        </div>
+                        
+                      </div>
+                      <div *ngIf="field.type=='title'" class="mt-5">
+                        <div class="card-header bg_main">
+                          <h3> {{field.name|translate}}</h3>
+                        </div>
+                      </div>
+
+                      <div *ngIf="member.form.get(field.name) && member.form.get(field.name).invalid && (member.form.get(field.name).dirty || member.form.get(field.name).touched)" class="invalid-feedback">
+                  
+                          <div *ngIf="member.form.get(field.name).errors?.required">
+                           {{field.name|translate}} {{'required_message'|translate}} 
+                          </div>
+                         
+                        
+                        </div>
+                   </div>
+                  </div>
+              
+
+                  <div class="col-md-12 mt-5" *ngIf="fieldKey == member.fields.length -1 && member.files.length > 0">
+                      <div class="row">
+                        <div class="col-md-12 mb-3 mt-3">
+                          <h4 style="background-color:#95C8FF;padding:5px" class="mb-3">{{'file_upload_section'|translate}} </h4>
+                          <p> <span style="color:red;font-weight: bolder;">نوت: </span>{{'file_upload_section_details'|translate}} </p>
+                          </div>
+                      </div>
+                      <div class="row" *ngFor="let f of member.files">
+                        <div class="col-md-3">
+
+                            <div class="upload-btn-wrapper">
+                              <button class="file-btn">{{f.label|translate}}</button>
+                              <input type="file" ng2FileSelect [uploader]="f.uploader" multiple *ngIf="f.multiple"  />
+                              <input type="file" ng2FileSelect [uploader]="f.uploader" *ngIf="!f.multiple" />
+                            </div>
+                          <br/>
+
+                        </div>
+                    
+
+                    <div class="col-md-9" style="margin-bottom: 40px">
+
+                        <div class="alert alert-primary">
+                            {{f.description|translate}}
+                        </div>
+                      
+
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th width="30%">{{'file_name'|translate}}</th>
+                                <th>سایز</th>
+                                <th>حالت</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                           
+                            <tr *ngFor="let item of f.uploader.queue">
+                               
+                                <td><strong>{{ item?.file?.name }}</strong></td>
+                                <td nowrap>{{ (item.file.size/1024/1024) | number:'.2' }} MB</td>
+                               
+                                <td class="text-center">
+                                  {{item.progress}}%
+                    
+                                    <span *ngIf="item.isSuccess==true" style="color:green"><i class="fas fa-check-circle"></i></span>
+                        
+                                    <span *ngIf="item.isError" style="color:red"><i class="fas fa-ban"></i></span>
+                                    <div class="alert alert-danger" *ngFor="let fileError of f.uploader.errors[toMd5(item.file.name)]">
+                                        {{fileError}}
+                                    </div>
+                                </td>
+                                <td nowrap>
+                                    <button type="button" class="btn btn-danger btn-xs"
+                                            (click)="item.remove()">
+                                        <span class="glyphicon glyphicon-trash"></span> حذف
+                                    </button>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+
+                        <div>
+                            <div>
+                                <strong>{{f.uploader.progress}} % </strong>
+                            </div>
+                           
+                       
+                        </div>
+
+                    </div>
+                  </div>
+                  </div>
+               
+                
+                </ng-container>
+              </form>
+           
+            </div>
+
+
+          </div>
+
+
+        </div>
+     
+        <div class="row mt-5" *ngIf="errorKeys" style="border-top:1px solid #10A79B">
+          <div class="col-md-12">
+            <div *ngFor="let key of errorKeys">
+                <div  *ngFor="let e of errors[key]" class="alert alert-danger">
+                    {{e}}
+                  </div>
+            </div>
+            
+          </div>
+        </div>
+        <div class="row mb-5 mt-5">
+          <div class="col-md-12">
+            
+              <div class="alert alert-warning">
+                {{'important_notice_members'|translate}}
+              </div>
+           
+          </div>
+        </div>
+        <div class="row mb-5">
+            <div class="col-md-4">
+                <div class="mt-5">
+                <button class="btn btn-outline-success btn-block" (click)="saveWithMessage()">
+                    <i class="fas fa-save"></i>
+                      {{'save_form_info'|translate}}
+  
+                  </button>
+                </div>
+            </div>
+            <div class="col-md-4">
+             
+                <div class="mt-5">
+                  <button class="btn btn-outline-success btn-block" (click)="validateAndAddNewMember()" ngbTooltip="{{'click_here_to_add_family_member'|translate}}"> 
+                    <i class="fas fa-user-friends"></i>
+                    {{'add_family_member'|translate}}
+                  
+                  </button>
+                </div>
+              </div>
+          
+
+          <div class="col-md-4">
+              <div class="mt-5">
+              <button class="btn btn-outline-success btn-block" (click)="nextMember(memberKey,true)">
+                   {{'verify_and_send'|translate}} <i class="fas fa-arrow-circle-left"></i>
+                </button>
+              </div>
+          </div>
+          
+        </div>
+        <div class="row">
+        
+   
+          <div class="col-md-4 mt-5">
+            <button class="btn btn-outline-success btn-block" (click)="previousMember(memberKey)" *ngIf="memberKey>0"> <i
+                class="fas fa-arrow-circle-right"></i> برگشت به فورم  {{memberKey }}</button>
+          </div>
+          <div class="col-md-4 mt-5">
+          </div>
+          <div class="col-md-4 mt-5">
+          
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+    <div class="col-md-12 mb-5" *ngIf="step==2" >
+      <div class="card-header bg_main pointer" (click)="openStep(2)">
+        {{'final_step'|translate}}
+        <i [ngClass]="{fas:true,'fa-chevron-left': step!=2,'fa-chevron-down':step ==2,'float-right':true}"></i>
+      </div>
+    
+      <div class="card-body" *ngIf="step==2" >
+   
+              <div class="row" *ngIf="is_new_application">
+                  <div class="col-md-12">
+                    <div class="card">
+                      <div class="card-header bg_main pointer">
+                        {{'select_center'|translate}}
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+            
+                    <label>{{'country'|translate}}</label>
+             
+                    <select2 [data]="centerCountries" width="100%" height="200px" [value]="centerCountry"  allowClear="true"
+                      (valueChanged)="centerSelected($event,'country')">
+                      <option [value]=""></option>
+                    </select2>
+                    <div class="invalid-feedback" *ngFor="let e of error?.center_id"> {{e}} </div>
+                  </div>
+                  <div class="col-md-4"> 
+                 
+                    <label> ولایت / شهر</label>
+                    <select name="centerProvince" [(ngModel)]="centerProvince" class="form-control" [value]="centerProvince" (change)="centerSelected({value:centerProvince},'province')">
+                      <option *ngFor="let p of centerProvinces" [value]="p.id">{{p.text}}</option>
+                    </select>
+                  
+                    <div class="invalid-feedback" *ngFor="let e of error?.center_id"> {{e}} </div>
+                  </div>
+                  <div class="col-md-4" *ngIf="centerNames.length>0">
+            
+                    <label>{{'center_name'|translate}}</label>
+               
+                    <select name="centerNames" [(ngModel)]="model.center_id" class="form-control" [value]="model.center_id" (change)="centerSelected({value:model.center_id},'center')">
+                      <option *ngFor="let c of centerNames" [value]="c.id">{{c.text}}</option>
+                    </select>
+               
+            
+                    <div class="invalid-feedback" *ngFor="let e of error?.center_id"> {{e}} </div>
+                  </div>
+                </div>
+               
+                <div class="row mt-5 mb-3" *ngIf="model.center_id && appointments.length>0 && selectedCenter.enable_appointments == 1">
+                  <div class="col-md-12">
+                    <h4>{{'select_appointment_date'|translate}}</h4>
+                    <div class="invalid-feedback" *ngFor="let e of errors?.selectedAppointmentTime?.appointment_date"> {{e}} </div>
+                  </div>
+                </div>
+                <div class="row mt-5 mb-5" *ngIf="model.center_id && appointments.length == 0  && selectedCenter.enable_appointments == 1">
+                    <div class="col-md-12">
+                      <div class="alert alert-danger"> {{'no_appointments_found'|translate}} </div>
+                    </div>
+                </div>
+             
+                <div class="row" *ngIf="model.center_id && appointments.length>0 && selectedCenter.enable_appointments == 1">
+                  <div class="col-md-3 mt-3" *ngFor="let a of appointments">
+                      <button [ngClass]="{'btn btn-default btn-block':true,active:selectedAppointmentDate==a.month}" (click)="selectAppointmentDate(a)"> <i class="fas fa-calendar-alt"></i> {{a.month}} </button> 
+                  </div>
+                </div>
+                <div class="row mt-5 mb-5">
+                    <div class="col-md-12" *ngIf="appointment_times.length > 0">
+                        <h4>{{'select_appointment_time'|translate }}</h4>
+                    
+                      
+                    </div>
+                    
+                    <div class="col-md-4 mt-3" *ngFor="let a of appointment_times">
+                        <button [ngClass]="{'btn btn-default btn-block':true,active:model.selectedAppointmentTime.label == a.label}" (click)="selectAppointmentTime(a)">
+                           <i class="fas fa-clock"></i> {{a.label}} 
+
+                           <span class="badge badge-primary">{{a.number_of_appointments}}</span>
+                        </button> 
+                    </div>
+                  </div>
+                  
+                <div class="row mt-5 mb-5">
+                  <div class="col-md-12">
+                      <div class="alert alert-info">
+                          <h3>{{'review_message'|translate}} </h3>
+                        </div>
+                  </div>
+                </div>
+         <div class="row mt-5">
+            
+            <div class="col-md-2">
+              <input class="form-control" type="checkbox" value="" [(ngModel)]="model.confirmation" id="confirmation">
+            </div>
+            <div class="col-md-10" (click)="model.confirmation=!model.confirmation">
+              {{'gurantor_notice'|translate}}
+            </div>
+          </div>
+        <div class="row mt-5">
+
+          <div class="col-md-4">
+            <button class="btn btn-outline-success btn-block" (click)="previousStep()"> <i
+                class="fas fa-arrow-circle-right"></i> {{'back_to_form'|translate}} </button>
+          </div>
+          <div class="col-md-4">
+
+          </div>
+          <div class="col-md-4">
+            <!--
+              <a [href]="getPrintPreviewLink()" class="btn btn-secondary btn-block" target="_blank"> {{'print_sample'|translate}}<i
+                class="fa fa-print"></i></a>
+                -->
+          </div>
+        </div>
+       
+        <br>
+        <br>
+   
+
+        <hr>
+        <div class="alert alert-danger" *ngFor="let e of errors?.confirmation">
+          {{e}}
+        </div>
+       
+    
+
+        <div class="row mt-5" *ngIf="errorKeys" style="border-top:1px solid #10A79B">
+            <div class="col-md-12">
+              <div *ngFor="let key of errorKeys">
+                  <div  *ngFor="let e of errors[key]" class="alert alert-danger">
+                      {{e}}
+                    </div>
+              </div>
+              
+            </div>
+          </div>
+          <p *ngIf="processing"><ngb-progressbar type="danger" [value]="100" [striped]="true">{{'please_wait'|translate}}...</ngb-progressbar></p>
+        <button class="btn btn-primary btn-block" [disabled]="!model.confirmation|| processing" (click)="submitForm()"> <i
+            class="fas fa-envelope"></i> {{'check_and_send'|translate}} </button>
+      </div>
+    </div>
+ 
+</div>
+
+
+
+

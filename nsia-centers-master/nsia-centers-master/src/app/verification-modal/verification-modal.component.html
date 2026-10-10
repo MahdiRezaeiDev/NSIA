@@ -1,0 +1,36 @@
+<div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">لطفا شماره تثبیت هویت را درج نمایید</h4>
+    <button type="button" class="close" aria-label="Close" (click)="ref.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="row">
+      <div class="col-md-4">
+        <button [ngClass]="{'btn btn-block':true,'btn-secondary':!isButtonSelected('system'),'btn-success':isButtonSelected('system')}" (click)="verifiedBySystem()"> <i class="fas fa-file-text-o"></i> تثبیت به اساس IVP </button>
+      </div>
+      <div class="col-md-4">
+        <button [ngClass]="{'btn btn-block':true,'btn-secondary':!isButtonSelected('phone'),'btn-success':isButtonSelected('phone')}" (click)="verifiedByPhone()"> <i class="fas fa-phone"></i> تثبیت به اساس تماس </button>
+      </div>
+      <div class="col-md-4">
+        <button [ngClass]="{'btn btn-block':true,'btn-secondary':!isButtonSelected('archive'),'btn-success':isButtonSelected('archive')}" (click)="verifiedByArchive()"> <i class="fas fa-book"></i> تثبیت به اساس آرشیف </button>
+      </div>
+     
+      
+    </div>
+    <form>
+
+      <div class="form-group mt-3">
+        <label for="number" *ngIf="verification_type =='system'"> کاپی شماره تثبیت هویت از سیستم IVP</label>
+        <div class="input-group">
+          <input id="number" class="form-control" placeholder="{{ verification_type == 'system' ? 'کاپی شماره تثبیت هویت' :''}}" name="verification_reference_no" [(ngModel)]="verification_reference_no">
+          <div class="input-group-append">
+         
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-outline-primary calendar btn-block" (click)="updateVerification()" type="button"> تائید</button>
+  </div>

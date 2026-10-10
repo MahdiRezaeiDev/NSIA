@@ -1,0 +1,47 @@
+<div class="container">
+<div class="row mb-5 center" *ngFor="let center of centers">
+    <div class="col-md-12">
+        <h3 class="center_name">{{center.name}}</h3>
+    </div>
+    <div class="col-md-12">
+        <h4 class="time-title">درخواستی های امروز</h4>
+    </div>
+    <div class="col-md-12">
+        <div class="row statusBox">
+            <div class="col-md-4 box" *ngFor="let ta of center.todayApplications">
+                <h1>{{ta.status_text}}</h1>
+                <h2> 
+                    <span class="family-count"><i class="fas fa-users"></i> {{ta.total_family}}</span>   
+                    <span class="individual-count"><i class="fas fa-user"></i> {{ta.total_individual}}</span>
+                </h2>
+                
+                <a class="btn btn-dark btn-block mt-5" href="/dashboard?center_id={{center.id}}&status={{ta.status}}">معلومات</a>
+            </div>
+            <h5 *ngIf="center.todayApplications.length ==0" class="notfound">درخواستی پیدا نشد</h5>
+        </div>
+    </div>
+
+    <div class="col-md-12">
+        <h4 class="time-title">درخواستی های قبلی</h4>
+    </div>
+    <div class="col-md-12">
+        <div class="row statusBox">
+            <div class="col-md-4 box" *ngFor="let ta of center.oldApplications">
+                <h1>{{ta.status_text}}</h1>
+                <h2> 
+                    <span class="family-count"><i class="fas fa-users"></i> {{ta.total_family}}</span>   
+                    <span class="individual-count"><i class="fas fa-user"></i> {{ta.total_individual}}</span>
+                </h2>
+               
+                <a class="btn btn-dark btn-block mt-5" href="/dashboard?center_id={{center.id}}&status={{ta.status}}">معلومات</a>
+            </div>
+            <h5 *ngIf="center.oldApplications.length ==0" class="notfound">درخواستی پیدا نشد</h5>
+        </div>
+    </div>
+
+    <div class="col-md-12">
+        <a class="btn btn-primary btn-block mt-5" href="/dashboard?center_id={{center.id}}">معلومات بیشتر</a>
+    </div>
+ 
+</div>
+</div>

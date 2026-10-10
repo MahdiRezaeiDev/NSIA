@@ -1,0 +1,20 @@
+<div [ngClass]="{'card shadow-lg p-3 mb-5 bg-white rounded':true}">
+  
+    <div [ngClass]="{'card-body':true,opened:applicant.opened!=0}">
+        <div class="row">
+           <div class="col-md-12">
+                <h6 class="card-title">{{applicant.name}} {{applicant.surname}} ولد {{applicant.father_name}} {{applicant.father_surname}}</h6>
+                <p class="card-text">{{applicant.family_form_reference_no}}</p>
+                <p class="card-text box">  تاریخ:  {{applicant.appointment_date}} نوبت:{{applicant.queue_no}}  </p>
+            
+            </div>
+        
+        </div>
+    
+      
+    </div>
+    <div class="card-footer">
+        <h3 *ngIf="applicant.opened==1">  زیر کار  {{applicant.opened_by}} </h3>
+        <button *ngIf="canOpen()" class="btn btn-primary btn-block" [routerLink]="['/view-application-details',application_type,applicant.reference_no]">معلومات بیشتر</button>
+    </div>
+</div>

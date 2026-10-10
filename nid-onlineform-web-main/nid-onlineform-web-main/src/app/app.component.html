@@ -1,0 +1,7 @@
+<div [ngClass]="{bg:location.path()==''}">
+<app-navbar *ngIf="location.path()!=''"></app-navbar>
+<div class="custom-container">
+  <router-outlet></router-outlet>
+  <ngx-spinner></ngx-spinner>
+</div>
+</div>

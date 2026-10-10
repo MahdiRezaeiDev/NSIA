@@ -1,0 +1,158 @@
+
+<div class="row nsia-services">
+
+  <div class="col-lg-12 col-md-12 col-sm-12 ng-star-inserted">
+    <div class="sr-item">
+       
+            <div class="row">
+              <div class="col-md-7">
+                <div *ngIf="api.lang.selected =='fa'">
+                  <div class="service-icon"><img alt="" src="/assets/images/new_id_icon.png"></div>
+                      <div class="sr-brief">
+                      <h5>درخواست تذکرۀ جدید</h5>
+                      <h4>نکات مهم:</h4>
+                        <ul>
+                          <li> در این فورم، رئیس فامیل نخست معلومات خود و سپس معلومات اعضای فامیل خود را درج نماید.</li>
+                          <li> در صورتی‌که رئیس فامیل متاهل باشد، معلومات همسر و فرزندان خود را درج نماید.</li>
+                          <li> در صورتی‌که رئیس فامیل مجرد باشد، معلومات پدر، مادر، برادر و خواهر خود را درج نماید.</li>
+                         
+                    
+                        </ul>
+                      </div>
+                    </div>
+                  <div *ngIf="api.lang.selected =='ps'">
+                      <div class="service-icon"><img alt="" src="/assets/images/new_id_icon.png"></div>
+                      <div class="sr-brief"><h5>د نوې تذکرې غوښتنه</h5>
+                        <div >
+                          
+                          <h4>اړین ټکي:</h4>
+                          <ul>
+                            <li> په دې فورم کې د کورنۍ مشر لومړی خپل او بیا د خپلې کورنۍ د نورو غړو معلومات ولیکي.</li>
+                            <li> که د کورنۍ مشر متاهل وي، د خپلې مېرمنې او ماشومانو معلومات ولیکي. </li>
+                            <li> که د کورنۍ مشر مجرد وي د خپل پلار، مور، ورور او خور معلومات ولیکي.</li>
+                           
+                          </ul>          
+                        </div>
+                     </div>
+
+                   
+                  </div>
+              </div>
+              <div class="col-md-5" style="margin-top:10%">
+                <div class="row mb-3">
+                 
+                  <div class="col-md-12" style="padding:2px">
+                    <a class="c-btn-outline-blue btn-block" routerLink="/individual-form" tabindex="0">
+                      {{'nav.new_id'|translate}}
+                      <i class="fas fa-angle-left float-right"></i>
+                      </a>
+                  </div>
+                  <!--
+                  <div class="col-md-4" style="padding:2px">
+                      <button class="btn btn-outline-primary btn-block" style="padding:3px">{{'video_instructions' |translate}} <i class="fas fa-play-circle fa-2x"></i> </button>
+                  </div>
+                -->
+                  
+                </div>
+                <div class="row mb-3">
+                 
+                    <div class="col-md-12" style="padding:2px">
+                        <button class="c-btn-outline-blue btn-block" (click)="toggleForm('find')">{{'btn_uncomplete_form'|translate}}  <i [ngClass]="{'fas float-right':true,'fa-angle-left':formName!='find','fa-angle-down':formName=='find'}"></i></button>
+                        <div *ngIf="formName=='find'" class="mt-3 mb-3">
+                            <form action="/findApplication" method="GET" (ngSubmit)="findApplication()">
+                              <div class="input-group mb-3">
+                                <input type="text" name="reference_no" [(ngModel)]="reference_no" class="form-control"
+                                  #searchApplicationId placeholder="{{'forms.reference_no_placeholder'|translate}}"
+                                  aria-describedby="button-addon2">
+                                <div class="input-group-append">
+                                  <button class="c-btn-outline-blue" type="submit"
+                                    id="button-addon2">{{'buttons.application_search_label'|translate}}</button>
+                                </div>
+                              </div>
+                            </form>
+                            <div class="alert alert-danger mt-3 mb-3" *ngIf="applicationNotFound">
+                                {{'applicationNotFound'|translate}}
+                              </div>
+                            </div>
+                    </div>
+                    <!--
+                    <div class="col-md-4" style="padding:2px">
+                        <button class="btn btn-outline-primary btn-block" style="padding:3px"> {{'video_instructions' |translate}} <i class="fas fa-play-circle fa-2x"></i> </button>
+                    </div>
+                  -->
+                  </div>
+                
+                  <div class="row mb-3">
+                 
+                      <div class="col-md-12" style="padding:2px">
+                          <button class="c-btn-outline-blue btn-block" (click)="toggleForm('tracking')">
+                  
+                              {{'btn_track_form'|translate}} 
+                               <i [ngClass]="{'fas float-right':true,'fa-angle-left':formName!='tracking','fa-angle-down':formName=='tracking'}" ></i>
+                            </button>
+                            <div *ngIf="formName=='tracking'">
+                                <app-tracking [formName]="formName"></app-tracking>
+                            </div>
+                      </div>
+                      <!--
+                      <div class="col-md-4" style="padding:2px">
+                          <button class="btn btn-outline-primary btn-block" style="padding:3px"> {{'video_instructions' |translate}}  <i class="fas fa-play-circle fa-2x"></i> </button>
+                      </div>
+                      -->
+                      
+                    </div>
+
+                    <div class="row mb-3">
+                 
+                      <div class="col-md-12" style="padding:2px">
+                          <button class="c-btn-outline-blue btn-block" (click)="toggleForm('printing')">
+                  
+                              {{'btn_search_print_form'|translate}} 
+                               <i [ngClass]="{'fas float-right':true,'fa-angle-left':formName!='printing','fa-angle-down':formName=='printing'}" ></i>
+                            </button>
+                            <div *ngIf="formName=='printing'">
+                                <app-tracking [formName]="formName"></app-tracking>
+                            </div>
+                      </div>
+                      <!--
+                      <div class="col-md-4" style="padding:2px">
+                          <button class="btn btn-outline-primary btn-block" style="padding:3px"> {{'video_instructions' |translate}}  <i class="fas fa-play-circle fa-2x"></i> </button>
+                      </div>
+                      -->
+                      
+                    </div>
+
+                    <div class="row mb-3">
+                 
+                      <div class="col-md-12" style="padding:2px">
+                          <a class="c-btn-outline-blue btn-block" target="_blank" href="https://www.eservices.nsia.gov.af/public/forms/formsubmit/602b538551e72">
+                              {{'complain'|translate}} 
+                               <i class="fas fa-external-link-alt float-right" ></i>
+                          </a>
+                           
+                      </div>
+                      <!--
+                      <div class="col-md-4" style="padding:2px">
+                          <button class="btn btn-outline-primary btn-block" style="padding:3px"> {{'video_instructions' |translate}}  <i class="fas fa-play-circle fa-2x"></i> </button>
+                      </div>
+                      -->
+                      
+                    </div>
+
+            
+                
+            
+               
+              </div>
+            </div>
+             
+           
+        </div>
+        
+     
+    </div>
+  
+
+
+
+</div>

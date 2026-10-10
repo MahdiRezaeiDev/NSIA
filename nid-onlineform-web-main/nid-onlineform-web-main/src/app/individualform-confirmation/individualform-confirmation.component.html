@@ -1,0 +1,58 @@
+<div *ngIf="submittedForm.reference_no">
+  <div class="card">
+
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-12 text-center" *ngIf="api.lang.selected =='fa'">
+          <h3 style="color:green"><i class="fas fa-check-circle fa-3x"></i></h3>
+          <h3>درخواستی شما موفقانه ارسال گردید!</h3>
+          <p>مرکز  توزیع تذکرۀ الکترونیکی {{submittedForm.appointment_address}} به‌زودی با شما در تماس شده و جهت طی مراحل بعدی، شما را به‌مرکز دعوت می‌نماید.</p>
+
+
+          <h5> شما می‌توانید طی مراحل درخواستی خویش را با استفاده از کُد ذیل تعقیب نمایید!</h5>
+        </div>
+        <div class="col-md-12 text-center" *ngIf="api.lang.selected =='ps'">
+            <h3 style="color:green"><i class="fas fa-check-circle fa-3x"></i></h3>
+            <h3> ستاسو غوښتنلیک په بریالیتوب سره ولېږل شو!</h3>
+            
+            <p>
+              د {{submittedForm.appointment_address}}  د الکترونیکي تذکرو د وېش څانګه به ډېر ژر له تاسو سره د نورو پړاوونو د بشپړولو په موخه اړیکه ونیسي.
+           
+            </p>
+  
+            <h5>تاسو کولی شئ د لاندې شمېرې په کارولو سره خپله غوښتنه وڅارئ!</h5>
+  
+  
+          </div>
+        <div class="col-md-2"></div>
+        <div class="col-md-8">
+
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>نوم/ نام</th>
+                <th>شماره درخواستی</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let app of submittedForm.applications">
+                <td>{{app.name}}</td>
+                <td>
+                  <h5>{{app.reference_no}}</h5>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="col-md-2"></div>
+  
+        <div class="col-md-4"></div>
+        <div class="col-md-4">
+          <a href="{{submittedForm?.path}}" class="btn btn-secondary  btn-block" target="_blank"> {{'print'|translate}} <i
+              class="fas fa-print"></i></a>
+        </div>
+        <div class="col-md-4"></div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,71 @@
+<div class="container">
+    <div class="row mb-5">
+        <div class="col-md-12">
+            <h1>راپور فعالیت های کاری</h1>
+        </div>
+    </div>
+    <div class="row mb-5">
+        <div class="col-md-3">
+                تاریخ شروع
+                <input type="text"  [(ngModel)]="start_date" ngbDatepicker class="form-control" #startDate="ngbDatepicker"  (click)="startDate.open()"/>
+        </div>
+        <div class="col-md-3">
+                تاریخ ختم 
+                <input type="text" [(ngModel)]="end_date" ngbDatepicker class="form-control" #endDate="ngbDatepicker"  (click)="endDate.open()"/>
+        </div>
+        <div class="col-md-2">
+            <label>فلتر به اساس حالت</label>
+            <div ngbDropdown >
+                    <button [ngClass]="{'btn btn-outline-primary btn-block':true,'active':selectedStatus?.description}" id="dropdownBasic1" ngbDropdownToggle>
+                        {{selectedStatus.description}}
+                      
+                    </button>
+                    <div ngbDropdownMenu aria-labelledby="dropdownBasic1" >
+                      <button ngbDropdownItem *ngFor="let s of statusList" (click)="selectStatus(s)"> {{s?.description}}</button>
+                    
+                    </div>
+            </div>
+        </div>
+            <div class="col-md-4">
+                <label>فلتر به اساس نام کارمند</label>
+                <select2 [data]="users" [cssImport]="true" width="100%" (valueChanged)="selectUser($event)"></select2>
+            </div>
+        
+    </div>
+    <div class="row">
+        <div class="col-md-4"></div>
+        <div class="col-md-4">
+          
+                <button class="btn btn-success btn-block " (click)="getEvents()">جستجو</button>
+
+                <button *ngIf="events.length>0" class="btn btn-primary btn-block mt-4" (click)="api.exportToXls('/downloadActivityReport')"> Export To XLS  <i class="fas fa-file-csv"></i></button>
+           
+        </div>
+        <div class="col-md-4"></div>
+    </div>
+    <div class="row mt-5">
+        <div class="col-md-12">
+        تعداد درخواستی های انفرادی {{events.length}}
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>تاریخ</th>
+                        <th>شماره انفرادی</th>
+                        <th>تفصیلات</th>
+                        <th>اسم کارمند</th>
+                     
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let a of events">
+                        <td>{{a.date}}</td>
+                        <td><a href="/view-application-details/individual/{{a.reference_no}}" target="_blank">{{a.reference_no}}</a></td>
+                        <td>{{a.description}}</td>
+                        <td>{{a.username}}</td>
+                       
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

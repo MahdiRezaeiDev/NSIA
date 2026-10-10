@@ -1,0 +1,32 @@
+<div class="container">
+    <app-searchbar (centerSelected)="onCenterSelected($event)" [center_id]="center_id" [status]="status" (statusSelected)="onStatusSelected($event)" [showDatePicker]="true"></app-searchbar>
+    <div class="row mt-5">
+        <div class="col-md-10"></div>
+        <div class="col-md-2" *ngIf="api.applications.length>0">
+            <button class="btn btn-primary btn-block" (click)="api.exportToXls('/downloadFamilyReport')"> Export To XLS  <i class="fas fa-file-csv"></i></button>
+        </div>
+        <div class="col-md-12">
+            تعداد درخواستی های فامیلی {{api.applications.length}}
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>شماره فامیلی</th>
+                        <th>تعداد اعضاء فامیل</th>
+                        <th>اسم</th>
+                        <th>ولد</th>
+                     
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let a of api.applications">
+                        <td>{{a.family_form_reference_no}}</td>
+                        <td>{{a.total_applicants}}</td>
+                        <td>{{a.name}} {{a.surname}}</td>
+                        <td>{{a.father_name}} {{a.father_surname}}</td>
+                     
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

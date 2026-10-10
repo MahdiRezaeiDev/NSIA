@@ -1,0 +1,85 @@
+<div class="navbar-wrapper" >
+
+  <div class="header">
+      <div class="row">
+        <div class="col-lg-3 col-md-3 logos">
+          <div class="logo-wrapper">
+            <!-- <div class="gov-logo">
+              <img src="../../../assets/logo/national-emblem.svg" alt="">
+            </div> -->
+            <div class="nsia-logo">
+              
+              <img src="../../../assets/logo/amended-logo final final-01.svg" alt="">
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+            <nav class="navbar navbar-expand-lg navbar-light" id="navbar">
+                <div class="custom-container">
+            
+            
+                  <div class="collapse navbar-collapse" id="collapsable-nav">
+                    <ul class="navbar-nav mt-2 mt-lg-0">
+                      <li class="nav-item" id="home">
+                        <a href="" routerLink="/home">
+                          <i class="fas fa-home"></i>
+                        </a>
+                      </li>
+                      <div class="seperator"><div></div></div>
+                      <li class="nav-item">
+                        <a class="nav-link" href="#" aria-haspopup="true"
+                          aria-expanded="false" routerLink="/individual-form" >
+                          {{ 'nav.new_id' | translate }}
+                        </a>
+            
+                   
+                      </li>
+                      <li class="nav-item">
+                        <a class="nav-link" href="https://www.eservices.nsia.gov.af/public/forms/formsubmit/602b538551e72" target="_blank" >
+                          {{ 'complain' | translate }}
+                        </a>
+            
+                   
+                      </li>
+                     
+                     
+                 
+                      
+                    
+                    </ul>
+                    
+                    <!-- <form class="form-inline my-2 my-lg-0">
+                    <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+                  </form> -->
+                  </div>
+                </div>
+              </nav>
+            
+        </div>
+        <div class="col-md-3">
+      
+            <div class="btn-group">
+            <button [ngClass]="{'btn btn-outline-primary':true, active: api.lang.selected =='ps'}" (click)="api.setLang('ps')"> پښتو</button>
+                <button [ngClass]="{'btn btn-outline-primary':true, active: api.lang.selected =='fa'}" (click)="api.setLang('fa')"> دری</button>
+                
+            
+            </div>
+            <div style="margin-right:8%;background-color:#2B2761;color:white;padding:0.5%;width:80%" class="mt-3">
+              <i class="fas fa-phone"></i>
+                {{'contact_no'|translate}} :
+                450
+              </div>
+          
+        </div>
+  
+      </div>
+   
+
+      
+    </div>
+
+
+  </div>
+
+

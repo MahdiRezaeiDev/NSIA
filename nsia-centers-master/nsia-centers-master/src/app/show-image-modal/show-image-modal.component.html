@@ -1,0 +1,68 @@
+<div class="modal-header">
+    <h2 class="modal-title" id="modal-basic-title">مقایسه معلومات اساس با فورم آنلاین</h2>
+    <button type="button" class="close" aria-label="Close" (click)="ref.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <table class="table table-bordered" *ngIf="record">
+      <tr>
+        <th colspan="5">  <h3>معلومات کتاب اساس</h3></th>
+      </tr>
+      <tr>
+        <th>اسم</th>
+        <th>ولد</th>
+        <th>ولدیت</th>
+        <th>سکونت اصلی</th>
+        <th>معلومات تذکره</th>
+      </tr>
+      <tr>
+        <td>{{record?.name}}  </td>
+        <td>{{record?.father_name}}</td>
+        <td>{{record?.grand_father_name}}  </td>
+        <td>{{record?.province}} </td>
+        <td>{{record?.book_name}} <br>صـ {{record?.page_number}} </td>
+      </tr>
+      <tr>
+        <th colspan="5">     <h3>معلومات فارم آنلاین</h3></th>
+      </tr>
+      <tr>
+        <th>اسم</th>
+        <th>ولد</th>
+        <th>ولدیت</th>
+        <th>سکونت اصلی</th>
+        <th>معلومات تذکره</th>
+      </tr>
+      <tr>
+        <td>{{application.name}}/{{application.surname}} </td>
+        <td>{{application.father_name}} / {{application.father_surname}} </td>
+        <td>{{application.grand_father_name}} / {{application.grand_father_surname}} </td>
+        <td>{{application.original_residence_province}} {{application.original_residence_district}} </td>
+        <td>{{application.paper_id_volume}}  {{application.paper_id_year}} ص {{application.paper_id_page}} ث {{application.paper_id_registration}}</td>
+      </tr>
+    </table>
+    <div class="row mt-3">
+      <div class="col-md-3"></div>
+      <div class="col-md-6">
+        <button class="btn btn-success btn-block" (click)="verify()" type="button"> <i class="fas fa-check"></i> تثبیت هویت شد </button>
+      </div>
+      <div class="col-md-3"></div>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+          <app-image-viewer *ngIf="image" [download]="false" [images]="[image]" 
+          idContainer="books" [loadOnInit]="true"></app-image-viewer>
+      </div>
+      <div class="col-md-6">
+    
+        <app-image-viewer  [download]="false" [images]="attachments"
+        idContainer="applicationdetails" [loadOnInit]="true" ></app-image-viewer>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <button class="btn btn-outline-danger calendar btn-block" (click)="ref.dismiss('Cross click')" type="button"> پستن</button>
+      </div>
+  
+    </div>
+  </div>

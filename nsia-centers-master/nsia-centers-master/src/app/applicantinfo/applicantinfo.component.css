@@ -1,0 +1,18 @@
+.card{
+    border:1px dashed grey;
+}
+.box{
+    border:1px solid #1369D9;
+    padding:10px;
+    font-size:120%;
+    font-weight: bolder;
+}
+
+.photo{
+    max-width: 100px;
+}
+
+.opened{
+    border:2px solid red;
+    background-color:orange;
+}

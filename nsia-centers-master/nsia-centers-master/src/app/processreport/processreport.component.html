@@ -1,0 +1,18 @@
+<table class="table table-striped">
+    <tr>
+        <th>تاریخ</th>
+        <th>پروسه</th>
+        <th>زمان</th>
+        <th>کارمند</th>
+    </tr>
+    <tbody>
+        <tr *ngFor="let e of processes">
+            <td>{{e.date}}</td>
+            <td>{{e.description}}</td>
+            <td>{{e.minutes}} دقیقه</td>
+            <td>{{e.username}}</td>
+        </tr>
+    </tbody>
+
+
+</table>

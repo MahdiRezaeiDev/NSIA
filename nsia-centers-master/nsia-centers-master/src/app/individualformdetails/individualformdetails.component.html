@@ -1,0 +1,604 @@
+<div class="row" *ngIf="applicant?.name">
+  <div class="col-md-9">
+    <ngb-tabset type="pills">
+      <ngb-tab title="معلومات درخواست کننده">
+        <ng-template ngbTabContent="ngbTabContent">
+          <div class="row mt-5">
+            <div class="col-md-4">
+              <img [src]="applicant?.photo | image | async" class="rounded mx-auto d-block photo" alt=""
+                style="max-height:150px"></div>
+            <div class="col-md-8">
+              <h3> شماره انفرادی {{applicant?.reference_no}} </h3>
+              <h6 class="box">
+                تعداد اعضای خانواده
+                {{total_applicants}}</h6>
+              <h6 class="box">
+                نوبت
+                {{queue_no}}</h6>
+              <h6 class="card-title">
+               
+                {{applicant?.name}}
+                {{applicant?.surname}}
+                ولد
+                {{applicant?.father_name}}
+                {{applicant?.father_surname}}
+              </h6>
+              <h6 class="card-title">{{applicant?.relationship}}</h6>
+              <div class="alert alert-success">
+                {{applicant?.statusDescription}}
+              
+                
+              </div>
+              <div class="alert alert-info" *ngIf="applicant?.verification_reference_no && api.isIdVerificationReference(applicant?.verification_reference_no)">
+                شماره تثبیت هویت: <a href="http://149.54.11.58:100/pages/search/verify/?ID={{applicant?.verification_reference_no}}" dir="ltr" target="_blank">{{applicant?.verification_reference_no}}</a> 
+              </div>
+              <div class="alert alert-info" *ngIf="applicant?.verification_reference_no && api.isIdVerificationReference(applicant?.verification_reference_no)==false">
+                شماره تثبیت هویت: <span dir="ltr">{{applicant?.verification_reference_no}} </span>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="card shadow-lg p-3 mb-5 bg-white rounded" *ngIf="applicant?.name">
+
+
+            <div class="card-body">
+              
+              <div class="row">
+                <div class="col-md-12">
+                  <h5>{{applicant?.center_name}}</h5>
+                  <div class="row mb-4">
+                    <!--
+                      <div class="col-md-12">
+                        <div class="alert alert-warning">لطفا معلومات تمام اعضای خانواده را چک نموده بعدا حالت درخواستی را تغیر دهید. این گذینه حالت  درخواستی تمام اعضای فامیل را تغیر میدهد.</div>
+                      </div>
+                    -->
+
+                    <div class="col-md-4" *ngFor="let a of actions">
+                      <button class="{{a.webClass}} btn-block" (click)="changeStatus(a.webOnClick)">{{a.label}}</button>
+                    </div>
+                  </div>
+                  <ngb-accordion #acc="ngbAccordion" [activeIds]="opened_panel" [closeOthers]="true"
+                    (panelChange)="panelChanged($event)">
+                    <ngb-panel>
+                      <ng-template ngbPanelTitle="ngbPanelTitle">
+                        <span>معلومات عمومی &nbsp;
+                          <i
+                            [ngClass]="{'fas float-right':true,'fa-caret-down':isOpened('ngb-panel-0'),'fa-caret-left':!isOpened('ngb-panel-0')}"></i>
+                        </span>
+                      </ng-template>
+                      <ng-template ngbPanelContent="ngbPanelContent">
+                        <table class="table table-striped">     
+                          <tbody>
+                            <tr>
+                              <td>اسم</td>
+                              <td>{{applicant.name}}
+                              </td>
+                              <td>تخلص</td>
+                              <td>{{applicant.surname}}</td>
+                            </tr>
+                            <tr>
+                              <td>Name</td>
+                              <td>{{applicant.english_name}}
+                              </td>
+                              <td>Surname</td>
+                              <td>{{applicant.english_surname}}</td>
+                            </tr>
+                            <tr>
+                              <td>ولد</td>
+                              <td>{{applicant.father_name}}
+                                {{applicant.father_surname}}</td>
+                              <td>ولدیت</td>
+                              <td>{{applicant.grand_father_name}}
+                                {{applicant.grand_father_surname}}</td>
+                            </tr>
+                            <tr>
+                              <td>تاریخ تولد</td>
+                              <td>
+                                {{applicant.birthday_day}}/{{applicant.birthday_month}}/{{applicant.birthday_year}}
+                              </td>
+                              <td>حالت مدنی</td>
+                              <td>{{getMartialStatus(applicant.marital_status)}}</td>
+                            </tr>
+                            <tr>
+                              <td>اسم مادر</td>
+                              <td>{{applicant.mother_name}}</td>
+                              <td>
+                                جنس</td>
+                              <td>
+                                <div *ngIf="applicant.gender==1">
+                                  مرد
+
+                                </div>
+                                <div *ngIf="applicant.gender!=1">
+                                  زن
+
+                                </div>
+                              </td>
+
+                            </tr>
+                            <tr>
+                              <td>خدمت عسکری</td>
+                              <td>
+                                <div *ngIf="applicant.military_service==1">بلی</div>
+                                <div *ngIf="applicant.military_service!=1">نخیر</div>
+                              </td>
+                              <td>
+                                سواد</td>
+                              <td>
+                                <div *ngIf="applicant.is_educated==1">
+                                  بلی -
+                                  {{applicant.education_level}}
+
+                                </div>
+                                <div *ngIf="applicant.is_educated!=1">
+                                  نخیر
+
+                                </div>
+                              </td>
+
+                            </tr>
+                            <tr>
+                              <td>سکونت فعلی</td>
+                              <td colspan="3">
+                                ولایت:
+                                {{applicant.current_residence.province}}
+                                &nbsp; ولسوالی : &nbsp;
+                                {{applicant.current_residence.district}}
+                                &nbsp; قریه: &nbsp; &nbsp;
+                                {{applicant.current_residence.village}}
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>دین</td>
+                              <td>{{applicant.religion}}</td>
+                              <td>مذهب</td>
+                              <td>{{applicant.religion_sector}}</td>
+
+
+                            </tr>
+                            <tr>
+                              <td>قوم</td>
+                              <td>
+                                {{applicant.ethnicity_name }}</td>
+                              <td>زبان مادری</td>
+                              <td>
+                                {{applicant.mother_tongue_name}}</td>
+                            </tr>
+                            <tr>
+                              <td>وظیفه</td>
+                              <td>
+                                {{applicant.occupation }}</td>
+                              <td>تابعیت دوم:
+                              </td>
+                              <td>
+                                {{applicant.second_citizenship_country}}</td>
+
+                            </tr>
+                            <tr>
+                              <td>گروپ خون</td>
+                              <td>
+                                {{applicant.blood_group}}</td>
+                              <td>نوع معلولیت</td>
+                              <td>
+                                {{applicant.disability_type}}</td>
+                            </tr>
+
+                            <tr *ngIf="applicant.is_kochi!=0">
+                              <td>محل رهایش تابستان ( برای کوچی ها )</td>
+                              <td>
+                                {{applicant.kochi_spring_residence_province }}
+                                {{applicant.kochi_spring_residence_district }}
+                                {{applicant.kochi_spring_residence_village }}
+                              </td>
+                              <td>گروپ خون</td>
+                              <td>
+                                {{applicant.kochi_winter_residence_province }}
+                                {{applicant.kochi_winter_residence_district }}
+                                {{applicant.kochi_winter_residence_village }}
+
+                              </td>
+                            </tr>
+
+
+                          </tbody>
+                        </table>
+
+                      </ng-template>
+                    </ngb-panel>
+                    <ngb-panel>
+                      <ng-template ngbPanelTitle="ngbPanelTitle">
+                        <span>معلومات تذکره &nbsp;
+                          <i
+                            [ngClass]="{'fas float-right':true,'fa-caret-down':isOpened('ngb-panel-1'),'fa-caret-left':!isOpened('ngb-panel-1')}"></i>
+                        </span>
+
+                      </ng-template>
+                      <ng-template ngbPanelContent="ngbPanelContent">
+                        <h4 *ngIf="!applicant.has_id" class="alter alter-danger">
+                          تذکره ندارد
+                        </h4>
+                        <table class="table table-striped" *ngIf="applicant.has_id">
+                          <tbody>
+                            <tr>
+                              <td>محل صدور</td>
+                              <td>
+                                ولایت:
+                                {{applicant.original_residence.province}}
+                              </td>
+                              <td>
+                                ولسوالی:
+                                {{applicant.original_residence.district}}
+                              </td>
+                              <td>
+                                قریه:
+                                {{applicant.original_residence.village}}
+                              </td>
+                            </tr>
+                            <tr>
+
+                              <td>
+                                جلد:
+                                {{applicant.paper_id_year}}
+                                {{applicant.paper_id_volume}}
+                              </td>
+                              <td>
+                                صفحه:
+                                {{applicant.paper_id_page}}
+                              </td>
+                              <td>
+                                ثبت:
+                                {{applicant.paper_id_registration}}
+                              </td>
+                              <td>
+                                صکوک:
+                                {{applicant.paper_id_sokok}}
+                              </td>
+                            </tr>
+
+                            <tr>
+                              <td>
+                                تاریخ تولد:
+                              </td>
+                              <td>
+                                {{applicant.birthday_day}}/{{applicant.birthday_month}}/{{applicant.birthday_year}}
+                              </td>
+                              <td>
+                                تاریخ صدور:
+                              </td>
+                              <td>
+                                {{applicant.id_issue_date_day}}/{{applicant.id_issue_date_month}}/{{applicant.id_issue_date_year}}
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </ng-template>
+                    </ngb-panel>
+
+                    <ngb-panel>
+                      <ng-template ngbPanelTitle="ngbPanelTitle">
+                        <span>معلومات تماس &nbsp;
+                          <i
+                            [ngClass]="{'fas float-right':true,'fa-caret-down':isOpened('ngb-panel-2'),'fa-caret-left':!isOpened('ngb-panel-2')}"></i>
+                        </span>
+                      </ng-template>
+                      <ng-template ngbPanelContent="ngbPanelContent">
+                        <table class="table table-striped">
+                          <tbody>
+                            <tr>
+                              <td>شماره تماس اولی</td>
+                              <td>{{applicant.primary_contact_no}}</td>
+                              <td>شماره تماس دومی</td>
+                              <td>{{applicant.secondary_contact_no}}</td>
+                            </tr>
+                            <tr>
+                              <td>ایمیل آدرس</td>
+                              <td>{{applicant.email_address}}</td>
+
+                            </tr>
+                          </tbody>
+                        </table>
+                      </ng-template>
+                    </ngb-panel>
+                    <ngb-panel *ngIf="applicant.first_gurantor_name">
+                      <ng-template ngbPanelTitle="ngbPanelTitle">
+                        <span>تصدیق کننده اولی &nbsp;
+                          <i
+                            [ngClass]="{'fas float-right':true,'fa-caret-down':isOpened('ngb-panel-3'),'fa-caret-left':!isOpened('ngb-panel-3')}"></i>
+                        </span>
+                      </ng-template>
+                      <ng-template ngbPanelContent="ngbPanelContent">
+                        <h4 *ngIf="!applicant.first_gurantor_name" class="alter alter-danger">
+                          تصدیق کننده ندارد
+                        </h4>
+                        <table class="table table-striped" *ngIf="applicant.first_gurantor_name">
+                          <tbody>
+                            <tr>
+                              <td>نام و تخلص</td>
+                              <td>
+                                {{applicant.first_gurantor_name}}
+                                {{applicant.first_gurantor_surname}}
+                               
+                              </td>
+                              <td>نام پدر و تخلص</td>
+                              <td>
+                                {{applicant.first_gurantor_father_name}}
+                                {{applicant.first_gurantor_father_surname}}
+                              </td>
+                              <td>نام پدر کلان و تخلص</td>
+                              <td>
+                                {{applicant.first_gurantor_grand_father_name}}
+                                {{applicant.first_gurantor_grand_father_surname}}</td>
+                            </tr>
+                            <tr>
+                              <td>تاریخ تولد</td>
+                              <td>
+                                {{applicant.first_gurantor_dob_day}}/{{applicant.first_gurantor_dob_month}}/{{applicant.first_gurantor_dob_year}}
+                              </td>
+                              <td>شماره های تماس</td>
+                              <td>{{applicant.first_gurantor_contact_no}}</td>
+                            </tr>
+                            <tr>
+                              <td colspan="6" style="background-color: lightblue;">
+                                <h4>
+                                  معلومات تذکره</h4>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td colspan="6">
+                                {{applicant.first_gurantor_paper_id_year}}
+                                {{applicant.first_gurantor_paper_id_volume}}
+                                جلد
+                                {{applicant.first_gurantor_paper_id_page}}
+                                صفحه
+                                {{applicant.first_gurantor_paper_id_registration}}
+                                ثبت
+                                {{applicant.first_gurantor_paper_id_sokok}}
+                                سکوک
+                                شماره تذکره الکترونیکی :
+                                {{applicant.first_gurantor_digital_id}}
+                              </td>
+
+                            </tr>
+                            <tr>
+                              <td>محل صدور</td>
+                              <td colspan="6">
+                                {{applicant.first_gurantor_id_issue_province}}
+                                {{applicant.first_gurantor_id_issue_district}}
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </ng-template>
+                    </ngb-panel>
+
+
+                    <ngb-panel *ngIf="applicant.second_gurantor_name">
+                      <ng-template ngbPanelTitle="ngbPanelTitle">
+                        <span>تصدیق کننده دومی &nbsp;
+                          <i
+                            [ngClass]="{'fas float-right':true,'fa-caret-down':isOpened('ngb-panel-4'),'fa-caret-left':!isOpened('ngb-panel-4')}"></i>
+                        </span>
+                      </ng-template>
+                      <ng-template ngbPanelContent="ngbPanelContent">
+
+                        <table class="table table-striped">
+                          <tbody>
+                            <tr>
+                              <td>نام و تخلص</td>
+                              <td>
+                                {{applicant.second_gurantor_name}}
+                                {{applicant.second_gurantor_surname}}</td>
+                              <td>نام پدر و تخلص</td>
+                              <td>
+                                {{applicant.second_gurantor_father_name}}
+                                {{applicant.second_gurantor_father_surname}}</td>
+                              <td>نام پدر کلان و تخلص</td>
+                              <td>
+                                {{applicant.second_gurantor_grand_father_name}}
+                                {{applicant.second_gurantor_grand_father_surname}}</td>
+                            </tr>
+                            <tr>
+                              <td>تاریخ تولد</td>
+                              <td>
+                                {{applicant.second_gurantor_dob_day}}/{{applicant.second_gurantor_dob_month}}/{{applicant.second_gurantor_dob_year}}
+                              </td>
+                              <td>شماره های تماس</td>
+                              <td>{{applicant.second_gurantor_contact_no}}</td>
+                            </tr>
+                            <tr>
+                              <td colspan="6" style="background-color: lightblue;">
+                                <h4>
+                                  معلومات تذکره</h4>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td colspan="6">
+                                {{applicant.second_gurantor_paper_id_year}}
+                                {{applicant.second_gurantor_paper_id_volume}}
+                                جلد
+                                {{applicant.second_gurantor_paper_id_page}}
+                                صفحه
+                                {{applicant.second_gurantor_paper_id_registration}}
+                                ثبت
+                                {{applicant.second_gurantor_paper_id_sokok}}
+                                سکوک
+                                شماره تذکره الکترونیکی :
+                                {{applicant.second_gurantor_digital_id}}
+                              </td>
+
+                            </tr>
+                            <tr>
+                              <td>محل صدور</td>
+                              <td colspan="4">
+                                {{applicant.second_gurantor_id_issue_province}}
+                                {{applicant.second_gurantor_id_issue_district}}
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </ng-template>
+                    </ngb-panel>
+
+                  </ngb-accordion>
+
+                </div>
+
+              </div>
+              <h2>ضمایم</h2>
+              <div class="spinner-border text-primary" role="status" *ngIf="!loadGallery" >
+                <span class="sr-only">لطفا صبر کنید...</span>
+              </div>
+          
+              <app-image-viewer *ngIf="loadGallery && attachments.length>0" [download]="false" [images]="attachments"
+                [idContainer]="'idOnHTML'" [loadOnInit]="true"></app-image-viewer>
+                <h4 *ngIf="attachments.length > 0 && matches.length > 0">معلومات مقایسه شده با سیستم IVP</h4>
+                <table class="table table-bordered" *ngIf="attachments.length >0  && matches.length > 0">
+                  <tr>
+                    <td>اسم</td>
+                    <td>ولد</td>
+                    <td>ولدیت</td>
+                    <td>عمر</td>
+                    <td>شباهت</td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr *ngFor="let m of matches">
+                    <td>{{m.name}}</td>
+                    <td>{{m.father_name}}</td>
+                    <td>{{m.grand_father_name}}</td>
+                    <td>{{m.age}} سال {{m.age_year}}</td>
+                    <td>{{m.match_score}}%</td>
+                    <td><button class="btn btn-primary" (click)="openModal(m,'cropped')">باز نمودن ریکارد</button></td>
+                    <td><button class="btn btn-primary" (click)="openModal(m,'full')"> باز نمودن صفحه مکمل</button></td>
+                  </tr>
+                </table>
+            </div>
+
+          </div>
+        
+          <app-note *ngIf="applicant?.reference_no" [application_type]='"individualform"' [reference_no]="applicant?.reference_no"></app-note>
+        </ng-template>
+      </ngb-tab>
+      <ngb-tab>
+        <ng-template ngbTabTitle="ngbTabTitle">معلومات پروسه</ng-template>
+        <ng-template ngbTabContent="ngbTabContent">
+          <app-processreport [processes]="processes" *ngIf="applicant.reference_no"></app-processreport>
+        </ng-template>
+      </ngb-tab>
+
+    </ngb-tabset>
+
+  </div>
+  <div class="col-md-3" style="padding-right:0px">
+    <div class="card shadow-lg mb-5 bg-white rounded" *ngFor="let applicant of members" style="padding:0px;margin:0px">
+
+      <div class="card-body" style="padding:0px">
+        <img [src]="applicant?.photo | image | async" class="rounded mx-auto d-block photo" alt=""
+        style="max-height:150px">
+        <div class="row">
+          <div class="col-md-12">
+            <p class="card-text">
+              شماره درخواستی
+              {{applicant.reference_no}}</p>
+
+              <h6 class="alert alert-success" *ngIf="applicant.apply_for_new_id=='بلی'">{{applicant.statusDescription}}</h6>
+              <div class="alert alert-info" *ngIf="applicant?.verification_reference_no && api.isIdVerificationReference(applicant?.verification_reference_no)">
+                شماره تثبیت هویت: <a href="http://149.54.11.58:100/pages/search/verify/?ID={{applicant?.verification_reference_no}}" dir="ltr" target="_blank">{{applicant?.verification_reference_no}}</a> 
+              </div>
+              <div class="alert alert-info" *ngIf="applicant?.verification_reference_no && api.isIdVerificationReference(applicant?.verification_reference_no)==false">
+                شماره تثبیت هویت: <span dir="ltr">{{applicant?.verification_reference_no}}</span> 
+              </div>
+            </div>
+          <div class="col-md-12">
+
+            <table class="table table-striped">
+              <tbody>
+                <tr>
+                  <td>اسم</td>
+                  <td>{{applicant.name}}
+                    {{applicant.surname}}</td>
+                </tr>
+                <tr>
+                  <td>ولد</td>
+                  <td>{{applicant.father_name}}
+                    {{applicant.father_surname}}</td>
+                </tr>
+                <tr>
+                  <td>ولدیت</td>
+                  <td>{{applicant.grand_father_name}}
+                    {{applicant.grand_father_surname}}</td>
+                </tr>
+                <tr>
+                  <td>
+                    قرابت با رییس فامیل</td>
+                  <td>{{applicant.relationship}}</td>
+                </tr>
+                <tr>
+                  <td>
+                    جنس</td>
+                  <td>
+                    <div *ngIf="applicant.gender==1">
+                      مرد
+
+                    </div>
+                    <div *ngIf="applicant.gender!=1">
+                      زن
+
+                    </div>
+
+
+                  </td>
+
+                </tr>
+                <tr>
+                  <td>وفات </td>
+                  <td>
+                    <span *ngIf="applicant.living_status == 1 || applicant.living_status=='نخیر'">
+                        نخیر
+                    </span>
+                    <span *ngIf="applicant.living_status == 2 || applicant.living_status=='بلی'">
+                      وفات
+                    </span>
+                   
+                  </td>
+
+                </tr>
+                <tr>
+                  <td>تبعه خارجی</td>
+                  <td>
+             
+                    <div *ngIf="applicant.living_status==3">
+                      بلی
+                    </div>
+                    <div *ngIf="applicant.living_status!=3">
+                      نخیر
+                    </div>
+                  </td>
+
+                </tr>
+              </tbody>
+            </table>
+
+
+          </div>
+        
+
+        </div>
+
+
+      </div>
+      <div class="card-footer" *ngIf="applicant.apply_for_new_id=='بلی'">
+
+        <button class="btn btn-primary btn-block"
+          [routerLink]="['/view-application-details','individual',applicant?.reference_no]">معلومات بیشتر</button>
+      </div>
+
+    
+
+
+
+    </div>
+  </div>
+
+</div>

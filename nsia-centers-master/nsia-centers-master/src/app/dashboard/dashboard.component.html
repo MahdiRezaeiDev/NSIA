@@ -1,0 +1,32 @@
+<div class="row mb-5" *ngIf="api.userDetails.role == 'team_leader'">
+    <div class="col-md-12">
+        <h3>انتقال تاریخ درخواستی </h3>
+    </div>
+    <div class="col-md-3">
+        <label>شماره فارم فامیلی</label>
+        <input type="text" [(ngModel)]="family_form_reference_no" class="form-control">
+    </div>
+    <div class="col-md-2">
+        <br>
+        <button class="btn btn-primary btn-block mt-2" (click)="moveApplicationToVip()">جستجو و انتقال</button>
+    </div>
+</div>
+<div class="row mt-5">
+    <div class="col-md-3">
+        <app-appointment-calender (dateSelected)="onDateSelected($event)" [selectedDate]="api.selectedDate" [status]="api.status" [center_id]="api.center_id"></app-appointment-calender>
+
+    </div>
+    <div class="col-md-9">
+        <app-searchbar (searched)="onSearch($event)" [showDatePicker]="showDatePicker" (centerSelected)="onCenterSelected($event)" [center_id]="api.center_id" [status]="api.status" (statusSelected)="onStatusSelected($event)"></app-searchbar>
+        <div class="row">
+            <div class="col-md-12 mb-3">
+                تعداد فورم های فامیلی {{api.totalApplicationsCount}}
+            </div>
+            <div class="col-4" *ngFor="let a of api.applications">
+                <app-applicantinfo [applicant]="a" [application_type]="'individual'"></app-applicantinfo>
+              
+            </div>
+        </div>
+    </div>
+ 
+</div>

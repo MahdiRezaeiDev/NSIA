@@ -1,0 +1,162 @@
+.application-progress {
+  font-size: 120%;
+  border: 0px;
+  border-bottom: 2px solid #292361;
+  font-weight: bolder;
+  padding: 0px;
+  padding-right: 10px;
+  padding-bottom: 10px;
+}
+
+.list-group-item.active {
+  border-bottom: 3px solid #292361;
+}
+
+.bg_main {
+  color: white;
+  background-color: #2B2761 !important;
+}
+
+.card-header {
+  font-family: Raleway, Bahij Halvetica;
+  font-size: 110%;
+  font-weight: bolder;
+}
+
+.required_field {
+  color: red;
+}
+
+label {
+
+  font-weight: bolder;
+  font-size: 80%;
+}
+
+.hidden {
+  color: white;
+}
+
+.whiteColor {
+  color: white;
+}
+
+.ng-autocomplete {
+  width: 100%;
+  padding: 0px;
+}
+
+.input-container {
+  padding: 40px !important;
+}
+
+.lightBlue {
+  background-color: #95C8FF;
+}
+
+.pointer {
+  cursor: pointer;
+}
+
+button {
+  font-size: 80%;
+  font-weight: bolder;
+}
+
+.smallButton {
+  font-size: 80%;
+}
+
+.btn-primary {
+  font-weight: bolder;
+  font-size: 130%;
+}
+
+.btn-secondary {
+  font-weight: bolder;
+  font-size: 130%;
+  background-color: #08A79B;
+}
+
+li {
+  margin-bottom: 2%;
+}
+
+.form-control {
+  border: 1px solid #2B2761;
+}
+
+button {
+  border: 1px solid #2B2761;
+}
+.btn-outline-primary{
+  color:#2B2761 !important;
+}
+.btn-success{
+  background-color:#2B2761 !important;
+  border:1px solid #2B2761;
+}
+.btn-success.focus,
+.btn-success:focus {
+  box-shadow: 0 0 0 .2rem black;
+}
+.customFormGroup {
+  border: 1px solid grey;
+  padding: 2%;
+  margin-top: 2%;
+  -webkit-border-radius: 20px;
+  -moz-border-radius: 20px;
+  border-radius: 20px;
+}
+.customFormGroup h2{
+  border-bottom:1px solid grey;
+}
+
+.select2-selection--multiple { max-height: 10rem; overflow-y: scroll }
+.select2-results__options {
+  height: 60px;
+  overflow-y: auto;
+}
+.select2-container--default .select2-selection--single{
+  border:1px solid #2B2761 !important;
+}
+.select2-container--default.select2-container--focus{
+  border:1px solid #2B2761 !important;
+}
+.btn-default.active{
+  background-color:green;
+  color:white;
+}
+[hidden] { display: none !important;}
+
+
+.upload-btn-wrapper {
+  position: relative;
+  overflow: hidden;
+  display: inline-block;
+}
+
+.file-btn {
+  border: 2px solid #2B2761;
+  color: #2B2761;
+  background-color: white;
+  padding: 8px 20px;
+  border-radius: 8px;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.upload-btn-wrapper input[type=file] {
+  font-size: 100px;
+  position: absolute;
+  left: 0;
+  top: 0;
+  opacity: 0;
+}
+.bg-success{
+  background-color:#10A79B!important;
+}
+
+
+
+

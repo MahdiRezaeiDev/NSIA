@@ -1,0 +1,62 @@
+<div class="container">
+    <h3>راپور ها</h3>
+    <div class="row mt-5 mb-5">
+        <div class="col-md-4">
+                <button [ngClass]="{'btn btn-block':true, 'btn-primary':!isReportSelected('appointment'), 'btn-success':isReportSelected('appointment')}" (click)="selectReportType('appointment')">راپور تغیر تاریخ ملاقات</button>
+        </div>
+        <div class="col-md-4">
+            <button [ngClass]="{'btn btn-block':true, 'btn-primary':!isReportSelected('check'), 'btn-success':isReportSelected('check')}" (click)="selectReportType('check')">راپور چک اسناد</button>
+        </div>
+    </div>
+    <app-searchbar *ngIf="reportType" (centerSelected)="onCenterSelected($event)" [showStatusButton]="false" [center_id]="center_id" [status]="status" (statusSelected)="onStatusSelected($event)" [showDatePicker]="true" [reportType]="reportType"></app-searchbar>
+
+
+    <div class="row mt-5">
+        <div class="col-md-10"></div>
+        <div class="col-md-2" *ngIf="api.applications.length>0">
+            <button class="btn btn-primary btn-block" (click)="api.exportToXls('/downloadCurrentReport')"> Export To XLS  <i class="fas fa-file-csv"></i></button>
+        </div>
+        <div class="col-md-12">
+            تعداد درخواستی ها {{api.events.length}}
+            <table class="table table-striped" *ngIf="isReportSelected('appointment')">
+                <thead>
+                    <tr>
+                        <th>اسم کارمند</th>
+                        <th>شماره فامیلی</th>
+                        <th>تفصیلات</th>
+                        <th>مرکز</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let a of api.events">
+                        <td>{{a.name}}</td>
+                        <td>{{a.reference_no}}</td>
+                        <td>{{a.description}}</td>
+                        <td>{{a.check_date}}</td>
+                        <td>{{a.center_name}}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-striped" *ngIf="isReportSelected('check')">
+                <thead>
+                    <tr>
+                        <th>اسم کارمند</th>
+                        <th>شماره انفرادی</th>
+                        <th>تاریخ درخواستی</th>
+                        <th>تاریخ چک</th>
+                        <th>مرکز</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let a of api.events">
+                        <td>{{a.name}}</td>
+                        <td>{{a.reference_no}}</td>
+                        <td>{{a.application_date}}</td>
+                        <td>{{a.check_date}}</td>
+                        <td>{{a.center_name}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,37 @@
+.btn-secondary{
+    background-color:#282660;
+    font-size:110%;
+    font-weight:bolder;
+}
+.btn-warning{
+    background-color:white;
+    border:1px solid black;
+    font-weight:bolder;
+}
+
+.btn-dark{
+    font-weight:bolder;
+    font-size:110%;
+}
+.family-count{
+    border:1px solid white;
+    text-align: center;
+    color:white;
+    background-color:#282660;
+    padding:1%;
+}
+.individual-count{
+    border:1px solid white;
+    color:white;
+    text-align: center;
+    background-color:#282660;
+    padding:1%;
+}
+.date-day{
+    font-size:150%!important;
+    color:black;
+    text-align: center;
+}
+p{
+    margin-bottom:0px;
+}

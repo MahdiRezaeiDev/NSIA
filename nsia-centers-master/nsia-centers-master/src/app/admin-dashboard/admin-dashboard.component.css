@@ -1,0 +1,52 @@
+.center{
+    border:1px solid green;
+    padding:2%;
+}
+.center_name{
+    color:#272361;
+    text-align: center;
+    background-color:#75CFC9;
+    padding:1%;
+}
+.time-title{
+    color:#11A89C;
+    margin-top:2%;
+}
+.statusBox{
+    
+}
+.notfound{
+    color:red;
+    text-align:center;
+}
+.btn-dark{
+    background-color:#282660;
+}
+.box{
+    border:1px solid #282660;
+    text-align:center;
+    background-color:white;
+    color:black;
+    padding:2%;
+}
+.box h1 {
+    color:#282660;
+    font-size:150%;
+}
+.box h2{
+    font-size:120%;
+}
+.family-count{
+    border:1px solid white;
+    text-align: center;
+    color:white;
+    background-color:#282660;
+    padding:1%;
+}
+.individual-count{
+    border:1px solid white;
+    color:white;
+    text-align: center;
+    background-color:#282660;
+    padding:1%;
+}

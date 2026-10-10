@@ -1,0 +1,25 @@
+<div class="modal-header">
+  <h4 class="modal-title" *ngIf="api.lang.selected =='fa'">شماره درخواستی را با دقت یادداشت نمایید!</h4>
+  <h4 class="modal-title" *ngIf="api.lang.selected =='ps'">د غوښتنلیک شمېره په ځیر سره نوټ کړئ!</h4>
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss('Cross click')">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <h2  class="text-center red-block" *ngIf="api.lang.selected =='fa'">  {{application_id}}</h2>
+  <p *ngIf="api.lang.selected =='fa'">
+    توسط این شماره، شما می‌توانید درخواستی خویش را دوباره دریابید!
+  </p>
+
+  <h2  class="text-center red-block" *ngIf="api.lang.selected =='ps'">{{application_id}}</h2>
+  <p *ngIf="api.lang.selected =='ps'">
+   
+    تاسو کولی شئ د لاندې شمېرې په کارولو سره خپله غوښتنه وڅارئ!
+
+  </p>
+
+
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-outline-dark" (click)="activeModal.close('Close click')">بسته</button>
+</div>
