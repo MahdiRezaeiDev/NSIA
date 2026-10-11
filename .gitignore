@@ -17,6 +17,7 @@ coverage/
 .rnd
 .DS_Store
 Thumbs.db
+output/
 *.sql
 /enid-onlineforms-main/enid-onlineforms-main/data/
 /enid-onlineforms-main/enid-onlineforms-main/storage/**

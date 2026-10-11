@@ -110,6 +110,9 @@ class FormController extends Controller
         }
         if(\Auth::user() && \Auth::user()->isAdmin() && $r->input('individual_reference_no',false)){
             $application = $application->applied()->where('individualforms.reference_no',$r->input('individual_reference_no'))->first();
+            if (!$application) {
+                abort(404);
+            }
             return $application->generatePdf();
         }else{
             if(!\Auth::user()){
@@ -127,6 +130,9 @@ class FormController extends Controller
             }
          
             $application = \App\IndividualForm::applied()->where('family_form_reference_no',$r->input('reference_no'))->first();
+            if (!$application) {
+                abort(404);
+            }
             return $application->generateAllPdfs(true);
             
         }

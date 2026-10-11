@@ -11,7 +11,7 @@ class Pdf extends Mpdf{
         $defaultFontConfig = (new \Mpdf\Config\FontVariables())->getDefaults();
         $fontData = $defaultFontConfig['fontdata'];
         parent::__construct([
-            'tempDir'=>'c:\xampp\htdocs\enid-onlineforms-main\data',
+            'tempDir'=>storage_path('framework/cache/mpdf'),
             'orientation'=>$orientation,
             'margin_left' => 2,
             'margin_right' => 2,

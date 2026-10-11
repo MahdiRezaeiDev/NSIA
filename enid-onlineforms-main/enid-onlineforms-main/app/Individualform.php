@@ -2341,15 +2341,19 @@ class Individualform extends Model implements ApplicationFormInterface
     }
 
     public function generatePdf($force=false){
+        if ($this->isCancelled()) {
+            abort(404);
+        }
+        $disk = \Storage::disk(config('pdf.disk'));
         try{
-            if($this->isCancelled()){
+            if($force){
                 abort(404);
             }
-            $file= \Storage::disk('s3')->get("applications/".$this->reference_no.".pdf");
+            $file= $disk->get("applications/".$this->reference_no.".pdf");
         }catch(\Exception $e){
           
             $file = $this->toPdf();
-            \Storage::disk('s3')->put("applications/".$this->reference_no.".pdf",$file);
+            $disk->put("applications/".$this->reference_no.".pdf",$file);
            
         }
   
@@ -2357,17 +2361,20 @@ class Individualform extends Model implements ApplicationFormInterface
     }
 
     public function generateAllPdfs($force=false){
-      
+        $disk = \Storage::disk(config('pdf.disk'));
         try{
             if($force){
                 abort(404);
             }
-            $file= \Storage::disk('s3')->get("applications/".$this->family_form_reference_no.".pdf");
+            $file= $disk->get("applications/".$this->family_form_reference_no.".pdf");
           
         }catch(\Exception $e){
           
             $merger = new Merger;
             $applications=$this->familyMembers()->where('apply_for_new_id','بلی')->get();
+            if ($applications->isEmpty()) {
+                abort(404);
+            }
             foreach( $applications as $i=>$application):
                 if($i == 0){
                     $file = $application->toPdf();
@@ -2379,9 +2386,8 @@ class Individualform extends Model implements ApplicationFormInterface
             endforeach;
             
             
-            \Storage::disk('local')->put("applications/".$this->family_form_reference_no.".pdf", $merger->merge());
-return response($merger->merge())
-    ->header('Content-Type', 'application/pdf');
+            $file = $merger->merge();
+            $disk->put("applications/".$this->family_form_reference_no.".pdf", $file);
         }
         
         return response($file)->header('Content-Type','application/pdf');
