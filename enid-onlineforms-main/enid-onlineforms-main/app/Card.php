@@ -13,7 +13,7 @@ class Card extends Model
         $card=\DB::connection('printing')->table('cards')->where('number',$number)->orderBy('printDate','desc')->first();
         if($card){
             if( $this->isPrinted($card) ){
-                $result[]=['description'=>'کارت تان چاپ شد در حال ارسال به مرکز']
+                $result[]=['description'=>'کارت تان چاپ شد در حال ارسال به مرکز'];
             }
             
         }

@@ -13,6 +13,18 @@ class AddIvpAttemptFlagToIndividualforms extends Migration
                 $table->boolean('tried_ivp')->default(false);
             });
         }
+        if (!Schema::hasTable('cancelledforms')) {
+            \DB::statement('CREATE TABLE `cancelledforms` LIKE `individualforms`');
+            // An archive may contain several historical versions of one reference.
+            foreach (\DB::select('SHOW INDEX FROM `cancelledforms`') as $index) {
+                if (!$index->Non_unique && $index->Key_name !== 'PRIMARY' && preg_match('/^[a-zA-Z0-9_]+$/', $index->Key_name)) {
+                    $names[$index->Key_name] = true;
+                }
+            }
+            foreach (array_keys($names ?? []) as $name) {
+                \DB::statement('ALTER TABLE `cancelledforms` DROP INDEX `'.$name.'`');
+            }
+        }
     }
 
     public function down()

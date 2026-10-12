@@ -203,7 +203,10 @@ class MobileAppController extends Controller
     public function updateVerificationReference(Request $r){
         $r->validate(['reference_no' => 'required|string',
             'verification_type' => 'required|in:system,system2,phone,archive',
-            'verification_reference_no' => 'required|string|max:128']);
+            'verification_reference_no' => 'required|max:128']);
+        if (!is_scalar($r->input('verification_reference_no')) || is_bool($r->input('verification_reference_no'))) {
+            ApplicationAccess::fail('شمارهٔ تثبیت هویت درست نیست.', 422);
+        }
         return \DB::transaction(function () use ($r) {
             $i = Individualform::where('reference_no', $r->input('reference_no'))->lockForUpdate()->first();
             if (!$i) {
@@ -213,7 +216,7 @@ class MobileAppController extends Controller
             if (!ApplicationAccess::canVerify($r->user(), $i)) {
                 ApplicationAccess::fail('شما صلاحیت تثبیت هویت این فورم را ندارید.');
             }
-            $verificationReferenceNo = $r->input('verification_reference_no');
+            $verificationReferenceNo = (string) $r->input('verification_reference_no');
             if ($r->input('verification_type') === 'system' && !app(IdentityVerification::class)->validate($i, $verificationReferenceNo)) {
                 ApplicationAccess::fail('شمارهٔ تثبیت هویت معتبر نیست.', 422);
             }

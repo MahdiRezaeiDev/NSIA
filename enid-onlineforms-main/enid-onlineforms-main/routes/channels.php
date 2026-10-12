@@ -16,13 +16,15 @@ Broadcast::channel('App.User.{id}', function ($user, $id) {
 });
 
 Broadcast::channel('App.applications', function ($user, $id) {
-    return true;
-    return (int) $user->id === (int) $id;
+    return (int) $user->active === 1 && in_array($user->role, \App\User::getRoles(), true);
 });
 
 Broadcast::channel('nsia_database_private-applications', function ($data) {
-    return true;
-    return (int) $user->id === (int) $id;
+    return (int) $data->active === 1 && in_array($data->role, \App\User::getRoles(), true);
+});
+
+Broadcast::channel('applications', function ($user) {
+    return (int) $user->active === 1 && in_array($user->role, \App\User::getRoles(), true);
 });
 
 
