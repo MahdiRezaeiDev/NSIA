@@ -7,6 +7,8 @@ use \App\User;
 use \App\Individualform;
 use \App\Events\ApplicationOpenedEvent;
 use App\Note;
+use App\Services\ApplicationAccess;
+use App\Services\AttachmentStorage;
 class MainController extends Controller
 {
     /*
@@ -134,6 +136,7 @@ class MainController extends Controller
         if(!$application){
             abort(404);
         }
+        ApplicationAccess::read($r->user(), $application);
         /*
         if( !$r->user()->canAccessApplication($application->status) ){
             abort(403);
@@ -155,6 +158,7 @@ class MainController extends Controller
     * Updates the application status to the next stp
     */
     public function moveApplicationToNextStep(Request $r){
+        return app(MobileAppController::class)->moveApplicationToNextStep($r);
  
         if( $r->input('type') == 'individual' ){
             $application = Individualform::where('reference_no',$r->input('reference_no'))->first();
@@ -187,12 +191,14 @@ class MainController extends Controller
         if(!$form){
             abort(404);
         }
+        ApplicationAccess::read($r->user(), $form);
         event( new \App\Events\CloseApplicationEvent($r->user(),$form));
         return ['status'=>'ok'];
     }
 
 
     public function getNotes(Request $r){
+        ApplicationAccess::read($r->user(), ApplicationAccess::find($r->input('reference_no')));
         $notes = \App\Note::where('type',$r->input('type'))->where('reference_no',(string)$r->input('reference_no'))->orderBy('created_at','desc')->get();
         return $notes;
     }
@@ -209,6 +215,7 @@ class MainController extends Controller
                 ]
                 ],403);
         }
+        ApplicationAccess::read($r->user(), $application);
         $note            = new Note;
         $note->type      = $r->input('type');
         $note->note      = $r->input('note');
@@ -221,6 +228,7 @@ class MainController extends Controller
 
     public function viewImage(Request $r){
         $path = $r->input('path');
+        AttachmentStorage::authorizePath($r->user(), $path);
         $width = $r->input('width',100);
         $height = $r->input('height',130);
         $image = \App\ApplicationForm::resizeImage($path,$width,$height);

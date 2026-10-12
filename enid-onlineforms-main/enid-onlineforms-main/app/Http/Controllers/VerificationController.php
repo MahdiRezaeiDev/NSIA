@@ -25,6 +25,7 @@ class VerificationController extends Controller
     }
 
     public function getMatches(Request $r){
+        \App\Services\ApplicationAccess::read($r->user(), \App\Services\ApplicationAccess::find($r->input('reference_no')));
         $result = \App\Verification::where('reference_no',$r->input('reference_no'))->orderBy('match_score','desc')->take(5)->get();
         return $result;
     }

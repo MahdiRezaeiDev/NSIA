@@ -8,6 +8,9 @@ use App\ApplicationForm;
 use App\CardReadyMessage;
 use \App\Events\ApplicationOpenedEvent;
 use \App\Events\CloseApplicationEvent;
+use App\Services\ApplicationAccess;
+use App\Services\AttachmentStorage;
+use App\Services\IdentityVerification;
 
 class MobileAppController extends Controller
 {
@@ -59,11 +62,9 @@ class MobileAppController extends Controller
     }
 
     public function getFamilyApplication(Request $r){
-        $app = \App\Individualform::where('family_form_reference_no',$r->input('reference_no'))->first();
-       
-        if($app){
-            return $app->familyMembers()->get();
-        }
+        $app = ApplicationAccess::find($r->input('reference_no'), true);
+        ApplicationAccess::read($r->user(), $app);
+        return $app->familyMembers()->get();
     }
 
     public function changePassword(Request $r){
@@ -104,8 +105,8 @@ class MobileAppController extends Controller
     }
 
     public function getIndividualApplicationDetails(Request $r){
-        $application = \App\Individualform::where('reference_no',$r->input('reference_no'))->first();
-        $appointment = $application->appointment()->first();
+        $application = ApplicationAccess::find($r->input('reference_no'));
+        ApplicationAccess::read($r->user(), $application);
        
         if(false ){
             return response([
@@ -134,54 +135,33 @@ class MobileAppController extends Controller
     }
 
     public function moveApplicationToNextStep(Request $r){
-        $allowedStatus=[1,13];
-        $status = $r->input('status',false);
-        if($r->user()->canVerify() == false && $status ==  4){
-            abort(404);
-        }
-        if( $r->input('type') == 'individual' ){
-            $application = Individualform::where('reference_no',$r->input('reference_no'))->first();
-            if(!$application){
-               return response(['errors'=>['این فارم پیدا نشد!']],404);
+        $r->validate(['type' => 'required|in:individual', 'reference_no' => 'required|string', 'status' => 'required|integer']);
+        return \DB::transaction(function () use ($r) {
+            $application = Individualform::where('reference_no', $r->input('reference_no'))->lockForUpdate()->first();
+            if (!$application) {
+                ApplicationAccess::fail('فورم پیدا نشد.', 404);
             }
-            if(\Auth::user()->role !='admin' && \Auth::user()->canAccessApplication($application->status) == false){
-                return response([
-                    'errors'=>[
-                        'شما حالت این درخواستی را نمیتوانید تغیر دهید!'
-                    ]
-                ]);
+            ApplicationAccess::read($r->user(), $application);
+            if (!ApplicationAccess::canTransition($r->user(), $application, $r->input('status'))) {
+                ApplicationAccess::fail('شما صلاحیت انتقال این فورم به مرحلهٔ انتخاب‌شده را ندارید.');
             }
-            if($status ==  13 && $application->canCancel() == false){
-                return response([
-                    'errors'=>[
-                        'شما حالت این درخواستی را نمیتوانید تغیر دهید!'
-                    ]
-                ]);
-            }
-            $application->moveToNextStep($status);
-            return [
-                'status'=>'ok'
-            ];
-
-        }
-
-        return response(['errors'=>['این فارم پیدا نشد!']],404);
+            $application->moveToNextStep((int) $r->input('status'));
+            return ['status' => 'ok'];
+        });
     }
 
     public function applicationOpened(Request $r){
-        $application = \App\Individualform::where('reference_no',$r->input('reference_no'))->first();
-        if(!$application){
-            return false;
-        }
+        $application = ApplicationAccess::find($r->input('reference_no'));
+        ApplicationAccess::read($r->user(), $application);
         event( new ApplicationOpenedEvent($r->user(),$application));
+        return ['status' => 'ok'];
     }
 
     public function applicationClosed(Request $r){
-        $application = \App\Individualform::where('reference_no',$r->input('reference_no'))->first();
-        if(!$application){
-            return false;
-        }
+        $application = ApplicationAccess::find($r->input('reference_no'));
+        ApplicationAccess::read($r->user(), $application);
         event( new \App\Events\CloseApplicationEvent($r->user(),$application));
+        return ['status' => 'ok'];
     }
 
     public function getDashboard(Request $r){
@@ -212,7 +192,8 @@ class MobileAppController extends Controller
     }
 
     public function getAttachments(Request $r){
-        $application = \App\Individualform::where('reference_no',$r->input('reference_no'))->first();
+        $application = ApplicationAccess::find($r->input('reference_no'));
+        ApplicationAccess::read($r->user(), $application);
     
         if(!$application){
             return response([
@@ -220,40 +201,39 @@ class MobileAppController extends Controller
             ]);
         }
 
-        if( $r->user()->canAccessApplication($application->status) == false){
-            return [];
-        }
       
         return $application->attachmentsToBase64();
     }
 
     public function updateVerificationReference(Request $r){
-        $verificationReferenceNo=$r->input('verification_reference_no','');
-        if(\Auth::user()->canAccessApplication($r->input('status')) == false){
-            abort(403);
-        }
-        $i = Individualform::where('reference_no',$r->input('reference_no'))->where('status','<>',4)->first();
-        if(!$i){
-            abort(404);
-        }
-        if($r->input('verification_type') == 'system'){
-            //if( $i->verifyVerificationCode($verificationReferenceNo) == false ){
-              //  abort(404);
-           // }
-        }
-        if($r->input('verification_type') == 'system2'){
-            $record = \App\Verification::where('record_id',$verificationReferenceNo )->exists();
-            if( !$record ){
-                abort(404);
+        $r->validate(['reference_no' => 'required|string',
+            'verification_type' => 'required|in:system,system2,phone,archive',
+            'verification_reference_no' => 'required|string|max:128']);
+        return \DB::transaction(function () use ($r) {
+            $i = Individualform::where('reference_no', $r->input('reference_no'))->lockForUpdate()->first();
+            if (!$i) {
+                ApplicationAccess::fail('فورم پیدا نشد.', 404);
             }
-            $verificationReferenceNo= 'S'.$verificationReferenceNo;
-        }
-            $i->moveToNextStep(4);
+            ApplicationAccess::read($r->user(), $i);
+            if (!ApplicationAccess::canVerify($r->user(), $i)) {
+                ApplicationAccess::fail('شما صلاحیت تثبیت هویت این فورم را ندارید.');
+            }
+            $verificationReferenceNo = $r->input('verification_reference_no');
+            if ($r->input('verification_type') === 'system' && !app(IdentityVerification::class)->validate($i, $verificationReferenceNo)) {
+                ApplicationAccess::fail('شمارهٔ تثبیت هویت معتبر نیست.', 422);
+            }
+            if ($r->input('verification_type') === 'system2') {
+                $record = \App\Verification::where('record_id', $verificationReferenceNo)->where('reference_no', $i->reference_no)->exists();
+                if (!$record) {
+                    ApplicationAccess::fail('ریکارد تثبیت به این درخواست‌کننده مربوط نیست.', 422);
+                }
+                $verificationReferenceNo = 'S'.$verificationReferenceNo;
+            }
             $i->verification_reference_no = $verificationReferenceNo;
-            $i->save();
+            $i->moveToNextStep(4);
             $i->updateTracking('شماره ثبت: '.$verificationReferenceNo);
-            return ['status'=>'ok'];
-        
+            return ['status' => 'ok'];
+        });
     }
 
     public function moveFamilyForm(Request $r){
@@ -405,11 +385,16 @@ class MobileAppController extends Controller
 
     public function downloadFile(Request $r){
         $path = $r->input('path');
+        AttachmentStorage::authorizePath($r->user(), $path);
         $time = \Carbon\Carbon::now()->format('H');
           if($time  > 7  && $time < 18){
                  // abort(404);
           }
-        return \Storage::disk('s3')->download($path);
+        $disk = strpos($path, 'applications/') === 0 ? \Storage::disk(config('pdf.disk')) : AttachmentStorage::disk();
+        if (!$disk->exists($path)) {
+            ApplicationAccess::fail('فایل پیدا نشد.', 404);
+        }
+        return $disk->download($path);
     }
 
     public function getApplications(Request $r){

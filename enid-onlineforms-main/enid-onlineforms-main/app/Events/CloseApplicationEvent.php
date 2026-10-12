@@ -27,7 +27,7 @@ class CloseApplicationEvent implements ShouldBroadcast
             'reference_no'=>$form->reference_no,
             'family_form_reference_no'=>$form->family_form_reference_no
         ];
-        \App\Individualform::where('family_form_reference_no',$form->family_form_reference_no)->update([
+        \App\Individualform::where('family_form_reference_no',$form->family_form_reference_no)->where('opened_by_user_id', $user->id)->update([
             'opened'=>false,
             'opened_by'=>'',
             'opened_by_user_id'=>0
