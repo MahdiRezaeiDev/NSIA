@@ -34,6 +34,26 @@ class IndividualFormRequest extends FormRequest
         if (!is_array($this->input('members')) || count($this->input('members')) === 0) {
             return ['members' => 'required|array|min:1'];
         }
+        // Age-dependent rules are built before validation; reject invalid dates first.
+        foreach ($this->input('members') as $key => $member) {
+            if (!is_array($member)) {
+                throw \Illuminate\Validation\ValidationException::withMessages(['members.'.$key => ['معلومات عضو درست نیست.']]);
+            }
+            $parts = [$member['birthday_year'] ?? null, $member['birthday_month'] ?? null, $member['birthday_day'] ?? null];
+            $required = ($member['apply_for_new_id'] ?? '') === 'بلی' || (int) ($member['relationship_with_head_of_family'] ?? 0) === 1;
+            if ($required || array_filter($parts)) {
+                try {
+                    $valid = count(array_filter($parts, function ($value) { return is_scalar($value) && ctype_digit((string) $value); })) === 3 &&
+                        (int) $parts[0] > 0 && (int) $parts[0] <= 9999 &&
+                        \Morilog\Jalali\CalendarUtils::checkDate((int) $parts[0], (int) $parts[1], (int) $parts[2]);
+                } catch (\Throwable $exception) {
+                    $valid = false;
+                }
+                if (!$valid) {
+                    throw \Illuminate\Validation\ValidationException::withMessages(['members.'.$key.'.birthday_year' => ['تاریخ تولد درست نیست.']]);
+                }
+            }
+        }
         
         if( $this->segment(2) == 'submit-individual-form' ){
       

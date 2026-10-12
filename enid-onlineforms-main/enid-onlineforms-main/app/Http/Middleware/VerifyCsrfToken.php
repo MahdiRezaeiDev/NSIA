@@ -19,4 +19,13 @@ class VerifyCsrfToken extends Middleware
      * @var array
      */
     protected $except = [];
+
+    protected function isReading($request)
+    {
+        if (in_array($request->path(), ['moveApplicationToNextStep', 'applicationViewClosed',
+            'admin/applicationViewClosed', 'admin/deleteTemplate', 'logout'], true)) {
+            return false;
+        }
+        return parent::isReading($request);
+    }
 }

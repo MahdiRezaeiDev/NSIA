@@ -21,6 +21,9 @@ class ActionButton{
     }
 
     public function setWebOnClick($action){
+        if (!request()->is('api/*')) {
+            $action .= (strpos($action, '?') === false ? '?' : '&').'_token='.rawurlencode(csrf_token());
+        }
         $this->webOnClick = $action;
     }
 

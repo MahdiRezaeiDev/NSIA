@@ -8,7 +8,7 @@
 
      
      <li class="nav-item">
-        <a class="nav-link" href="/logout">خروج</a>
+        <a class="nav-link" href="/logout?_token={{ csrf_token() }}">خروج</a>
      </li>
      
  </ul>

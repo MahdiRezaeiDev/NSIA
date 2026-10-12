@@ -15,7 +15,7 @@
          <a class="nav-link {{\Route::is('reports') ? 'active' : '' }}" href="">راپور ها</a>
      </li>
      <li class="nav-item">
-         <a class="nav-link {{\Route::is('/') ? 'active' : '' }}" href="/logout"> خروج</a>
+         <a class="nav-link {{\Route::is('/') ? 'active' : '' }}" href="/logout?_token={{ csrf_token() }}"> خروج</a>
      </li>
 
     
