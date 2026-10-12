@@ -25,7 +25,7 @@ class UploadFileRequest extends CustomRequest
     public function rules()
     {
         return [
-            'file'=>'max:'.UploadFileRequest::MAX_UPLOAD_SIZE.'|mimetypes:image/jpg,image/jpeg,image/png,application/pdf|mimes:jpg,png,jpeg,pdf'
+            'file'=>'required|file|max:'.UploadFileRequest::MAX_UPLOAD_SIZE.'|mimetypes:image/jpg,image/jpeg,image/png,application/pdf|mimes:jpg,png,jpeg,pdf'
         ];
     }
 

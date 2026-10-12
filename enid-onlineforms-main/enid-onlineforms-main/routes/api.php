@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Cache;
 */
 
 
-Route::group(['middleware' => ['auth:api','throttle:12000,1','LogRequest']],function(){
+Route::group(['middleware' => ['auth:api','active.api','throttle:120,1','LogRequest']],function(){
     Route::any('/isLoggedIn','MobileAppController@isLoggedIn');
     Route::any('/getIndividualApplications', 'MainController@getIndividualApplications');
     Route::any('/getApplications', 'MobileAppController@getApplications');
@@ -52,7 +52,6 @@ Route::group(['middleware' => ['auth:api','throttle:12000,1','LogRequest']],func
     Route::get("/getGeneralReport","ReportsController@getGeneralReport");
     Route::get("/getStats","ReportsController@getStats");
     Route::get("/getMatches","VerificationController@getMatches");
-    Route::post("/updateStatus","MobileAppController@handleVerificationHook");
     Route::get("/getIvpImage","VerificationController@loadImage");
     Route::post("/uploadNidImages",'MobileAppController@uploadNidImages');
     Route::get("/getNidNumber",'MobileAppController@getNidNumber');
@@ -61,12 +60,11 @@ Route::group(['middleware' => ['auth:api','throttle:12000,1','LogRequest']],func
 
 
 //Can send Max 4 requests in 1 minute
-Route::group(['middleware' => ['throttle:120000,1','LogRequest']], function () {
-    Route::get("/getFamilyApplication",'MobileAppController@getFamilyApplication');
-    Route::post("/login","MobileAppController@login");
-    Route::any("/submit-individual-form","FormController@submitIndividualForm");
-    Route::any("/track","FormController@track");
-    Route::any("/findApplication","FormController@findApplication");
+Route::group(['middleware' => ['throttle:120,1','LogRequest']], function () {
+    Route::post("/login","MobileAppController@login")->middleware('throttle:10,1');
+    Route::any("/submit-individual-form","FormController@submitIndividualForm")->middleware('throttle:10,1');
+    Route::any("/track","FormController@track")->middleware('throttle:20,1');
+    Route::any("/findApplication","FormController@findApplication")->middleware('throttle:20,1');
     /** THIS ROUTE NEEDS TO BE SECURED */
     Route::get("previewApplication",'FormController@previewIndividualForm');
     Route::any("/saveForm","FormController@saveForm");
@@ -124,7 +122,7 @@ Route::get('/applicationsCount',function(Request $r){
 });
 
 
-Route::middleware(['auth:api'])->group(function(){
+Route::middleware(['auth:api', 'active.api'])->group(function(){
     Route::get('/getCallList', 'CallCenterController@getCallList');
     Route::get('/getOutcomeList', 'CallCenterController@getOutcomeList');
     Route::post('/submitOutcome', 'CallCenterController@submitOutcome');
@@ -133,6 +131,8 @@ Route::middleware(['auth:api'])->group(function(){
     Route::get("/downloadActivityReport","ReportsController@downloadActivityReport");
 });
 
-Route::get("/downloadTazkiraFiles",'MobileAppController@downloadTazkiraFiles');
-Route::get("/downloadPhoto",'MobileAppController@downloadPhoto');
+Route::middleware(['auth:api', 'active.api'])->group(function () {
+    Route::get("/downloadTazkiraFiles", 'MobileAppController@downloadTazkiraFiles');
+    Route::get("/downloadPhoto", 'MobileAppController@downloadPhoto');
+});
 

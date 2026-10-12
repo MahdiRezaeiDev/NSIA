@@ -13,6 +13,8 @@ use iio\libmergepdf\Merger;
 use App\Individualform;
 use App\Appointment;
 use Mpdf\Output\Destination;
+use App\Services\ApplicationAccess;
+use App\Services\AttachmentStorage;
 
 
 class FormController extends Controller
@@ -67,17 +69,9 @@ class FormController extends Controller
                 ],403);
             }
         
-            // if( \App\Captcha::isRobot($r->input('token'),'new_id',$r->all()) ){
-            //     return response([
-            //         'status'=>'error',
-            //         'errors'=>[
-                        
-            //             [ 'invalid_captcha'=> ['لطفا کاپچه امنیتی را درست انتخاب نمایید.'] ]
-                        
-            //         ]
-                    
-            //     ],403);
-            // }
+            if (\App\Captcha::isRobot($r->input('token'), 'new_id')) {
+                return response(['status' => 'error', 'errors' => ['invalid_captcha' => ['کاپچهٔ امنیتی معتبر نیست.']]], 403);
+            }
         
      
             $forms = Individualform::saveForm($r);
@@ -108,6 +102,9 @@ class FormController extends Controller
         if( !$application){
             abort(404);
         }
+        if ($r->user()) {
+            ApplicationAccess::read($r->user(), $application);
+        }
         if(\Auth::user() && \Auth::user()->isAdmin() && $r->input('individual_reference_no',false)){
             $application = $application->applied()->where('individualforms.reference_no',$r->input('individual_reference_no'))->first();
             if (!$application) {
@@ -117,7 +114,7 @@ class FormController extends Controller
         }else{
             if(!\Auth::user()){
               
-                if(!\App\Captcha::verifyCode($r->input('token'),'printing')){
+                if(!\App\Captcha::verifyCode($r->input('token'),'printing:'.$application->family_form_reference_no)){
                    
                    try{
                        abort(404,'FORM NOT FOUND');
@@ -143,8 +140,6 @@ class FormController extends Controller
     public function track(Request $r){
       
        // \App\Log::write($r);
-     if (!app()->environment('local')) {
-    if( \App\Log::ip($r) != '152.36.193.178'){
         if( \App\Captcha::isRobot($r->input('token'),'tracking') ){
             return response([
                 'status'=>'error',
@@ -154,8 +149,6 @@ class FormController extends Controller
                 ]
             ],403);
         }
-    }
-}
         $application = Individualform::where('reference_no',$r->input('tracking_no'))->first();
         $familyForm  = Individualform::where('family_form_reference_no',$r->input('tracking_no'))->first();
         if($familyForm){
@@ -166,7 +159,7 @@ class FormController extends Controller
                 'message'=>'درخواستی پیدا نشد!'
             ],404);
         }
-       $code      = \App\Captcha::generateCode('printing',$r->ip());
+       $code      = \App\Captcha::generateCode('printing:'.$application->family_form_reference_no,$r->ip());
        $printLink = config('app.url')."/print-individual-form?reference_no=".$application->family_form_reference_no."&token=".$code;
        $events=$application->events()->get()->map(function($a){
         if( strpos($a->description,'تثبیت')!==false ){
@@ -189,7 +182,12 @@ class FormController extends Controller
     }
 
     public function searchVillages(Request $r){
-        $data=\DB::table('villages')->where('village','like','%'.$r->input('query')."%")->take(10)->get();
+        $query = $r->input('query', '');
+        // Some supplied datasets contain only province/district reference rows.
+        if (!\Schema::hasColumn('villages', 'village')) {
+            return [];
+        }
+        $data=\DB::table('villages')->where('village','like','%'.$query."%")->take(10)->get();
         return $data;
     }
 
@@ -285,8 +283,14 @@ class FormController extends Controller
     }
 
 public function findApplication(Request $r){
+    if (!$r->user() && \App\Captcha::isRobot($r->input('token'), 'loadApplication')) {
+        return response(['status' => 'error', 'errors' => ['invalid_captcha' => ['کاپچهٔ امنیتی معتبر نیست.']]], 403);
+    }
     $submittedForm = \App\Individualform::where('family_form_reference_no',$r->input('reference_no'))->first();
     if($submittedForm){
+        if ($r->user()) {
+            ApplicationAccess::read($r->user(), $submittedForm);
+        }
         return $submittedForm->toSavedForm();
     }
 
@@ -416,6 +420,9 @@ public function findApplication(Request $r){
     public function uploadFile(UploadFileRequest $r){
         $applicationId=$r->input('application_id');
         $file = $r->file('file');
+        if (!$file || !$file->isValid()) {
+            ApplicationAccess::fail('فایل معتبر را انتخاب نمایید.', 422);
+        }
         $fileExtension = \File::extension($file->getClientOriginalName());
         if($fileExtension ==""){
           
@@ -437,14 +444,14 @@ public function findApplication(Request $r){
             $fileContents = $file->get();
         }
         $path   ='uploads/'.$fileName;
-        if(config('app.debug')){
-            \Storage::disk('local')->put($path,$fileContents);
+        if(config('attachments.disk') === 'local'){
+            AttachmentStorage::disk()->put($path,$fileContents);
             return 
             [
                 'filePath'=>$path
             ];
         }
-        if( \Storage::disk('s3')->put($path,$fileContents) ){
+        if( AttachmentStorage::disk()->put($path,$fileContents) ){
             return 
                 [
                     'filePath'=>$path
@@ -452,7 +459,7 @@ public function findApplication(Request $r){
         }else{
             $fileContents = $file->get();
             \App\Log::record('SavingWithoutResize',['path'=>$path]);
-            if( \Storage::disk('s3')->put($path,$fileContents) ){
+            if( AttachmentStorage::disk()->put($path,$fileContents) ){
                 return 
                 [
                     'filePath'=>$path

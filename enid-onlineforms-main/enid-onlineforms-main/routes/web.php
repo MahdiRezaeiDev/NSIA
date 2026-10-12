@@ -70,13 +70,13 @@ Route::prefix('/admin')->middleware(['auth','UserAccess:admin','LogRequest'])->g
     Route::get("/applicationViewClosed","MainController@applicationViewClosed");
 });
 Route::prefix("/staff")->middleware(['auth','LogRequest'])->group(function(){
-    Route::any("/findApplication","MobileAppController@findApplication");
+    Route::any("/findApplication","FormController@findApplication");
 });
 Route::group(['middleware' => 'throttle:200000,1','LogRequest'], function () {
     Route::get("/searchApplication",'FormController@searchApplication');
     Route::get("/print-individual-form","FormController@printIndividualForm");
-    Route::get("/viewImage","MainController@viewImage");
 });
+Route::get('/viewImage', 'MainController@viewImage')->middleware('auth');
 
 // Route::get("test", function (){
 //     return view('public-views.')
