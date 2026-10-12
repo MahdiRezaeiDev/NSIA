@@ -35,6 +35,7 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'active' => 'integer',
     ];
 
     protected $appends=[
@@ -47,7 +48,7 @@ class User extends Authenticatable
             return true;
         }
 
-        return in_array($status,$this->getApplicationAccessStatus());
+        return $status !== null && is_numeric($status) && in_array((int) $status, $this->getApplicationAccessStatus(), true);
 
     }
     public function getApplicationAccessStatus(){
@@ -91,7 +92,7 @@ class User extends Authenticatable
         }
       
 
-        return null;
+        return [];
     }
 
     public static function getRoles(){
@@ -211,6 +212,6 @@ class User extends Authenticatable
 
     public function canVerify(){
         $center = $this->center()->first();
-        return $this->role == 'team_leader' && $center->country <> 1;
+        return $center && $this->role == 'team_leader' && $center->country <> 1;
     }
 }
