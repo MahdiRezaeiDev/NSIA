@@ -25,6 +25,11 @@ class AddIvpAttemptFlagToIndividualforms extends Migration
                 \DB::statement('ALTER TABLE `cancelledforms` DROP INDEX `'.$name.'`');
             }
         }
+        if (!Schema::hasColumn('cancelledforms', 'tried_ivp')) {
+            Schema::table('cancelledforms', function (Blueprint $table) {
+                $table->boolean('tried_ivp')->default(false);
+            });
+        }
     }
 
     public function down()

@@ -2355,7 +2355,7 @@ class Individualform extends Model implements ApplicationFormInterface
         }catch(\Exception $e){
           
             $merger = new Merger;
-            $applications=$this->familyMembers()->where('apply_for_new_id','بلی')->get();
+            $applications=$this->familyMembers()->where('apply_for_new_id','بلی')->where('status', '<>', 13)->get();
             if ($applications->isEmpty()) {
                 abort(404);
             }
@@ -3044,11 +3044,7 @@ class Individualform extends Model implements ApplicationFormInterface
         return $checkedEvents->count() > 0;
     }
     public function isCancelled(){
-        $checkedEvents=$this->events()->get()->filter(function($e){
-            return strpos($e->description,'لغوه')!==false;
-        });
-
-        return $checkedEvents->count() > 0;
+        return (int) $this->status === 13;
     }
     public function isDistributed(){
         $checkedEvents=$this->events()->get()->filter(function($e){
