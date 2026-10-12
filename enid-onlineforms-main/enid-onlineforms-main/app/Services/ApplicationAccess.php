@@ -36,6 +36,9 @@ class ApplicationAccess
 
     public static function find($reference, $family = false)
     {
+        if (!is_scalar($reference) || is_bool($reference) || strlen((string) $reference) > 128 || (string) $reference === '') {
+            static::fail('شمارهٔ فورم درست نیست.', 422);
+        }
         $form = Individualform::where($family ? 'family_form_reference_no' : 'reference_no', $reference)->first();
         if (!$form) {
             static::fail('فورم پیدا نشد.', 404);

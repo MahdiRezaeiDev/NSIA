@@ -22,12 +22,14 @@ class BackendHardeningTest extends TestCase
     {
         $app = require __DIR__.'/../../bootstrap/app.php';
         $app->make(\Illuminate\Contracts\Console\Kernel::class)->bootstrap();
-        $database = getenv('NSIA_TEST_DATABASE') ?: 'nsia_fix_20261012';
+        $database = getenv('NSIA_TEST_DATABASE') ?: 'nsia_test_backend';
         if (!preg_match('/^nsia_(fix|test)_[a-zA-Z0-9_]+$/', $database)) {
             throw new \RuntimeException('Regression tests require an isolated nsia_fix_* or nsia_test_* database.');
         }
         config(['database.connections.mysql.database' => $database, 'cache.default' => 'array',
-            'mail.driver' => 'array', 'broadcasting.default' => 'null', 'queue.default' => 'sync']);
+            'mail.driver' => 'array', 'broadcasting.default' => 'null', 'queue.default' => 'sync',
+            'attachments.disk' => 'local', 'pdf.disk' => 'local', 'security.captcha_driver' => 'disabled',
+            'filesystems.disks.local.root' => storage_path('framework/testing')]);
         \DB::purge('mysql');
         \Schema::clearResolvedInstance('db.schema');
         $app->forgetInstance('db.schema');
@@ -151,5 +153,76 @@ class BackendHardeningTest extends TestCase
             '_token' => 'UNIT-CSRF', 'email' => 'NO-SUCH-USER@example.invalid', 'password' => 'UNIT',
         ])->assertStatus(302);
         $this->get('/moveApplicationToNextStep?type=individual&status=1&reference_no=123')->assertStatus(419);
+    }
+
+    public function testFamilyRegistrationCenterReviewAndPrintingLifecycle()
+    {
+        $payload = json_decode(file_get_contents(__DIR__.'/../Fixtures/family-four-members.json'), true);
+        $slots = $this->getJson('/api/getAppointments?center_id=18')->assertStatus(200)->json();
+        $payload['selectedAppointmentTime'] = $slots[0]['times'][0];
+        $draft = $this->postJson('/api/saveForm', ['application_id' => '', 'data' => ['members' => []]])->assertStatus(200)->json();
+        $payload['application_id'] = $draft['application_id'];
+        $payload['token'] = 'LOCAL-TEST';
+        foreach ($payload['members'] as $i => &$member) {
+            $uploaded = $this->post('/api/uploadFile', ['file' => \Illuminate\Http\UploadedFile::fake()->image('synthetic.png', 40, 50)],
+                ['Accept' => 'application/json'])->assertStatus(200)->json();
+            $member['photo'] = [['name' => 'Synthetic test image', 'path' => $uploaded['filePath']]];
+            if ($i < 2) {
+                $member['paper_id_files'] = $member['photo'];
+            }
+        }
+        unset($member);
+        $submitted = $this->postJson('/api/submit-individual-form', $payload)->assertStatus(200)->json();
+        $family = $submitted['reference_no'];
+        $this->assertCount(4, $submitted['applications']);
+        $this->postJson('/api/submit-individual-form', $payload)->assertStatus(403);
+        $this->assertSame(4, Individualform::where('family_form_reference_no', $family)->count());
+        $this->assertSame(1, \App\Appointment::where('family_form_reference_no', $family)->count());
+        $this->getJson('/api/getFamilyApplication?reference_no='.$family)->assertStatus(401);
+
+        $foreign = $this->actor('document_checker', 19);
+        $foreign->name = 'Synthetic foreign checker';
+        $foreign->email = 'test-foreign@example.invalid';
+        $foreign->password = bcrypt('TEST-ONLY');
+        $foreign->save();
+        \Laravel\Passport\Passport::actingAs($foreign);
+        $first = $submitted['applications'][0]['reference_no'];
+        $this->getJson('/api/individualapplication-details?reference_no='.$first)->assertStatus(403);
+
+        $verifier = $this->actor('id_verifier');
+        $verifier->name = 'Synthetic verifier';
+        $verifier->email = 'test-verifier@example.invalid';
+        $verifier->password = bcrypt('TEST-ONLY');
+        $verifier->save();
+        $this->app->bind(\App\Services\IdentityVerification::class, function () {
+            return new class extends \App\Services\IdentityVerification {
+                public function validate(Individualform $form, $code) { return $code === 'VALID-'.$form->reference_no; }
+            };
+        });
+        \Laravel\Passport\Passport::actingAs($verifier);
+        $this->getJson('/api/updateVerificationReference?reference_no='.$first.'&verification_type=system&verification_reference_no=INVALID')->assertStatus(422);
+        foreach ($submitted['applications'] as $item) {
+            $reference = $item['reference_no'];
+            $this->getJson('/api/updateVerificationReference?reference_no='.$reference.'&verification_type=system&verification_reference_no=VALID-'.$reference)->assertStatus(200);
+        }
+        $checker = $this->actor('document_checker');
+        $checker->name = 'Synthetic checker';
+        $checker->email = 'test-checker@example.invalid';
+        $checker->password = bcrypt('TEST-ONLY');
+        $checker->save();
+        \Laravel\Passport\Passport::actingAs($checker);
+        foreach ($submitted['applications'] as $item) {
+            $this->getJson('/api/moveApplicationToNextStep?type=individual&status=1&reference_no='.$item['reference_no'])->assertStatus(200);
+        }
+        $this->assertSame(4, Individualform::where('family_form_reference_no', $family)->where('status', 1)->count());
+        $this->getJson('/api/getAttachments?reference_no='.$first)->assertStatus(200)->assertJsonCount(1);
+        $pdf = $this->get(str_replace(config('app.url'), '', $submitted['path']))->assertStatus(200)->getContent();
+        $this->assertSame('%PDF-', substr($pdf, 0, 5));
+        $parser = new \setasign\Fpdi\Fpdi;
+        $this->assertSame(22, $parser->setSourceFile(\setasign\Fpdi\PdfParser\StreamReader::createByString($pdf)));
+        $newDraft = $this->postJson('/api/saveForm', ['application_id' => '', 'data' => ['members' => []]])->assertStatus(200)->json();
+        $payload['application_id'] = $newDraft['application_id'];
+        $this->postJson('/api/submit-individual-form', $payload)->assertStatus(422);
+        $this->assertSame(0, Individualform::where('family_form_reference_no', $newDraft['application_id'])->count());
     }
 }

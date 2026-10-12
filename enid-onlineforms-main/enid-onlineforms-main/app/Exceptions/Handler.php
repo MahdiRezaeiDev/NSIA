@@ -54,7 +54,8 @@ class Handler extends ExceptionHandler
                     'trace'  => json_encode([
                         'request' => \App\Log::safeData($request->all()),
                         'url'     => $request->url(),
-                        'message' => $exception->getMessage()
+                        'exception_type' => get_class($exception),
+                        'error_code' => $exception->getCode()
                     ])
                 ]);
             } catch (\Exception $e) {
@@ -62,10 +63,10 @@ class Handler extends ExceptionHandler
             }
 
             // Always log to laravel.log
-            Log::error($exception);
+            Log::error('Backend request failed', ['exception_type' => get_class($exception),
+                'error_code' => $exception->getCode(), 'file' => $exception->getFile(), 'line' => $exception->getLine()]);
         }
 
-        parent::report($exception);
     }
 
     /**
@@ -77,6 +78,10 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
-        return parent::render($request, $exception);
+        $response = parent::render($request, $exception);
+        if ($request->is('api/*') && $response->getStatusCode() >= 500 && !($exception instanceof \Illuminate\Http\Exceptions\HttpResponseException)) {
+            return response()->json(['status' => 'error', 'errors' => ['یک مشکل در سیستم رخ داد؛ دوباره کوشش نمایید.']], $response->getStatusCode());
+        }
+        return $response;
     }
 }

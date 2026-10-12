@@ -439,7 +439,9 @@ public function findApplication(Request $r){
             \App\RequestLogger::email('FILE WITH NULL',$data);
             abort(404);
         }
-        $fileName=uniqid().".".$fileExtension;
+        $extensions = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'application/pdf' => 'pdf'];
+        $fileExtension = $extensions[$file->getMimeType()] ?? $fileExtension;
+        $fileName=bin2hex(random_bytes(16)).".".$fileExtension;
         try{
             abort(404);
             $fileContents = \App\Attachment::resize($file);

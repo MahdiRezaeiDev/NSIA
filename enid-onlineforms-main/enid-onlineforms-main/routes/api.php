@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Cache;
 */
 
 
-Route::group(['middleware' => ['auth:api','active.api','throttle:120,1','LogRequest']],function(){
+Route::group(['middleware' => ['auth:api','active.api','throttle:12000,1','LogRequest']],function(){
     Route::any('/isLoggedIn','MobileAppController@isLoggedIn');
     Route::any('/getIndividualApplications', 'MainController@getIndividualApplications');
     Route::any('/getApplications', 'MobileAppController@getApplications');
@@ -59,7 +59,7 @@ Route::group(['middleware' => ['auth:api','active.api','throttle:120,1','LogRequ
 });
 
 
-//Can send Max 4 requests in 1 minute
+// Public quotas are separated by route so lookups do not consume login/submission quota.
 Route::group(['middleware' => ['public.throttle','LogRequest']], function () {
     Route::post("/login","MobileAppController@login");
     Route::any("/submit-individual-form","FormController@submitIndividualForm");

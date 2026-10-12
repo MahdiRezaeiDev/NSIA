@@ -225,6 +225,7 @@ class Individualform extends Model implements ApplicationFormInterface
             if ($existing->contains(function ($form) { return (int) $form->status !== 13; })) {
                 return ['status' => 'error', 'errors' => ['appointment' => ['این فورم قبلاً ارسال گردیده است.']]];
             }
+            \App\Services\AttachmentStorage::rejectForeignPaths($request->input('members'), $reference);
             // Serialize appointments at a center, including queue allocation and capacity checks.
             $center = \App\Center::where('id', $request->input('center_id'))->lockForUpdate()->first();
             if (!$center) {
