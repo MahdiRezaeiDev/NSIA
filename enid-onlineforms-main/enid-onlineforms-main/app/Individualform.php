@@ -213,113 +213,79 @@ class Individualform extends Model implements ApplicationFormInterface
     }
 
 
-    public static function saveForm($request){
-        $center         = \App\Center::where('id',$request->input('center_id'))->first();
-        $appointmentsEnabled=false;
-        if($center){
-         $appointmentsEnabled = $center->enable_appointments;
-        }
-        $individualForms=Individualform::formatData($request->input('members'),$request->input('center_id',''));
-     
-        $randomNumber               =  $request->input('application_id');
-        $submittedForm              =  IndividualForm::where('family_form_reference_no',$randomNumber)->where('status',13)->first();
-        $totalCancelled             = 0;
-        $cancelledReferenceNos      =[];
-        if( $submittedForm && $submittedForm->status == 13){
-            $applicants =  \DB::table('individualforms')->where('status',13)->where('family_form_reference_no',$randomNumber)->get();
-            $cancelledReferenceNos = $applicants->map(function($p){
-                return $p->reference_no;
-            });
-            $totalCancelled = $applicants->count();
-            foreach($applicants as $oldForm):
-                $oldForm = (Array) $oldForm;
-                \DB::table('cancelledforms')->insert($oldForm);
-            endforeach;
-            IndividualForm::where('family_form_reference_no',$randomNumber)->where('status',13)->delete();
-           // \App\Appointment::where('family_form_reference_no',$randomNumber)->delete();
-        }
-        if($submittedForm && $submittedForm->status != 13){
-            return [
-                'status'=>'error',
-                'errors'=>
-                   ['appointment'=> ['این فارم قبلا ارسال گردیده است.']]
-              
-                ];
-        }
-        if($appointmentsEnabled && Appointment::where('family_form_reference_no',$randomNumber)->exists() == false){
-            $appointment                    = new Appointment;
-            $appointment->center_id         = $request->input('center_id');
-            $appointment->start_time        = $request->input('selectedAppointmentTime.start','0000-00-00');
-            $appointment->end_time          = $request->input('selectedAppointmentTime.end','0000-00-00');
-            $appointment->appointment_date  = $request->input('selectedAppointmentTime.appointment_date');
-            $appointment->queue_no          = $appointment->getCurrentQueueNo();
-            $appointment->family_form_reference_no  = $randomNumber;
-    
-        }
-        else if($appointmentsEnabled==false && Appointment::where('family_form_reference_no',$randomNumber)->exists() == false){
-            $appointment                    = new Appointment;
-            $appointment->center_id         = $request->input('center_id');
-            $appointment->start_time        = $request->input('selectedAppointmentTime.start','0000-00-00');
-            $appointment->end_time          = $request->input('selectedAppointmentTime.end','0000-00-00');
-            $appointment->appointment_date  =  \Hijri::now()->format('Y-m-d');
-            $appointment->queue_no          = $appointment->getCurrentQueueNo();
-            $appointment->family_form_reference_no  = $randomNumber;
-          
-           
-        }
-        else{
-            $appointment = Appointment::where('family_form_reference_no',$randomNumber)->first();
-            $appointment->center_id = $request->input('center_id');
-            //$appointment->save();
-        }
-        if(!$submittedForm && $appointmentsEnabled){
-            if(!$appointment->isAvailable()){
-                return [
-                    'status'=>'error',
-                    'errors'=>
-                       ['appointment'=> [' تمام اوقات بازدید این مرکز در تاریخ و وقت انتخاب شده گرفته شده است. لطفا وقت و یا تاریخ دیگر را انتخاب نمایید. ']]
-                  
-                    ];
-              }
-        }
-        if(!$submittedForm){
-            $appointment->save();
-        }
-       
-        $count = 1;
-        $individualReferenceNos=[];
-        foreach($individualForms as $form):
-            if(isset( $form['reference_no'] ) && in_array($form['reference_no'],$cancelledReferenceNos->toArray()) ){
-                $individual_reference_no = $form['reference_no'];
-            }else{
-                $individual_reference_no                =   Individualform::generateReferenceNo($randomNumber,$count);
-                while(Individualform::where('reference_no',$individual_reference_no)->exists()){
-                    $count = $count+1;
-                    $individual_reference_no                =   Individualform::generateReferenceNo($randomNumber,$count);
+    public static function saveForm($request)
+    {
+        return \DB::transaction(function () use ($request) {
+            $reference = $request->input('application_id');
+            $draft = \App\Savedform::where('application_id', $reference)->lockForUpdate()->first();
+            $existing = static::where('family_form_reference_no', $reference)->lockForUpdate()->get();
+            if (!$draft && $existing->isEmpty()) {
+                \App\Services\ApplicationAccess::fail('ابتدا پیش‌نویس فورم را ذخیره نمایید.', 422);
+            }
+            if ($existing->contains(function ($form) { return (int) $form->status !== 13; })) {
+                return ['status' => 'error', 'errors' => ['appointment' => ['این فورم قبلاً ارسال گردیده است.']]];
+            }
+            // Serialize appointments at a center, including queue allocation and capacity checks.
+            $center = \App\Center::where('id', $request->input('center_id'))->lockForUpdate()->first();
+            if (!$center) {
+                \App\Services\ApplicationAccess::fail('مرکز انتخاب‌شده پیدا نشد.', 422);
+            }
+            $appointment = Appointment::where('family_form_reference_no', $reference)->lockForUpdate()->first();
+            $originalSlot = $appointment ? [$appointment->center_id, $appointment->appointment_date, $appointment->start_time, $appointment->end_time] : null;
+            if (!$appointment) {
+                $appointment = new Appointment;
+                $appointment->family_form_reference_no = $reference;
+            }
+            $appointment->center_id = $center->id;
+            if ($request->input('selectedAppointmentTime.appointment_date')) {
+                $appointment->appointment_date = $request->input('selectedAppointmentTime.appointment_date');
+                $appointment->start_time = $request->input('selectedAppointmentTime.start', '0000');
+                $appointment->end_time = $request->input('selectedAppointmentTime.end', '0000');
+            } elseif (!$center->enable_appointments) {
+                $appointment->appointment_date = \Hijri::now()->format('Y-m-d');
+                $appointment->start_time = '0000';
+                $appointment->end_time = '0000';
+            } elseif (!$appointment->exists || (int) $originalSlot[0] !== (int) $center->id) {
+                \App\Services\ApplicationAccess::fail('تاریخ و وقت ملاقات را انتخاب نمایید.', 422);
+            }
+            $newSlot = [$appointment->center_id, $appointment->appointment_date, $appointment->start_time, $appointment->end_time];
+            if ($originalSlot != $newSlot) {
+                if ($center->enable_appointments && !$appointment->isAvailable()) {
+                    return ['status' => 'error', 'errors' => ['appointment' => ['وقت انتخاب‌شده پر شده است؛ وقت دیگری انتخاب نمایید.']]];
                 }
-                $form['reference_no']                   =   $individual_reference_no;
+                $appointment->queue_no = $appointment->getCurrentQueueNo();
             }
-            if($form['apply_for_new_id']=='بلی'){
-                $individualReferenceNos[]               =   ['name'=>$form['name'],'reference_no'=>$individual_reference_no];
+            $appointment->save();
+            $oldReferences = $existing->pluck('reference_no')->all();
+            foreach ($existing as $old) {
+                \DB::table('cancelledforms')->insert($old->getAttributes());
             }
-            
-            $form['family_form_reference_no']       =   $randomNumber;
-           // $form['paper_id_copy']                  =   isset($form['paper_id_copy_base64']) && $form['paper_id_copy_base64']!='' ? Individualform::saveBase64ToFile($form['paper_id_copy_base64']) :'';
-            
-            $result                                 =   Individualform::create($form);
-            $result->markAsReceived();
-            $count++;
-        endforeach;
-        $code = \App\Captcha::generateCode('printing');
-      //  \App\Jobs\SendApplicationDetailsToIVP::dispatch([$submittedForm]);
-        \App\Log::recordSubmission($randomNumber,\App\Log::ip($request));
-        return [
-            'reference_no'=>$randomNumber,
-            'applications'=>$individualReferenceNos,
-            'appointment_date_time'=>$appointment->getDateTime(),
-            'appointment_address'=>$appointment->address(),
-            'path'=>config('app.url')."/print-individual-form?reference_no=".$randomNumber."&token=".$code
-        ];
+            if ($existing->isNotEmpty()) {
+                static::where('family_form_reference_no', $reference)->delete();
+            }
+            $forms = static::formatData($request->input('members'), $center->id);
+            $references = [];
+            $count = 1;
+            foreach ($forms as $form) {
+                if (!isset($form['reference_no']) || !in_array($form['reference_no'], $oldReferences, true)) {
+                    do {
+                        $form['reference_no'] = static::generateReferenceNo($reference, $count++);
+                    } while (static::where('reference_no', $form['reference_no'])->exists());
+                }
+                $form['family_form_reference_no'] = $reference;
+                $saved = static::create($form);
+                $saved->markAsReceived();
+                if ($form['apply_for_new_id'] === 'بلی') {
+                    $references[] = ['name' => $form['name'], 'reference_no' => $form['reference_no']];
+                }
+            }
+            $code = \App\Captcha::generateCode('printing:'.$reference);
+            \App\Log::recordSubmission($reference, \App\Log::ip($request));
+            return ['reference_no' => $reference, 'applications' => $references,
+                'appointment_date_time' => $appointment->getDateTime(),
+                'appointment_address' => $appointment->address(),
+                'path' => config('app.url').'/print-individual-form?reference_no='.$reference.'&token='.$code];
+        });
     }
     public function markAsReceived(){
         $this->updateTracking( 'فارم رسید' );

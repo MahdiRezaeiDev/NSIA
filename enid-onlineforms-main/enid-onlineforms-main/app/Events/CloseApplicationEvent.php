@@ -15,6 +15,7 @@ class CloseApplicationEvent implements ShouldBroadcast
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $application;
+    protected $changed = false;
     /**
      * Create a new event instance.
      *
@@ -27,7 +28,7 @@ class CloseApplicationEvent implements ShouldBroadcast
             'reference_no'=>$form->reference_no,
             'family_form_reference_no'=>$form->family_form_reference_no
         ];
-        \App\Individualform::where('family_form_reference_no',$form->family_form_reference_no)->where('opened_by_user_id', $user->id)->update([
+        $this->changed = \App\Individualform::where('family_form_reference_no',$form->family_form_reference_no)->where('opened_by_user_id', $user->id)->update([
             'opened'=>false,
             'opened_by'=>'',
             'opened_by_user_id'=>0
@@ -40,6 +41,11 @@ class CloseApplicationEvent implements ShouldBroadcast
      *
      * @return \Illuminate\Broadcasting\Channel|array
      */
+    public function broadcastWhen()
+    {
+        return $this->changed > 0;
+    }
+
     public function broadcastOn()
     {
         return new PrivateChannel('applications');

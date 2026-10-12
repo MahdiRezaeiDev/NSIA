@@ -31,6 +31,9 @@ class IndividualFormRequest extends FormRequest
      */
     public function rules()
     {
+        if (!is_array($this->input('members')) || count($this->input('members')) === 0) {
+            return ['members' => 'required|array|min:1'];
+        }
         
         if( $this->segment(2) == 'submit-individual-form' ){
       
@@ -62,6 +65,8 @@ class IndividualFormRequest extends FormRequest
 
     public function allRules(){
         $finalRules=[
+            'application_id'=>'required|string|max:64',
+            'members'=>'required|array|min:1|max:30',
             'center_id'=>'required|exists:centers,id',
             'family_members'=>Rule::requiredIf(function(){
                 $minimumMembers = count($this->input('members')) < 2;
@@ -386,66 +391,42 @@ class IndividualFormRequest extends FormRequest
         return false;
     }
 
-    public function isDobValid($memberKey,$fail){
-       
-        $memberRelationship     = $this->input('members.'.$memberKey.".relationship_with_head_of_family");
-        $headOfFamily           = $this->getHeadOfFamily();
-     
-        $head_dob_day           = isset($headOfFamily['birthday_day']) ? $headOfFamily['birthday_day'] :false;
-        $head_dob_month         = isset($headOfFamily['birthday_month']) ? $headOfFamily['birthday_month'] :false;
-        $head_dob_year          = isset($headOfFamily['birthday_year']) ? $headOfFamily['birthday_year'] :false;
-        
-            $member_dob_day     = $this->input('members.'.$memberKey.".birthday_day",false);
-            $member_dob_month   = $this->input('members.'.$memberKey.".birthday_month",false);
-            $member_dob_year    = $this->input('members.'.$memberKey.".birthday_year",false);
-            if( $member_dob_day && $member_dob_month && $member_dob_year){
-                try{
-                    $head_of_family_dob     = new Jalalian($head_dob_year,$head_dob_month,$head_dob_day);
-                    $head_of_family_dob     = $head_of_family_dob->toCarbon();   
-                }catch(\Exception $e){
-                    $this->dieMessage('members.'.$memberKey.'.birthday_day','تاریخ تولد غلط است. لطفا یک روز دیگر را انتخاب نمایید');
-                }
-          
-            }else{
-                return $fail('تاریخ تولد درست نیست');
-            }
-            if( \Carbon\Carbon::now()->subYears(18)->lt($head_of_family_dob) ){
-                return $fail('عمر رییس فامیل باید بیشتر از ۱۸ سال باشد!');
-            }
-           
-       
-            if($member_dob_day !==false || $member_dob_month !== false || $member_dob_year!==false){
-                try{
-                    $member_dob             =  new Jalalian($member_dob_year,$member_dob_month,$member_dob_day);
-                }catch(\Exception $e){
-                    $this->dieMessage('members.'.$memberKey.'.birthday_day','تاریخ تولد غلط است. لطفا یک روز دیگر را انتخاب نمایید');
-                    die();
-                }
-        
-                $member_dob             = $member_dob->toCarbon();
-               
-                if($memberRelationship == 4 || $memberRelationship == 5){
-            
-                    if( $head_of_family_dob->lt($member_dob) == false ){
-                        return $fail('تاریخ تولد پسر یا دختر نمیتواند قبل از تاریخ رییس فامیل باشد!');
-                    }
-                    if( $head_of_family_dob->lt($member_dob) == false ){
-                        return $fail('تاریخ تولد پسر یا دختر نمیتواند قبل از تاریخ رییس فامیل باشد!');
-                    }
-                }
-                if($memberRelationship == 6 || $memberRelationship == 7){
-                    if( $head_of_family_dob->gt($member_dob) == false ){
-                        return $fail('تاریخ تولد مادر یا پدر باید از تاریخ تولد رییس فامیل بزرگتر باشد!');
-                    }
+    public function isDobValid($memberKey, $fail)
+    {
+        $head = $this->getHeadOfFamily();
+        if (!$head) {
+            return $fail('رئیس خانواده را مشخص نمایید.');
+        }
+        $member = $this->input('members.'.$memberKey, []);
+        try {
+            foreach ([$head, $member] as $person) {
+                $year = $person['birthday_year'] ?? null;
+                $month = $person['birthday_month'] ?? null;
+                $day = $person['birthday_day'] ?? null;
+                if (!is_numeric($year) || !is_numeric($month) || !is_numeric($day) ||
+                    !\Morilog\Jalali\CalendarUtils::checkDate((int) $year, (int) $month, (int) $day)) {
+                    return $fail('تاریخ تولد درست نیست.');
                 }
             }
-        
-       
-        
-        return ;
-
+            $headDob = (new Jalalian((int) $head['birthday_year'], (int) $head['birthday_month'], (int) $head['birthday_day']))->toCarbon()->startOfDay();
+            $memberDob = (new Jalalian((int) $member['birthday_year'], (int) $member['birthday_month'], (int) $member['birthday_day']))->toCarbon()->startOfDay();
+        } catch (\Throwable $exception) {
+            return $fail('تاریخ تولد درست نیست.');
+        }
+        if ($memberDob->isFuture()) {
+            return $fail('تاریخ تولد نمی‌تواند در آینده باشد.');
+        }
+        if ($headDob->gt(now()->subYears(18)->startOfDay())) {
+            return $fail('عمر رئیس خانواده باید حداقل ۱۸ سال باشد.');
+        }
+        $relationship = (int) ($member['relationship_with_head_of_family'] ?? 0);
+        if (in_array($relationship, [4, 5], true) && $memberDob->lte($headDob)) {
+            return $fail('تاریخ تولد فرزند باید پس از تاریخ تولد رئیس خانواده باشد.');
+        }
+        if (in_array($relationship, [6, 7], true) && $memberDob->gte($headDob)) {
+            return $fail('تاریخ تولد والدین باید پیش از تاریخ تولد رئیس خانواده باشد.');
+        }
     }
-
 
     public function isMoreThan18($memberKey){
         if($this->input('members.'.$memberKey.".birthday_year") == null || $this->input('members.'.$memberKey.".birthday_month") ==null || $this->input('members.'.$memberKey.".birthday_day") == null){
@@ -592,7 +573,7 @@ class IndividualFormRequest extends FormRequest
                 ],
                 'members.'.$memberKey.'.military_service'=>'nullable|boolean|required_if:members.'.$memberKey.'.apply_for_new_id,"بلی"',
                 'members.'.$memberKey.'.is_educated'=>'nullable|boolean',
-                'members.'.$memberKey.'.education_level'=>'required_if:is_educated,true',
+                'members.'.$memberKey.'.education_level'=>'required_if:members.'.$memberKey.'.is_educated,1',
                 'members.'.$memberKey.'.original_residence.village'=>[
                     'required_if:members.'.$memberKey.'.apply_for_new_id,"بلی"'],
                 'members.'.$memberKey.'.original_residence.district'=>['required_if:members.'.$memberKey.'.apply_for_new_id,"بلی"'],

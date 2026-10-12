@@ -31,6 +31,8 @@ class Handler extends ExceptionHandler
     protected $dontFlash = [
         'password',
         'password_confirmation',
+        'token',
+        'signature',
     ];
 
     /**
@@ -50,8 +52,8 @@ class Handler extends ExceptionHandler
                     'status' => $exception->getCode(),
                     'file'   => $exception->getFile(),
                     'trace'  => json_encode([
-                        'request' => $request->all(),
-                        'url'     => $request->fullUrl(),
+                        'request' => \App\Log::safeData($request->all()),
+                        'url'     => $request->url(),
                         'message' => $exception->getMessage()
                     ])
                 ]);

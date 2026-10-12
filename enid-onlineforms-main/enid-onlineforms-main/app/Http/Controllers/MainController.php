@@ -157,33 +157,16 @@ class MainController extends Controller
     /*
     * Updates the application status to the next stp
     */
-    public function moveApplicationToNextStep(Request $r){
-        return app(MobileAppController::class)->moveApplicationToNextStep($r);
- 
-        if( $r->input('type') == 'individual' ){
-            $application = Individualform::where('reference_no',$r->input('reference_no'))->first();
-            if(!$application){
-                abort(404);
-            }
-            if(\Auth::user()->role !='admin' && \Auth::user()->canAccessApplication($application->status) == false){
-                return redirect()->back();
-            }
-
-            $application->moveToNextStep($r->input('status',false));
-            $rm_application_id = $r->input('rm_appliction_id','');
-            if( strlen($rm_application_id) == 13){
-                $application->rm_id= $rm_application_id;
-                
-                $application->save();
-                
-            }
-            $application = Individualform::where('reference_no',$r->input('reference_no'))->first();
-            if($application->status == 13){
-                return ['status'=>'ok'];
-            }
-            return redirect()->back();
-
+    public function moveApplicationToNextStep(Request $r)
+    {
+        $response = app(MobileAppController::class)->moveApplicationToNextStep($r);
+        $application = ApplicationAccess::find($r->input('reference_no'));
+        $rmId = $r->input('rm_appliction_id', '');
+        if (is_string($rmId) && strlen($rmId) === 13) {
+            $application->rm_id = $rmId;
+            $application->save();
         }
+        return (int) $application->status === 13 ? $response : redirect()->back();
     }
 
     public function applicationViewClosed(Request $r){

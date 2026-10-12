@@ -1,97 +1,53 @@
 <?php
+
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-use App\RequestLogger;
 
-class Captcha extends Model {
-
-    public static function isRobot($token, $action, $request = []) {
-        try {
-            $client = new \GuzzleHttp\Client();
-            $response = $client->request('POST', 'https://www.google.com/recaptcha/api/siteverify', [
-                'form_params' => [
-                    'secret' => config('app.captchaKey'),
-                    'response' => $token
-                ]
-            ]);
-
-            $response = json_decode($response->getBody());
-
-            if (isset($response->success) && $response->success == true) {
-                if ($response->action != $action) {
-                    //RequestLogger::email('Robot Detected',$token.' Robot Detected for action:'.$action);
-                    //return true;
-                }
-                if ($response->score < 0.3) {
-                    // RequestLogger::email('Robot Detected',$token.' Robot Detected with score:'.$response->score);
-                    return true;
-                }
-                return false;
-            }
-
-            // Safe logging to prevent breaking
-            try {
-                if (class_exists('\App\Log')) {
-                    \App\Log::record('Robot Detected', $token . ' Robot Detected with failed response from Google:' . json_encode($response) . " Request:" . json_encode($request));
-                }
-            } catch (\Exception $e) {
-                // Do nothing, prevent crash
-            }
-
+class Captcha extends Model
+{
+    public static function isRobot($token, $action, $request = [])
+    {
+        if (config('security.captcha_driver') === 'disabled' && app()->environment(['local', 'testing'])) {
+            return false;
+        }
+        if (!is_string($token) || $token === '' || !config('app.captchaKey')) {
             return true;
-
-        } catch (\Exception $e) {
-            // Treat any exception as robot
-            try {
-                if (class_exists('\App\Log')) {
-                    \App\Log::record('Captcha request failed', $e->getMessage() . " Token: $token Action: $action");
-                }
-            } catch (\Exception $ex) {
-                // Ignore logging exceptions
-            }
+        }
+        try {
+            $client = app()->bound('captcha.client') ? app('captcha.client') : new \GuzzleHttp\Client();
+            $response = $client->request('POST', 'https://www.google.com/recaptcha/api/siteverify', [
+                'timeout' => 8, 'connect_timeout' => 3,
+                'form_params' => ['secret' => config('app.captchaKey'), 'response' => $token],
+            ]);
+            $data = json_decode((string) $response->getBody(), true);
+            return !is_array($data) || ($data['success'] ?? false) !== true ||
+                ($data['action'] ?? '') !== $action ||
+                !is_numeric($data['score'] ?? null) ||
+                $data['score'] < config('security.captcha_min_score', 0.3) ||
+                !in_array($data['hostname'] ?? '', config('security.captcha_hostnames', []), true);
+        } catch (\Throwable $exception) {
+            Log::record('CaptchaVerificationFailed', ['action' => $action]);
             return true;
         }
     }
 
-    public static function generateCode($action, $ip = "") {
-        $c = new Captcha;
-        $c->code = substr(md5(microtime()) . rand(1, 12000000), 0, 100);
+    public static function generateCode($action, $ip = '')
+    {
+        $c = new static;
+        $c->code = bin2hex(random_bytes(32));
         $c->action = $action;
         $c->ip = $ip;
         $c->save();
-
         return $c->code;
     }
 
-    public static function verifyCode($code, $action) {
-        try {
-            $c = Captcha::where('code', $code)->where('action', $action)->first();
-            if (!$c) {
-                try {
-                    RequestLogger::email('Captcha Code failed', 'Captcha Code failed:' . $code . "/Action:" . $action);
-                } catch (\Exception $e) {
-                    // Prevent crash if email fails
-                }
-                return false;
-            }
-
-            // Ensure created_at is Carbon instance
-            $created = $c->created_at;
-            if (!$created instanceof \Carbon\Carbon) {
-                $created = \Carbon\Carbon::parse($created);
-            }
-
-            if ($created->diffInMinutes(now()) > 120) {
-                //RequestLogger::email('Captcha Code failed timout','Captcha Code failed timeout:'.$code."/Action:".$action);
-                return false;
-            }
-
-            //$c->delete();
-            return true;
-
-        } catch (\Exception $e) {
+    public static function verifyCode($code, $action)
+    {
+        if (!is_string($code) || $code === '') {
             return false;
         }
+        return static::where('code', $code)->where('action', $action)
+            ->where('created_at', '>=', now()->subMinutes(120))->exists();
     }
 }

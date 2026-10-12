@@ -83,8 +83,11 @@ class FormController extends Controller
            
             return $forms;
         }
+       catch(\Illuminate\Http\Exceptions\HttpResponseException $e){
+            throw $e;
+       }
        catch(\Exception $e){
-            \App\RequestLogger::email('Error on file sumission',$e->getMessage());
+            \App\Log::record('SubmissionFailed', ['error_code' => $e->getCode()]);
             return response(['status'=>'error','errors'=>[
                 'یک مشکل رخ داد لطفا دوباره کوشش نمایید'
             ]],403);
@@ -283,7 +286,7 @@ class FormController extends Controller
     }
 
 public function findApplication(Request $r){
-    if (!$r->user() && \App\Captcha::isRobot($r->input('token'), 'loadApplication')) {
+    if (!$r->user() && \App\Captcha::isRobot($r->input('token'), 'find_application')) {
         return response(['status' => 'error', 'errors' => ['invalid_captcha' => ['کاپچهٔ امنیتی معتبر نیست.']]], 403);
     }
     $submittedForm = \App\Individualform::where('family_form_reference_no',$r->input('reference_no'))->first();
