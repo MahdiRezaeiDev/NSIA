@@ -2060,6 +2060,21 @@ class Individualform extends Model implements ApplicationFormInterface
     }
 
 
+    public function hasPrintableAttachments()
+    {
+        foreach ($this->attachments as $types) {
+            if (!is_array($types)) {
+                continue;
+            }
+            foreach ($types as $type => $files) {
+                if ($type !== 'photo' && is_array($files) && count($files) > 0) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     public function attachmentsToBase64(){
         $images=[];
         //return [];
@@ -2071,7 +2086,7 @@ class Individualform extends Model implements ApplicationFormInterface
                     foreach($files as $a):
                     try{
                         if(\File::extension($a['path']) !='pdf'){
-                            $img = \Storage::disk('s3')->get($a['path']);
+                            $img = \App\Services\AttachmentStorage::disk()->get($a['path']);
                             $images[]= $this->imgToBase64($img);
                         }
                         if( \File::extension($a['path']) =='pdf' ){
@@ -2079,7 +2094,8 @@ class Individualform extends Model implements ApplicationFormInterface
                         }
                     }
                     catch(\Exception $e){
-                        \App\Log::record('AttachmentNotFound',$a);
+                        \App\Log::record('AttachmentNotFound', ['reference_no' => $this->reference_no]);
+                        \App\Services\ApplicationAccess::fail('سند ضمیمه در دسترس نیست؛ دوباره کوشش نمایید.', 503);
                     }
                    
                 
@@ -2096,7 +2112,7 @@ class Individualform extends Model implements ApplicationFormInterface
     public static function pdfFileToBase64($path){
         $images=[];
         try{
-            $fileContents   = \Storage::disk('s3')->get($path);
+            $fileContents   = \App\Services\AttachmentStorage::disk()->get($path);
             $im             = new Imagick();
             $im->readImageBlob($fileContents);
             $im->adaptiveResizeImage(400,560);
@@ -2139,7 +2155,7 @@ class Individualform extends Model implements ApplicationFormInterface
                         }
                         $ext = \File::extension($a['path']);
                       
-                            $file = \Storage::disk('s3')->get($a['path']);
+                            $file = \App\Services\AttachmentStorage::disk()->get($a['path']);
                         
                       
                         if(strtolower($ext) == 'png'){
@@ -2284,8 +2300,10 @@ class Individualform extends Model implements ApplicationFormInterface
        
         $mpdf->addPage('P');
         $mpdf->WriteHTML( $this->toHtml() );
-        $mpdf->addPage('P');
-        $mpdf->WriteHTML( $this->getAttachmentsHtml() );
+        if ($this->hasPrintableAttachments()) {
+            $mpdf->addPage('P');
+            $mpdf->WriteHTML( $this->getAttachmentsHtml() );
+        }
         $mpdf->addPage('P');
         $mpdf->WriteHTML( $this->getSampleHtml() );
         $mpdf->WriteHTML('<pagebreak orientation="L" resetpagenum="1"/>');
@@ -2296,7 +2314,7 @@ class Individualform extends Model implements ApplicationFormInterface
 
     public function downloadAllApplications(){
         try{
-            $file= \Storage::disk('s3')->get("applications/".$application->family_form_reference_no.".pdf");
+            $file= \App\Services\AttachmentStorage::disk()->get("applications/".$application->family_form_reference_no.".pdf");
          
            // return response($file)->header('Content-Type','application/pdf');
         }catch(\Exception $e){
@@ -2687,7 +2705,7 @@ class Individualform extends Model implements ApplicationFormInterface
             foreach($as as $a):
                 if( $this->getFileFormat($a['name'] ) !='.pdf' ){
                     try{
-                        $fileContents   = \Storage::disk('s3')->get($a['path']);
+                        $fileContents   = \App\Services\AttachmentStorage::disk()->get($a['path']);
                     }catch(\Exception $e){
                         \App\Log::record('FILENOTFOUND',$e->getMessage());
                     }
@@ -2713,7 +2731,7 @@ class Individualform extends Model implements ApplicationFormInterface
     }
     public function sendInfoToIVP($token,$center_name=false,$flag=0){
         
-        $client = new \GuzzleHttp\Client(['http_errors' => false]);
+        $client = new \GuzzleHttp\Client(['http_errors' => false, 'connect_timeout' => 3, 'timeout' => 12]);
         $request=$this->formatToIvp($center_name,$flag);
             Individualform::where('family_form_reference_no',$this->family_form_reference_no)->update(['tried_ivp'=>true]);
             $clientResponse = $client->request("POST",env('ivp_url')."/verification/request",[
@@ -2939,7 +2957,7 @@ class Individualform extends Model implements ApplicationFormInterface
 
     public function changeCenterInIvp(){
         $token = Individualform::getIvpToken();
-        $client = new \GuzzleHttp\Client(['http_errors' => false]);
+        $client = new \GuzzleHttp\Client(['http_errors' => false, 'connect_timeout' => 3, 'timeout' => 12]);
         $request=[
             'FamilyCode'=>$this->family_form_reference_no,
             'BranchID'=>$this->center_id
@@ -2964,7 +2982,7 @@ class Individualform extends Model implements ApplicationFormInterface
     }
 
     public function changeCenterInIvpWithToken($token){
-        $client = new \GuzzleHttp\Client(['http_errors' => false]);
+        $client = new \GuzzleHttp\Client(['http_errors' => false, 'connect_timeout' => 3, 'timeout' => 12]);
         $request=[
             'FamilyCode'=>$this->family_form_reference_no,
             'BranchID'=>$this->center_id
@@ -3044,7 +3062,7 @@ class Individualform extends Model implements ApplicationFormInterface
     // ARD for Already Registered
     // INC for Cancel For Incorrect Information
     public function markAllMembersAsCompleteIvp($token,$reason){
-        $client = new \GuzzleHttp\Client(['http_errors' => false]);
+        $client = new \GuzzleHttp\Client(['http_errors' => false, 'connect_timeout' => 3, 'timeout' => 12]);
         $request=[
             'FamilyCode'=>$this->family_form_reference_no,
             'Reason'=>$reason
@@ -3071,7 +3089,7 @@ class Individualform extends Model implements ApplicationFormInterface
         
     }
     private function makeCancelRequest($request,$token){
-        $client = new \GuzzleHttp\Client(['http_errors' => false]);
+        $client = new \GuzzleHttp\Client(['http_errors' => false, 'connect_timeout' => 3, 'timeout' => 12]);
         $clientResponse = $client->request("POST",env('ivp_url')."/verification/cancel/individual",[
             'json'=>$request,
             'delay'=>200,
@@ -3137,7 +3155,7 @@ class Individualform extends Model implements ApplicationFormInterface
 
     public function verifyVerificationCode($code){
         $token = \App\Individualform::getIvpToken();
-        $client = new \GuzzleHttp\Client(['http_errors' => false]);
+        $client = new \GuzzleHttp\Client(['http_errors' => false, 'connect_timeout' => 3, 'timeout' => 12]);
         $request=[
             'IndividualCode'=>$this->reference_no,
             'VerificationCode'=>$code
@@ -3216,7 +3234,7 @@ class Individualform extends Model implements ApplicationFormInterface
     }
 
     public function cancelFamilyApplicationInIvp($token,$reason){
-        $client = new \GuzzleHttp\Client(['http_errors' => false]);
+        $client = new \GuzzleHttp\Client(['http_errors' => false, 'connect_timeout' => 3, 'timeout' => 12]);
         $request=[
             'FamilyCode'=>$this->family_form_reference_no,
             'Reason'=>$reason
@@ -3260,7 +3278,7 @@ class Individualform extends Model implements ApplicationFormInterface
     }
 
     public static function cancelFamilyApplicationInIvpById($token,$reason,$family_form_reference_no){
-        $client = new \GuzzleHttp\Client(['http_errors' => false]);
+        $client = new \GuzzleHttp\Client(['http_errors' => false, 'connect_timeout' => 3, 'timeout' => 12]);
         $request=[
             'FamilyCode'=>$family_form_reference_no,
             'Reason'=>$reason
@@ -3404,7 +3422,7 @@ class Individualform extends Model implements ApplicationFormInterface
             if($pdfPages && count($pdfPages) > 0){
                 $pathInfo       = pathinfo($path);
                 $newFileName    = "uploads/".$pathInfo['filename'].".jpg";
-                $fileName       = \Storage::disk('s3')->put($newFileName,base64_decode($pdfPages[0]));
+                $fileName       = \App\Services\AttachmentStorage::disk()->put($newFileName,base64_decode($pdfPages[0]));
                 $photo[0]['path'] =$newFileName;
             }
             $attachments = $this->attachments;
@@ -3755,7 +3773,7 @@ class Individualform extends Model implements ApplicationFormInterface
         foreach($files as $a):
             try{
                 if(\File::extension($a['path']) !='pdf'){
-                    $img = \Storage::disk('s3')->get($a['path']);
+                    $img = \App\Services\AttachmentStorage::disk()->get($a['path']);
                     $images[]= Individualform::imgToBase64($img);
                 }
                 if( \File::extension($a['path']) =='pdf' ){
@@ -3763,7 +3781,8 @@ class Individualform extends Model implements ApplicationFormInterface
                 }
             }
             catch(\Exception $e){
-                \App\Log::record('AttachmentNotFound',$a);
+                \App\Log::record('AttachmentNotFound', ['reference_no' => $this->reference_no]);
+                        \App\Services\ApplicationAccess::fail('سند ضمیمه در دسترس نیست؛ دوباره کوشش نمایید.', 503);
             }
         endforeach;
 
@@ -3774,7 +3793,7 @@ class Individualform extends Model implements ApplicationFormInterface
         $photoFiles = $this->getAttachmentByName('photo');
         $photo      = isset($photoFiles[0]) ? $photoFiles[0]['path'] : '';
 
-        return \Storage::disk('s3')->download($photo);
+        return \App\Services\AttachmentStorage::disk()->download($photo);
     }
 }
 

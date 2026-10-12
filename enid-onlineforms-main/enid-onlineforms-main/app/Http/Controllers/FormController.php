@@ -477,67 +477,34 @@ public function findApplication(Request $r){
     }
 
 
-    public function getEvents(Request $r){
-        $start  = \Hijri::fromFormat('Y-m-d',\App\Individualform::formatDate($r->input('start')))->toCarbon()->format('Y-m-d 00:00:00');
-        $end    = \Hijri::fromFormat('Y-m-d',\App\Individualform::formatDate($r->input('end')))->toCarbon()->format('Y-m-d 23:59:59');
-        $description = Individualform::getStatusDescription($r->input('status'));
-        if($r->user()->role =='team_leader'){
-            $ivpDescription=false;
-            if($description=='هویت تثبیت شد'){
-                $ivpDescription ="تثبیت هویت شد";
-            }
-            if($description=='بعد از تحقیقات بیشتر هویت تثبیت نشد'){
-                $ivpDescription ="تثبیت هویت نشد";
-            }
-          
-            if($r->input('user_id')!='0'){
-                $query=\DB::table('centeractivities')
-                ->where('created_at','>=',$start)
-                ->where('created_at','<=',$end)
-          
-                ->where('center_id',$r->user()->center_id)
-                ->where('user_id',$r->input('user_id'))
-                ->where(function($query)  use ($ivpDescription,$description) {
-                    $query->orWhere('description','like','%'.$description."%");
-                    if($ivpDescription){
-                        $query->orWhere('description','like','%'.$ivpDescription."%");
-                    }
-                });
-               
-            }else{
-                $query=\DB::table('centeractivities')
-                ->where('created_at','>=',$start)
-                ->where('created_at','<=',$end)
-                ->where('center_id',$r->user()->center_id)
-                ->where(function($query) use ($ivpDescription,$description){
-                    $query->orWhere('description','like','%'.$description."%");
-                    if($ivpDescription){
-                        $query->orWhere('description','like','%'.$ivpDescription."%");
-                    }
-                });
-                
-                
-
-            }
-     
-            return $query->get()->map(function($e){
-                try{
-                    $date =\Hijri::fromCarbon(\Carbon\Carbon::createFromFormat('Y-m-d H:i:s',$e->created_at))->format('d/m/Y');
-                }catch(\Exception $e){
-                    $date = $e->created_at;
-                }
-              
-                return [
-                    'date'=>$date,
-                    'description'=>$e->description,
-                    'reference_no'=>$e->reference_no,
-                    'username'=>$e->username
-                ];
-            });
+    public function getEvents(Request $r)
+    {
+        if (!in_array($r->user()->role, ['team_leader', 'admin', 'center_manager', 'audit'], true)) {
+            ApplicationAccess::fail('شما صلاحیت دریافت این راپور را ندارید.');
         }
-        return ['No data'];
+        list($start, $end) = \App\Services\ApplicationReports::dates($r, 'start', 'end');
+        $r->validate(['status' => 'required|integer|in:0,1,2,3,4,5,6,13,14,15', 'user_id' => 'nullable|integer']);
+        $description = Individualform::getStatusDescription($r->input('status'));
+        $query = \DB::query()->fromSub(\App\Services\ApplicationReports::events(), 'centeractivities')
+            ->where('created_at', '>=', $start->startOfDay())->where('created_at', '<=', $end->endOfDay())
+            ->where(function ($query) use ($description) {
+                $query->where('description', 'like', '%'.$description.'%');
+                if ($description === 'هویت تثبیت شد') {
+                    $query->orWhere('description', 'like', '%تثبیت هویت شد%');
+                }
+                if ($description === 'بعد از تحقیقات بیشتر هویت تثبیت نشد') {
+                    $query->orWhere('description', 'like', '%تثبیت هویت نشد%');
+                }
+            });
+        if ($r->input('user_id')) {
+            $query->where('user_id', $r->input('user_id'));
+        }
+        return $query->get()->map(function ($e) {
+            return ['date' => \Hijri::fromCarbon(\Carbon\Carbon::parse($e->created_at))->format('d/m/Y'),
+                'description' => $e->description, 'reference_no' => $e->reference_no, 'username' => $e->username];
+        });
     }
-   
+
     private function getFileExtensionFromMimeType($file){
         $mimeType   =   $file->getMimeType();
         if($mimeType == 'image/jpeg'){

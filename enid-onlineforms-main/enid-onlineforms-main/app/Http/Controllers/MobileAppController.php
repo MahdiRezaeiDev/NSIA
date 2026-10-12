@@ -180,14 +180,9 @@ class MobileAppController extends Controller
               endforeach;
           return $centersReport;
         }else if($r->user() && $r->user()->role == 'team_leader') {
-            $cacheName ='centerDashboard'.$r->user()->center_id;
-            $center = \Cache::remember($cacheName,7200,function() use ($r){
-                  $center = \App\Center::where('id',$r->user()->center_id)->get()->map(function($c){
-                   return $c->centerReport();
-                  });
-                return $center;
+            return \App\Center::where('id', $r->user()->center_id)->get()->map(function ($c) {
+                return $c->centerReport();
             });
-            return $center;
         }
     }
 
@@ -548,6 +543,7 @@ class MobileAppController extends Controller
         if(!$individualform){
             return response(['message'=>'Application not found!'],404);
         }
+        ApplicationAccess::read($r->user(), $individualform);
 
         return $individualform->paperIdFilesToPdf();
     }
@@ -560,6 +556,7 @@ class MobileAppController extends Controller
         if(!$individualform){
             return response(['message'=>'Application not found!'],404);
         }
+        ApplicationAccess::read($r->user(), $individualform);
 
         return $individualform->downloadPhoto();
     }

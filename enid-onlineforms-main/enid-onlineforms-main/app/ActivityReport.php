@@ -52,7 +52,7 @@ class ActivityReport{
             if($this->description=='بعد از تحقیقات بیشتر هویت تثبیت نشد'){
                 $ivpDescription ="تثبیت هویت نشد";
             }
-        $result=\DB::table('centeractivities')
+        $result=\DB::query()->fromSub(\App\Services\ApplicationReports::events(), 'centeractivities')
         ->where('created_at','>=',$this->start_date->format('Y-m-d 00:00:00'))
         ->where('created_at','<=',$this->end_date->format('Y-m-d 23:59:59'))
         ->where('center_id',\Auth::user()->center_id)

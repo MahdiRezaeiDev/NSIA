@@ -25,14 +25,26 @@ class ApplicationForm extends Model
     public static function resizeImage($path,$width=300,$height=600 ){
         try{
             $im             = new Imagick();
-            $im->readImageBlob(\Storage::disk('s3')->get($path));
+            $im->readImageBlob(\App\Services\AttachmentStorage::disk()->get($path));
             $im->setImageFormat("jpg");
             $im->adaptiveResizeImage($width,$height);
       
             return $im->getImageBlob();
         }catch(\Exception $e){
         
-            $placeholder = \Storage::disk('local')->get("placeholder.jpg");
+            if (\Storage::disk('local')->exists('placeholder.jpg')) {
+                return \Storage::disk('local')->get('placeholder.jpg');
+            }
+            $fallback = new \Imagick();
+            $fallback->newImage($width, $height, new \ImagickPixel('#f1f5f9'));
+            $fallback->setImageFormat('jpg');
+            $draw = new \ImagickDraw();
+            $draw->setStrokeColor('#9ca3af');
+            $draw->setStrokeWidth(2);
+            $draw->line(0, 0, $width, $height);
+            $draw->line(0, $height, $width, 0);
+            $fallback->drawImage($draw);
+            return $fallback->getImageBlob();
         }
 
         return $placeholder;

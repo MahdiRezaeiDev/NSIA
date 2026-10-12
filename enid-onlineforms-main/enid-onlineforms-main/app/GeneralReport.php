@@ -11,8 +11,8 @@ class GeneralReport  implements FromCollection, ShouldAutoSize,WithStyles{
     protected $end_date;
     protected $center_id=false;
     public function __construct($start_date,$end_date,$center_id){
-        $this->start_date   = $start_date;
-        $this->end_date     = $end_date;
+        $this->start_date   = $start_date instanceof \Hijri ? $start_date->toCarbon() : $start_date;
+        $this->end_date     = $end_date instanceof \Hijri ? $end_date->toCarbon() : $end_date;
         $this->center_id    = $center_id;
     }   
     public function collection()
@@ -100,7 +100,7 @@ class GeneralReport  implements FromCollection, ShouldAutoSize,WithStyles{
     }
 
     public function getQuery($excludeNew=false){
-        $events = \DB::table('reports')
+        $events = \DB::query()->fromSub(\App\Services\ApplicationReports::events(), 'reports')
         ->whereDate('event_date','>=',$this->start_date)
         ->whereDate('event_date','<=',$this->end_date);
         

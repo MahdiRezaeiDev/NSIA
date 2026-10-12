@@ -128,6 +128,7 @@ class ReportsController extends Controller
     }
 
     public function downloadGeneralReport(Request $r){
+        \App\Services\ApplicationReports::dates($r);
         $allowed=['admin','team_leader','center_manager'];
         if(!in_array($r->user()->role,$allowed)){
             abort(404);
@@ -153,21 +154,16 @@ class ReportsController extends Controller
         return Excel::download($report, 'Report.xlsx');
     }
  
+    public function getGeneralReport(Request $r){
+        return $this->getStats($r);
+    }
+
     public function getStats(Request $r){
         $allowed=['admin','team_leader','center_manager'];
         if(!in_array($r->user()->role,$allowed)){
             abort(404);
         }
-        $startDate = $r->input('appointment_start_date');
-        $startDate = explode("-",$startDate);
-
-        $startDate = new \Hijri($startDate[0],$startDate[1],$startDate[2],0,0,0);
-       // $startDate = $startDate->toCarbon();
-
-        $endDate = $r->input('appointment_end_date');
-        $endDate = explode("-",$endDate);
-        $endDate = new \Hijri($endDate[0],$endDate[1],$endDate[2],23,59,59);
-        //$endDate = $endDate->toCarbon();        
+        list($startDate, $endDate) = \App\Services\ApplicationReports::dates($r);
         if($r->user() && $r->user()->role=='team_leader'){
             $center_id = $r->user()->center_id;
         }else{
@@ -179,6 +175,7 @@ class ReportsController extends Controller
 
 
     public function downloadCurrentReport(Request $r){
+        \App\Services\ApplicationReports::dates($r);
         $allowed=['admin','team_leader','center_manager'];
         //\Auth::login(\App\User::first());
         if(!in_array($r->user()->role,$allowed)){
@@ -206,6 +203,7 @@ class ReportsController extends Controller
 
 
     public function downloadFamilyReport(Request $r){
+        \App\Services\ApplicationReports::dates($r);
         $allowed=['admin','team_leader','center_manager'];
         if(!in_array($r->user()->role,$allowed)){
             abort(404);
@@ -231,6 +229,7 @@ class ReportsController extends Controller
     }
     
     public function getAuditReport(Request $r){
+        \App\Services\ApplicationReports::dates($r);
         $startDate = $r->input('appointment_start_date');
         $startDate = explode("-",$startDate);
         $startDate = new \Hijri($startDate[0],$startDate[1],$startDate[2],0,0,0);
@@ -251,6 +250,7 @@ class ReportsController extends Controller
 
 
     public function getTransferReport(Request $r){
+        \App\Services\ApplicationReports::dates($r);
         $startDate = $r->input('appointment_start_date');
         $startDate = explode("-",$startDate);
         $startDate = new \Hijri($startDate[0],$startDate[1],$startDate[2],0,0,0);
@@ -270,6 +270,7 @@ class ReportsController extends Controller
     }
 
     public function downloadActivityReport(Request $r){
+        \App\Services\ApplicationReports::dates($r, 'start', 'end');
         $user_id    = $r->input('user_id',0) =="0"? false :$r->input('user_id');
         $startDate  = \App\Report::stringToDate($r->input('start'))->toCarbon();
         $endDate    = \App\Report::stringToDate($r->input('end'))->toCarbon();

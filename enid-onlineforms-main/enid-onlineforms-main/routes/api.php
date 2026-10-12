@@ -60,11 +60,11 @@ Route::group(['middleware' => ['auth:api','active.api','throttle:120,1','LogRequ
 
 
 //Can send Max 4 requests in 1 minute
-Route::group(['middleware' => ['throttle:120,1','LogRequest']], function () {
-    Route::post("/login","MobileAppController@login")->middleware('throttle:10,1');
-    Route::any("/submit-individual-form","FormController@submitIndividualForm")->middleware('throttle:10,1');
-    Route::any("/track","FormController@track")->middleware('throttle:20,1');
-    Route::any("/findApplication","FormController@findApplication")->middleware('throttle:20,1');
+Route::group(['middleware' => ['public.throttle','LogRequest']], function () {
+    Route::post("/login","MobileAppController@login");
+    Route::any("/submit-individual-form","FormController@submitIndividualForm");
+    Route::any("/track","FormController@track");
+    Route::any("/findApplication","FormController@findApplication");
     /** THIS ROUTE NEEDS TO BE SECURED */
     Route::get("previewApplication",'FormController@previewIndividualForm');
     Route::any("/saveForm","FormController@saveForm");

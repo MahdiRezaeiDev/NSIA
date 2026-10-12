@@ -68,6 +68,7 @@ class Kernel extends HttpKernel
         'UserAccess'=>         \App\Http\Middleware\UserAccess::class,
         'LogRequest'=>         \App\Http\Middleware\LogRequests::class,
         'active.api' => \App\Http\Middleware\ActiveApiUser::class,
+        'public.throttle' => \App\Http\Middleware\PublicThrottle::class,
     ];
 
     /**

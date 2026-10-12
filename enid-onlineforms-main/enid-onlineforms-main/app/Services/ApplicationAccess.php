@@ -18,7 +18,7 @@ class ApplicationAccess
         if (!$user || !(int) $user->active || !in_array($user->role, User::getRoles(), true)) {
             return false;
         }
-        if ($user->isAdmin()) {
+        if ($user->isAdmin() || $user->role === 'audit') {
             return true;
         }
         if ($user->role === 'center_manager') {

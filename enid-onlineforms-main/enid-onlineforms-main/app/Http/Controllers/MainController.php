@@ -212,6 +212,7 @@ class MainController extends Controller
     public function viewImage(Request $r){
         $path = $r->input('path');
         AttachmentStorage::authorizePath($r->user(), $path);
+        $r->validate(['width' => 'nullable|integer|between:1,1000', 'height' => 'nullable|integer|between:1,1000']);
         $width = $r->input('width',100);
         $height = $r->input('height',130);
         $image = \App\ApplicationForm::resizeImage($path,$width,$height);
