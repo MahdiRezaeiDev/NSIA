@@ -43,7 +43,7 @@ class AppointmentsController extends Controller
     }
 
     public function getTemplates(){
-        $templates = \App\Template::orderBy('id','desc')->get(['id','name']);
+        $templates = \App\Template::orderBy('id','desc')->get(['id','name','data']);
 
         return $templates;
     }

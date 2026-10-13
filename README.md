@@ -65,6 +65,10 @@ The backend login at `/login` uses the existing NSIA logo, Bahij fonts and teal/
 
 Password recovery (`/password/reset`) and new-password forms share that authentication layout, with Dari validation and status messages. Successful resets return administrators to `/home` and center staff to `/userDashboard`. Recovery tests fake notifications and verify expired/reused tokens, confirmation errors and CSRF; actual email delivery depends on the configured mail transport. Local access credentials belong outside the repository.
 
+The backend panel uses a shared RTL sidebar, responsive tables and sectioned editors at `/home`, `/userDashboard`, `/individual-applications`, `/admin/users`, `/admin/centers`, `/admin/templates` and their detail/edit pages. Shared presentation lives in `layouts/admin.blade.php`, `public/css/admin-panel.css` and `public/js/admin-panel.js`; these checked-in assets need no frontend build. Existing AngularJS controllers retain the save/action contracts. Family listing now returns pagination metadata and applies the requested page while retaining center and role scopes. `AdminPanelTest` checks pagination/filtering and transactional saves of users, centers and schedules. Browser form-write checks intercept submissions; database persistence checks use the isolated test database. Native PDF templates remain separate; their panel preview translates local image paths to browser URLs.
+
+The diagnostic toolbar is opt-in with `DEBUGBAR_ENABLED=true`; ordinary application logging remains available. Set this flag only when development diagnostics are needed.
+
 Run the complete suite to include the performance, NID and login checks:
 
 ```powershell

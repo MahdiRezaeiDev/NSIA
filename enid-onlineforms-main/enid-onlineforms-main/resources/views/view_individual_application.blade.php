@@ -21,9 +21,14 @@
     </section>
     <section class="panel"><nav class="tabs" aria-label="بخش‌های درخواستی"><button type="button" ng-class="{active:tab===1}" ng-click="tab=1" ng-attr-aria-pressed="[[tab===1]]">معلومات و فورم‌ها</button><button type="button" ng-class="{active:tab===2}" ng-click="tab=2" ng-attr-aria-pressed="[[tab===2]]">اسناد ضمیمه</button><button type="button" ng-class="{active:tab===3}" ng-click="tab=3" ng-attr-aria-pressed="[[tab===3]]">یادداشت‌ها</button><button type="button" ng-class="{active:tab===4}" ng-click="tab=4" ng-attr-aria-pressed="[[tab===4]]">جریان رسیدگی</button></nav>
         <div ng-show="tab===1"><div class="section-head"><div><h2>فورم فامیلی و انفرادی</h2><p>برای دریافت نسخهٔ قابل چاپ، از دکمهٔ «چاپ فورم مکمل» استفاده کنید.</p></div></div><div class="document-scroll" role="region" aria-label="پیش‌نمایش فورم‌ها" tabindex="0"><div class="document-preview">
-            @include('public_views.print_family_form', ['form'=>$application, 'members'=>$application->familyMembers()->get(), 'loadCss'=>false])
+            @php
+                // The PDF templates use disk paths. Only their browser preview needs public image URLs.
+                $familyPreview = view('public_views.print_family_form', ['form'=>$application, 'members'=>$application->familyMembers()->get(), 'loadCss'=>false])->render();
+                $individualPreview = view('public_views.print_individual_form', ['review'=>$application, 'loadCss'=>false])->render();
+            @endphp
+            {!! str_replace('src="'.e(public_path()).'/img/', 'src="/img/', $familyPreview) !!}
             <div class="section-divider"></div>
-            @include('public_views.print_individual_form', ['review'=>$application, 'loadCss'=>false])
+            {!! str_replace(['src="'.e(public_path()).'/img/', 'src=""'], ['src="/img/', 'src="/img/placeholder.jpg" alt="عکس موجود نیست"'], $individualPreview) !!}
         </div></div></div>
         <div ng-show="tab===2" ng-cloak><div class="section-head"><div><h2>اسناد ضمیمه</h2><p>برای مشاهدهٔ واضح‌تر، روی تصویر کلیک کنید.</p></div></div><div class="panel-body">
             @php

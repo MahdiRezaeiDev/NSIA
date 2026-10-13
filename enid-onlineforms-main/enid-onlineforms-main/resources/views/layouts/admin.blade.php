@@ -6,6 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'پنل مدیریت') | ادارهٔ ملی احصائیه و معلومات</title>
     <link href="/css/public.css" rel="stylesheet">
+    <link href="/css/admin.css" rel="stylesheet">
     <link href="/css/admin-panel.css?v={{ filemtime(public_path('css/admin-panel.css')) }}" rel="stylesheet">
     @php $roleLabels = collect(\App\User::getRoles())->mapWithKeys(function($role) { return [$role => $role === 'admin' ? 'مدیر سیستم' : \App\User::roleToDari($role)]; }); @endphp
     <script>var AUTH_API_TOKEN = ""; window.NSIA_ROLES = @json($roleLabels);</script>
