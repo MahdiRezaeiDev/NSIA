@@ -1,0 +1,65 @@
+{
+  "downloaded": "2026-10-13",
+  "files": [
+    {
+      "file": "fonts.css",
+      "source": "https://fonts.googleapis.com/css?family=Raleway:100,100i,200,200i,300,300i,400,400i,500,500i,600,600i,700,700i,800,800i,900,900i",
+      "sha256": "52ece8d8c20456a37da953cd08232fff4d363333fb38959213bfa98d8658c90e"
+    },
+    {
+      "file": "fonts/1Ptsg8zYS_SKggPNyCg4Q4FqPfE.woff2",
+      "source": "https://fonts.gstatic.com/s/raleway/v37/1Ptsg8zYS_SKggPNyCg4Q4FqPfE.woff2",
+      "sha256": "263c505d5216c4431265e258c83785ba7c96d9d31ba2759f2e761c45de08e42d"
+    },
+    {
+      "file": "fonts/1Ptsg8zYS_SKggPNyCg4QIFqPfE.woff2",
+      "source": "https://fonts.gstatic.com/s/raleway/v37/1Ptsg8zYS_SKggPNyCg4QIFqPfE.woff2",
+      "sha256": "89a1ae829083a7a7263c4bb4119395477139e3866409f6a7c7e7e309f228d5b1"
+    },
+    {
+      "file": "fonts/1Ptsg8zYS_SKggPNyCg4QoFqPfE.woff2",
+      "source": "https://fonts.gstatic.com/s/raleway/v37/1Ptsg8zYS_SKggPNyCg4QoFqPfE.woff2",
+      "sha256": "80de52aeb6cc399a3e6b111946607c9216891231bca467d08d6cfed18b1642dd"
+    },
+    {
+      "file": "fonts/1Ptsg8zYS_SKggPNyCg4SYFqPfE.woff2",
+      "source": "https://fonts.gstatic.com/s/raleway/v37/1Ptsg8zYS_SKggPNyCg4SYFqPfE.woff2",
+      "sha256": "bad8fd12e2ce80c70302ec5901f1b6129fce0ebbaba757aa25bd72e51b0d1555"
+    },
+    {
+      "file": "fonts/1Ptsg8zYS_SKggPNyCg4TYFq.woff2",
+      "source": "https://fonts.gstatic.com/s/raleway/v37/1Ptsg8zYS_SKggPNyCg4TYFq.woff2",
+      "sha256": "8c08eb8b1fdd16dcdd6270e42a8b24fcf7ddc7e63d4363a55c174d110f90005f"
+    },
+    {
+      "file": "fonts/1Ptug8zYS_SKggPNyC0ITw.woff2",
+      "source": "https://fonts.gstatic.com/s/raleway/v37/1Ptug8zYS_SKggPNyC0ITw.woff2",
+      "sha256": "b1bef1f03a77a36fc257c5525e32a1dd621bb6f935b743a419da7ed0b18dc8f5"
+    },
+    {
+      "file": "fonts/1Ptug8zYS_SKggPNyCAIT5lu.woff2",
+      "source": "https://fonts.gstatic.com/s/raleway/v37/1Ptug8zYS_SKggPNyCAIT5lu.woff2",
+      "sha256": "36920a27f3f245302f04e96a331d42b81dceda91b5229dfd757873bf12db4b05"
+    },
+    {
+      "file": "fonts/1Ptug8zYS_SKggPNyCIIT5lu.woff2",
+      "source": "https://fonts.gstatic.com/s/raleway/v37/1Ptug8zYS_SKggPNyCIIT5lu.woff2",
+      "sha256": "49d1df38711652b72cbb3ed91dfda0a981b88f75be4abb02eb6640f74f2a5bee"
+    },
+    {
+      "file": "fonts/1Ptug8zYS_SKggPNyCMIT5lu.woff2",
+      "source": "https://fonts.gstatic.com/s/raleway/v37/1Ptug8zYS_SKggPNyCMIT5lu.woff2",
+      "sha256": "2d603982caea60f15b741581c9e7bd88d1a7680fc52978137f9bc67c2dec61e0"
+    },
+    {
+      "file": "fonts/1Ptug8zYS_SKggPNyCkIT5lu.woff2",
+      "source": "https://fonts.gstatic.com/s/raleway/v37/1Ptug8zYS_SKggPNyCkIT5lu.woff2",
+      "sha256": "ac99ad1c437b60ef445a7c13c958d4d574ef98050de2ccf182ba6ccdb3bfbdfd"
+    },
+    {
+      "file": "LICENSE.txt",
+      "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/raleway/OFL.txt",
+      "sha256": "7e946cf1171784d1015279e7dc35f827957a6b5d1f1f659ae0c98e5f5e37ed9b"
+    }
+  ]
+}

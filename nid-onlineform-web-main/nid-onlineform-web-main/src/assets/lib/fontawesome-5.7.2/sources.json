@@ -1,0 +1,90 @@
+{
+  "downloaded": "2026-10-13",
+  "files": [
+    {
+      "file": "all.css",
+      "source": "https://use.fontawesome.com/releases/v5.7.2/css/all.css",
+      "sha256": "da8da7f8ace190d49d2fc337dfde46bec274ad5683446aea3b9b033204d587de"
+    },
+    {
+      "file": "fonts/fa-brands-400.eot",
+      "source": "https://use.fontawesome.com/releases/v5.7.2/webfonts/fa-brands-400.eot",
+      "sha256": "e81c7922536cafaa1fb981f40281acf2a8251f70bd3a80ff1718221eed54b0a1"
+    },
+    {
+      "file": "fonts/fa-brands-400.svg",
+      "source": "https://use.fontawesome.com/releases/v5.7.2/webfonts/fa-brands-400.svg",
+      "sha256": "2708846a27993760a265affe41074dd86cd131b51b1379e477467bb2297a1778"
+    },
+    {
+      "file": "fonts/fa-brands-400.ttf",
+      "source": "https://use.fontawesome.com/releases/v5.7.2/webfonts/fa-brands-400.ttf",
+      "sha256": "3523f355159dff9b6a468138bc8c8fcdd59218c0173feea51be4d8c3488dca10"
+    },
+    {
+      "file": "fonts/fa-brands-400.woff",
+      "source": "https://use.fontawesome.com/releases/v5.7.2/webfonts/fa-brands-400.woff",
+      "sha256": "6433a2058272d5e27287fbe3b6b36a333c7baafc25010e556b49d622e96e3b3a"
+    },
+    {
+      "file": "fonts/fa-brands-400.woff2",
+      "source": "https://use.fontawesome.com/releases/v5.7.2/webfonts/fa-brands-400.woff2",
+      "sha256": "d5f471476e1636e23b00991ae8a85d3703ada55bc6d6162472a28aa94fa64d4e"
+    },
+    {
+      "file": "fonts/fa-regular-400.eot",
+      "source": "https://use.fontawesome.com/releases/v5.7.2/webfonts/fa-regular-400.eot",
+      "sha256": "38b7c374f222ecc492baf144314c292a6a53e6d20bca25bb26dd2ada76c4da3e"
+    },
+    {
+      "file": "fonts/fa-regular-400.svg",
+      "source": "https://use.fontawesome.com/releases/v5.7.2/webfonts/fa-regular-400.svg",
+      "sha256": "b98ffe2d268ce33f327adff388b7e483ba573ad4a942baaa6c525ee15c2248b8"
+    },
+    {
+      "file": "fonts/fa-regular-400.ttf",
+      "source": "https://use.fontawesome.com/releases/v5.7.2/webfonts/fa-regular-400.ttf",
+      "sha256": "7471cec8a1a26bb0f01426d4810786913b777079d2f966a853f5f976f22eb2aa"
+    },
+    {
+      "file": "fonts/fa-regular-400.woff",
+      "source": "https://use.fontawesome.com/releases/v5.7.2/webfonts/fa-regular-400.woff",
+      "sha256": "d87c0d59569f00fa80d7b239e50a694c872638a16dcda92b153f8646b060ed41"
+    },
+    {
+      "file": "fonts/fa-regular-400.woff2",
+      "source": "https://use.fontawesome.com/releases/v5.7.2/webfonts/fa-regular-400.woff2",
+      "sha256": "940b3908bf9fc263ff7a9640fd719a1a3ecca9e1224e9ce4758053fa01edbcc0"
+    },
+    {
+      "file": "fonts/fa-solid-900.eot",
+      "source": "https://use.fontawesome.com/releases/v5.7.2/webfonts/fa-solid-900.eot",
+      "sha256": "dbf579e01c8a642b5d820ba908238261643846b9bb86c18bcbe4592f4d5c4d3c"
+    },
+    {
+      "file": "fonts/fa-solid-900.svg",
+      "source": "https://use.fontawesome.com/releases/v5.7.2/webfonts/fa-solid-900.svg",
+      "sha256": "dab1672cb40e5e637c2023b314219a17f3bda470c5e789b0c9710c86b35b97c6"
+    },
+    {
+      "file": "fonts/fa-solid-900.ttf",
+      "source": "https://use.fontawesome.com/releases/v5.7.2/webfonts/fa-solid-900.ttf",
+      "sha256": "947aac16aa6d2b3b0a4fa20e20b8defa4602e9b42f8fd9fa2b19538b4c5a8ea9"
+    },
+    {
+      "file": "fonts/fa-solid-900.woff",
+      "source": "https://use.fontawesome.com/releases/v5.7.2/webfonts/fa-solid-900.woff",
+      "sha256": "5388291b1f73dc5fdfb5b02f8c57ec084e373cf8fb8cf9f146142f08df58a945"
+    },
+    {
+      "file": "fonts/fa-solid-900.woff2",
+      "source": "https://use.fontawesome.com/releases/v5.7.2/webfonts/fa-solid-900.woff2",
+      "sha256": "4f9ee3d8f6e621642979e6a8f7e75c57cb9da34918cc08a38abfe178dbae1dd2"
+    },
+    {
+      "file": "LICENSE.txt",
+      "source": "https://raw.githubusercontent.com/FortAwesome/Font-Awesome/5.7.2/LICENSE.txt",
+      "sha256": "e779748dfe75e84f974df3c7bc07f842011a100159158b0f1f49b2f2a5a515cb"
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "downloaded": "2026-10-13",
+  "files": [
+    {
+      "file": "fonts.css",
+      "source": "https://fonts.googleapis.com/css?family=Nunito",
+      "sha256": "572d501486200fa0f96ac7da5e0db94fcac3ea36e9e83df872d90f432bfc822b"
+    },
+    {
+      "file": "fonts/XRXI3I6Li01BKofiOc5wtlZ2di8HDLshdTA3j77e.woff2",
+      "source": "https://fonts.gstatic.com/s/nunito/v32/XRXI3I6Li01BKofiOc5wtlZ2di8HDLshdTA3j77e.woff2",
+      "sha256": "e44e669faccf46c6ea8d557f3a22116e118eb0a1b3062253a5f000a46b30be04"
+    },
+    {
+      "file": "fonts/XRXI3I6Li01BKofiOc5wtlZ2di8HDLshdTQ3jw.woff2",
+      "source": "https://fonts.gstatic.com/s/nunito/v32/XRXI3I6Li01BKofiOc5wtlZ2di8HDLshdTQ3jw.woff2",
+      "sha256": "a5906e15ceb68f73d3b2c2076b4057c3f6ed401186d56283b45ce12944ca0735"
+    },
+    {
+      "file": "fonts/XRXI3I6Li01BKofiOc5wtlZ2di8HDLshdTk3j77e.woff2",
+      "source": "https://fonts.gstatic.com/s/nunito/v32/XRXI3I6Li01BKofiOc5wtlZ2di8HDLshdTk3j77e.woff2",
+      "sha256": "20d73ae7142f8a495f3dbc7a6aee9d9f0e87fd9c8d78536d5cf5a861489dd026"
+    },
+    {
+      "file": "fonts/XRXI3I6Li01BKofiOc5wtlZ2di8HDLshdTo3j77e.woff2",
+      "source": "https://fonts.gstatic.com/s/nunito/v32/XRXI3I6Li01BKofiOc5wtlZ2di8HDLshdTo3j77e.woff2",
+      "sha256": "67250a41de218bef49c04ea88c3d73c5756ad750a182209a560e1a521323a680"
+    },
+    {
+      "file": "fonts/XRXI3I6Li01BKofiOc5wtlZ2di8HDLshdTs3j77e.woff2",
+      "source": "https://fonts.gstatic.com/s/nunito/v32/XRXI3I6Li01BKofiOc5wtlZ2di8HDLshdTs3j77e.woff2",
+      "sha256": "2a755616268a9285541121f14f690f92bea32e19227ab20c9db3aebc630a57af"
+    },
+    {
+      "file": "LICENSE.txt",
+      "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/nunito/OFL.txt",
+      "sha256": "580df76c95a1ec5ab878ceb25bb3d85c6a076804e9c970c8c6972aea775fdf65"
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "downloaded": "2026-10-13",
+  "files": [
+    {
+      "file": "fonts.css",
+      "source": "https://fonts.googleapis.com/icon?family=Material+Icons",
+      "sha256": "42541c233d0cba545c773ed928b4a093a071c5524fdd7db6f446c68db7b55e5f"
+    },
+    {
+      "file": "fonts/flUhRq6tzZclQEJ-Vdg-IuiaDsNc.woff2",
+      "source": "https://fonts.gstatic.com/s/materialicons/v145/flUhRq6tzZclQEJ-Vdg-IuiaDsNc.woff2",
+      "sha256": "8265f64786397d6b832d1ca0aafdf149ad84e72759fffa9f7272e91a0fb015d1"
+    },
+    {
+      "file": "LICENSE.txt",
+      "source": "https://raw.githubusercontent.com/google/material-design-icons/master/LICENSE",
+      "sha256": "58d1e17ffe5109a7ae296caafcadfdbe6a7d176f0bc4ab01e12a689b0499d8bd"
+    }
+  ]
+}
