@@ -901,6 +901,8 @@ app.factory('NoteService',function($http){
     var n = {
         reference_no:"",
         notes:[],
+        loading:false,
+        loadError:"",
         errors:[],
         processing:false,
         type:"",
@@ -928,12 +930,14 @@ app.factory('NoteService',function($http){
     }
 
     n.getNotes=function(){
-        $http.get("/getNotes?reference_no="+n.reference_no+"&type="+n.type).then(function(res){
+        n.loading = true;
+        n.loadError = "";
+        return $http.get("/getNotes?reference_no="+encodeURIComponent(n.reference_no)+"&type="+encodeURIComponent(n.type)).then(function(res){
             n.notes = res.data;
-        },function(){
-            alert("یک مشکل رخ داد سیستم نمیتواند نوت ها  را دریابد!");
-        });
-    }
+        }).catch(function(){
+            n.loadError = "یادداشت‌ها دریافت نشد. دوباره کوشش کنید.";
+        }).finally(function(){ n.loading = false; });
+    };
     n.setReferenceNo=function(reference_no,type){
         n.reference_no= reference_no;
         n.type        = type;

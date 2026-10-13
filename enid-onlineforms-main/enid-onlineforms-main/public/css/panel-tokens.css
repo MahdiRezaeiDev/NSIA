@@ -1,8 +1,15 @@
 /* NSIA panel: primitives → semantic roles → component decisions. */
 @font-face {
-    font-family: 'Vazirmatn';
-    src: url('/fonts/Vazirmatn-Variable.woff2') format('woff2');
-    font-weight: 100 900;
+    font-family: 'NSIA';
+    src: url('/fonts/bahij_helvetica_neue_roman_by_bahijvirtualacademy-dammd50_0.c89c9eb963cc00332e6c.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'NSIA';
+    src: url('/fonts/bahij_helvetica_neue_bold_by_bahijvirtualacademy-dammcmt_0.62dee9f04acedcc5ec9c.ttf') format('truetype');
+    font-weight: 700;
     font-style: normal;
     font-display: swap;
 }
@@ -38,7 +45,7 @@
     --radius-control: 8px;
     --radius-panel: 14px;
     --duration-fast: 160ms;
-    --font-ui: 'Vazirmatn', Tahoma, sans-serif;
+    --font-ui: 'NSIA', Tahoma, sans-serif;
 
     --ink: var(--gray-900);
     --muted: var(--gray-500);

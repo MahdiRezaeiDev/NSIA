@@ -1,18 +1,8 @@
-@font-face {
-    font-family: 'NSIA Bahij';
-    src: url('../fonts/bahij_helvetica_neue_roman_by_bahijvirtualacademy-dammd50_0.c89c9eb963cc00332e6c.ttf') format('truetype');
-    font-style: normal; font-weight: 400; font-display: swap;
-}
-@font-face {
-    font-family: 'NSIA Bahij';
-    src: url('../fonts/bahij_helvetica_neue_bold_by_bahijvirtualacademy-dammcmt_0.62dee9f04acedcc5ec9c.ttf') format('truetype');
-    font-style: normal; font-weight: 700; font-display: swap;
-}
 .auth-page {
-    --ink: #192d3b; --muted: #657780; --teal: #007e78; --teal-hover: #00635e;
-    --brand-accent: #00a79d; --line: #dbe4e7; --surface: #fff; --error: #a42b35;
+    --ink: var(--gray-900); --muted: var(--gray-500); --teal: var(--green-700); --teal-hover: var(--green-800);
+    --brand-accent: var(--green-500); --line: var(--gray-200); --surface: var(--gray-0); --error: var(--red-700);
     margin: 0; min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column;
-    color: var(--ink); background: #f5f8f8; font: 16px/1.75 'NSIA Bahij', Tahoma, sans-serif; text-align: right;
+    color: var(--ink); background: var(--canvas); font: 16px/1.75 var(--font-ui); text-align: right;
 }
 .auth-page *, .auth-page *::before, .auth-page *::after { box-sizing: border-box; }
 .auth-page button, .auth-page input { font: inherit; }
