@@ -1,64 +1,53 @@
 <!DOCTYPE html>
-<html lang="en" >
-
+<html lang="fa-AF" dir="rtl">
 <head>
-
-    <base href="/">
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>@yield('title', 'پنل مدیریت') | ادارهٔ ملی احصائیه و معلومات</title>
     <link href="/css/public.css" rel="stylesheet">
-    <link href="/css/c_public.css" rel="stylesheet">
-    <link href="/css/admin.css" rel="stylesheet">
-    <script type="text/javascript">
-    var AUTH_API_TOKEN = ""; 
-</script>
-
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
+    <link href="/css/admin-panel.css?v={{ filemtime(public_path('css/admin-panel.css')) }}" rel="stylesheet">
+    <script>var AUTH_API_TOKEN = "";</script>
     <script src="/js/app.js"></script>
     <script src="/js/admin.js"></script>
-    <script src="https://kit.fontawesome.com/d9949f4a08.js"></script>
-    <title> NSIA ONLINE APP </title>
 </head>
-
-<body dir="rtl" ng-app="MainApp">
-    <div class="p-3  bg-white border-bottom shadow-sm">
-    
-        <div class="row">
-            <div class="col-md-2">
-                @if(\Auth::user())
-                <div class="dropdown">
-                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    {{\Auth::user()->name}} :
-                    {{\Auth::user()->role_in_dari}}
-                    </button>
-                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                        <a class="dropdown-item" href="/changePasswordForm">تغیر پاسورد</a>
-                    </div>
-                </div>
-                @endif
-            </div>
-            <div class="col-md-6">
-                @if(\Auth::user() && \Auth::user()->role == 'admin')
-                     @include('elements.admin_nav')
-                @endif
-            </div>
-            <div class="col-md-4">
-                 <img src="/img/logo.jpg" style="float:left">
-            </div>
+<body class="admin-panel" ng-app="MainApp">
+    <a class="skip-link" href="#main-content">رفتن به محتوای صفحه</a>
+    <button class="sidebar-backdrop" type="button" aria-label="بستن منو" tabindex="-1" data-close-menu></button>
+    <aside class="sidebar" id="sidebar" aria-label="منوی اصلی">
+        <a class="brand" href="{{ Auth::user()->role == 'admin' ? '/home' : '/userDashboard' }}" aria-label="صفحهٔ اصلی"><img src="/img/logo.jpg" width="192" height="60" alt="ادارهٔ ملی احصائیه و معلومات"></a>
+        <div class="sidebar-caption">سیستم مدیریت تذکرهٔ الکترونیکی</div>
+        <div class="nav-label">محیط کاری</div>
+        <nav class="sidebar-nav">
+            <a href="{{ Auth::user()->role == 'admin' ? '/home' : '/userDashboard' }}" class="{{ request()->is('home', 'userDashboard') ? 'is-active' : '' }}" @if(request()->is('home', 'userDashboard')) aria-current="page" @endif>@include('elements.icon', ['name'=>'dashboard'])<span>نمای کلی</span></a>
+            <a href="/individual-applications" class="{{ request()->is('individual-applications', 'viewIndividualApplication') ? 'is-active' : '' }}" @if(request()->is('individual-applications', 'viewIndividualApplication')) aria-current="page" @endif>@include('elements.icon', ['name'=>'file'])<span>درخواستی‌ها</span></a>
+            @if(Auth::user()->role == 'admin')
+            <div class="nav-label">مدیریت سیستم</div>
+            <a href="/admin/centers" class="{{ request()->is('admin/centers', 'admin/newCenter') ? 'is-active' : '' }}" @if(request()->is('admin/centers', 'admin/newCenter')) aria-current="page" @endif>@include('elements.icon', ['name'=>'building'])<span>مراکز توزیع</span></a>
+            <a href="/admin/users" class="{{ request()->is('admin/users', 'admin/newUser') ? 'is-active' : '' }}" @if(request()->is('admin/users', 'admin/newUser')) aria-current="page" @endif>@include('elements.icon', ['name'=>'users'])<span>کارمندان</span></a>
+            <a href="/admin/templates" class="{{ request()->is('admin/templates', 'admin/template*') ? 'is-active' : '' }}" @if(request()->is('admin/templates', 'admin/template*')) aria-current="page" @endif>@include('elements.icon', ['name'=>'calendar'])<span>اوقات ملاقات</span></a>
+            @endif
+        </nav>
+        <div class="sidebar-bottom">
+            <a href="/changePasswordForm" class="{{ request()->is('changePasswordForm') ? 'is-active' : '' }}">@include('elements.icon', ['name'=>'lock'])<span>تغییر رمز عبور</span></a>
+            <a href="/logout?_token={{ csrf_token() }}">@include('elements.icon', ['name'=>'logout'])<span>خروج از حساب</span></a>
+            <div class="sidebar-account"><span class="avatar">{{ mb_substr(Auth::user()->name, 0, 1) }}</span><div><strong>{{ Auth::user()->name }}</strong><small>{{ Auth::user()->role_in_dari }}</small></div></div>
         </div>
+    </aside>
+    <div class="workspace">
+        <header class="topbar">
+            <div class="topbar-start"><button type="button" class="icon-button menu-toggle" aria-label="باز کردن منو" aria-controls="sidebar" aria-expanded="false" id="menu-toggle">@include('elements.icon', ['name'=>'menu'])</button><span class="topbar-title">ادارهٔ ملی احصائیه و معلومات</span><span class="topbar-divider"></span><span class="muted">پنل {{ Auth::user()->role == 'admin' ? 'مدیریت' : 'کارمند' }}</span></div>
+            <time class="today" datetime="{{ date('Y-m-d') }}">@include('elements.icon', ['name'=>'calendar'])<bdi>{{ \Hijri::now()->format('Y/m/d') }}</bdi></time>
+        </header>
+        <main id="main-content" class="main-content" tabindex="-1">
+            <div class="page-heading"><div><div class="eyebrow">@yield('eyebrow', 'مدیریت خدمات تذکره')</div><h1>@yield('title', 'پنل مدیریت')</h1><p>@yield('description')</p></div><div class="heading-actions">@yield('actions')</div></div>
+            @yield('content')
+        </main>
+        <footer class="panel-footer"><span>ادارهٔ ملی احصائیه و معلومات</span><span>خدمات تذکرهٔ الکترونیکی</span></footer>
     </div>
-    <div class="container">
-        @if(\Auth::user() && \Auth::user()->role != 'admin')
-            @include('elements.user_nav')
-        @endif
-        @yield('content')
-    </div>
-
     <script src="/js/rm.js"></script>
-    <script src="/js/admin_custom.js"></script>
+    <script src="/js/admin_custom.js?v={{ filemtime(public_path('js/admin_custom.js')) }}"></script>
+    <script src="/js/admin-panel.js?v={{ filemtime(public_path('js/admin-panel.js')) }}"></script>
+    @stack('scripts')
 </body>
 </html>
