@@ -1330,7 +1330,8 @@ public toEnglishNumber(val){
   }
 
   datePartChanged(member, fieldName) {
-    const prefix = fieldName.replace(/_(day|month|year)$/, '');
+    const prefix = fieldName === 'paper_id_year' ? 'id_issue_date' :
+      fieldName.replace(/_(day|month|year)$/, '');
     const day = member.form.get(prefix + '_day');
     const month = member.form.get(prefix + '_month');
     const year = member.form.get(prefix + '_year');

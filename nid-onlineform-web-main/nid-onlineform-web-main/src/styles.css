@@ -1422,6 +1422,11 @@ app-individualform .select2-container {
   max-width: 100%;
 }
 
+app-individualform .select2-container--default.select2-container--focus {
+  border: 0 !important;
+  border-radius: 6px !important;
+}
+
 app-individualform .select2-container .select2-selection--single {
   height: 46px !important;
   border: 1px solid #b8c5d4 !important;
