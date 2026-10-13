@@ -35,6 +35,10 @@ class LoginController extends Controller
     public function __construct()
     {
         $this->middleware('guest')->except('logout');
+        $this->middleware(function ($request, $next) {
+            app()->setLocale('fa');
+            return $next($request);
+        })->only(['showLoginForm', 'login']);
     }
 
     public function redirectPath()

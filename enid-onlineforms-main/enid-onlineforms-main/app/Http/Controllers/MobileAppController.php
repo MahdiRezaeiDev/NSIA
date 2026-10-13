@@ -167,22 +167,13 @@ class MobileAppController extends Controller
     public function getDashboard(Request $r){
         
         if( $r->user() && ($r->user()->role == 'admin' || $r->user()->role == 'center_manager') ){
-            $centers = \App\Center::get();
+            $centers = \App\Center::query();
             if($r->user()->role =='center_manager'){
-                $centers = $centers->filter(function($c){
-                
-                    return $c->id > 13 && $c->id < 89;
-                  });
-              }
-              $centersReport = [];
-              foreach($centers as $c):
-                $centersReport[]=$c->centerReport();
-              endforeach;
-          return $centersReport;
+                $centers->where('id', '>', 13)->where('id', '<', 89);
+            }
+            return \App\Center::reportsFor($centers->get(['id', 'name']))->all();
         }else if($r->user() && $r->user()->role == 'team_leader') {
-            return \App\Center::where('id', $r->user()->center_id)->get()->map(function ($c) {
-                return $c->centerReport();
-            });
+            return \App\Center::reportsFor(\App\Center::where('id', $r->user()->center_id)->get(['id', 'name']));
         }
     }
 

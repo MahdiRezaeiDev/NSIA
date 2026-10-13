@@ -46,20 +46,33 @@ class Center extends Model
             return false;
         }
         $days        = isset($this->appointments['data']['days']) ? $this->appointments['data']['days']:[];
-        $appointments=[];
-        foreach($days as $d):
-            if($d['active'] && $date->format('N') == $d['value']){
-                foreach($d['slots'] as $t):
-                    
-                    $availableTimes = Center::getAvailableTimes($date,$t,$this->id);
-                    if($availableTimes){
-                        $appointments[]=$availableTimes;
-                    }
-                    
-                endforeach;
-               
+        $slots = [];
+        foreach ($days as $day) {
+            if ($day['active'] && $date->format('N') == $day['value']) {
+                foreach ($day['slots'] as $slot) {
+                    $slots[] = $slot;
+                }
             }
-        endforeach;
+        }
+        if (!$slots) {
+            return false;
+        }
+        $hijriDate = \Hijri::fromCarbon($date);
+        $counts = Appointment::where('appointment_date', $hijriDate->format('Y-m-d'))
+            ->where('center_id', $this->id);
+        foreach ($slots as $index => $slot) {
+            // Let SQL compare the slot values exactly as in getAvailableTimes().
+            $counts->selectRaw('COUNT(CASE WHEN start_time = ? AND end_time = ? THEN 1 END) AS slot_'.$index,
+                [$slot['start'], $slot['end']]);
+        }
+        $taken = $counts->first();
+        $appointments=[];
+        foreach ($slots as $index => $slot) {
+            $availableTimes = static::formatAvailableTime($hijriDate, $slot, (int) $taken->{'slot_'.$index});
+            if ($availableTimes) {
+                $appointments[] = $availableTimes;
+            }
+        }
 
         return count($appointments) > 0 ? $appointments :false;
 
@@ -70,6 +83,10 @@ class Center extends Model
             ->where('start_time',$slot['start'])
             ->where('center_id',$center_id)
             ->where('end_time',$slot['end'])->count();
+        return static::formatAvailableTime($hijriDate, $slot, $taken_appointments);
+    }
+
+    private static function formatAvailableTime($hijriDate, $slot, $taken_appointments){
         $available_appointments = $slot['number_of_appointments'] - $taken_appointments;
         if($available_appointments < 1){
             return false;
@@ -189,16 +206,36 @@ class Center extends Model
         return $individual;
     }
     public function centerReport(){
-        $todayApplications = $this->getCountReport(true);
-        $oldApplications = $this->getCountReport(false);
-       
-        return [
-            'name'=>$this->name,
-            'id'=>$this->id,
-            'todayApplications'=>$todayApplications,
-            'oldApplications'=>$oldApplications
-        ];
+        return static::reportsFor(collect([$this]))->first();
+    }
 
+    public static function reportsFor($centers){
+        if ($centers->isEmpty()) {
+            return collect();
+        }
+        $counts = \DB::table('familyapplications')
+            ->whereIn('center_id', $centers->pluck('id')->all())
+            ->where('apply_for_new_id', 'بلی')
+            // Both old date comparisons exclude NULL/invalid dates.
+            ->whereRaw('DATE(appointment_date) IS NOT NULL')
+            ->selectRaw('center_id, status, DATE(appointment_date) = ? AS is_today,
+                COUNT(center_id) AS total_individual,
+                COUNT(CASE WHEN relationship_with_head_of_family = 1 THEN 1 END) AS total_family',
+                [\Hijri::now()->format('Y-m-d')])
+            ->groupBy('center_id', 'status', 'is_today')->orderBy('status')->get()
+            ->groupBy('center_id');
+
+        return $centers->values()->map(function ($center) use ($counts) {
+            $rows = $counts->get($center->id, collect());
+            $format = function ($row) {
+                return ['total_individual' => (int) $row->total_individual, 'status' => $row->status,
+                    'total_family' => (int) $row->total_family,
+                    'status_text' => \App\Individualform::getStatusDescription($row->status)];
+            };
+            return ['name' => $center->name, 'id' => $center->id,
+                'todayApplications' => $rows->where('is_today', 1)->map($format)->values(),
+                'oldApplications' => $rows->where('is_today', 0)->map($format)->values()];
+        });
     }
 
     public static function getOverseasCenterIds(){
