@@ -122,9 +122,15 @@ class MainController extends Controller
         }
       //  dd('abc');
        //$applications=$applications->where('relationship_with_head_of_family',1);
-       $result=$applications->orderBy('appointment_date','asc')->orderBy('queue_no','asc')->groupBy('family_form_reference_no')->take($limit);
-    
-        return ['applications'=>['data'=>$result->get()],'appointmentDate'=>$appointmentDate];
+        $limit = max(1, min(5000, (int) $limit));
+        $page = max(1, (int) $r->input('page', 1));
+        $families = (clone $applications)->select('family_form_reference_no')->groupBy('family_form_reference_no');
+        $total = \DB::query()->fromSub($families, 'filtered_families')->count();
+        $result = $applications->orderBy('appointment_date', 'asc')->orderBy('queue_no', 'asc')
+            ->orderBy('family_form_reference_no', 'asc')->groupBy('family_form_reference_no')->forPage($page, $limit)->get();
+
+        return ['applications' => new \Illuminate\Pagination\LengthAwarePaginator($result, $total, $limit, $page),
+            'appointmentDate' => $appointmentDate];
     }
 
     /*

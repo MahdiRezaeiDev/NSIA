@@ -1,70 +1,15 @@
 @extends('layouts.admin')
-
+@section('title', 'تغییر رمز عبور')
+@section('description', 'رمز عبور حساب خود را به‌روزرسانی کنید.')
 @section('content')
-<div class="container">
-    <div class="row justify-content-center" ng-controller="UsersCtrl">
-        <div class="col-md-8">
-        <div class="alert alert-success d-none mt-2" role="alert" id="successMsg">
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-            پاسورد شما موفقانه تبدیل شد
-        </div>
-            <div class="card mt-3">
-                <div class="card-header">تغییر دادن پاسورد</div>
-
-                <div class="card-body">
-                        <form ng-submit="changePassword()">
-                        @csrf
-                        <!-- {{ method_field('POST') }}  -->
-                        <div class="form-group row ">
-                            <label for="old password" class="col-md-4 col-form-label text-md-right">{{ __('پاسورد قبلی') }}</label>
-                            <div class="col-md-6">
-                                <input id="old-password" type="password" class="form-control" name="old_password"  ng-model="UserCredintial.old_password" required>
-                                <div ng-if="errors.old_password.length > 0">
-                                    <small ng-repeat='error in errors.old_password' class="text-danger">
-                                        [[error]] <br/>
-                                    </small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label for="new password" class="col-md-4 col-form-label text-md-right">{{ __('پاسورد جدید') }}</label>
-
-                            <div class="col-md-6">
-                                <input id="new-password" type="password" class="form-control" name="new_password"  ng-model="UserCredintial.new_password" required>
-                                <div ng-if="errors.new_password.length > 0">
-                                    <small ng-repeat='error in errors.new_password' class="text-danger">
-                                        [[error]] <br/>
-                                    </small>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="form-group row">
-                            <label for="new-password-confirm" class="col-md-4 col-form-label text-md-right">{{ __('تایید پاسورد جدید') }}</label>
-
-                            <div class="col-md-6">
-                                <input id="new-password-confirm" type="password" class="form-control" ng-model="UserCredintial.new_password_confirmation" name="new_password_confirmation" required>
-                                <div ng-if="errors.new_password_confirmation.length > 0">
-                                    <small ng-repeat='error in errors.new_password_confirmation' class="text-danger">
-                                        [[error]] <br/>
-                                    </small>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="form-group row mb-0">
-                            <div class="col-md-6 offset-md-4">
-                                <button class="btn btn-primary btn-block" type="submit">
-                                    {{ __('تغییر') }}
-                                </button>
-                            </div>
-                        </div>
-</form>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+<div class="form-layout" ng-controller="UsersCtrl"><form class="panel" ng-submit="changePassword()">
+    @csrf
+    <div class="form-section"><h2>امنیت حساب</h2><p>رمز فعلی و رمز جدید را وارد کنید.</p><div class="form-grid">
+        <div class="form-field full"><label for="current-password">رمز عبور فعلی</label><div class="password-wrap"><input id="current-password" class="form-control ltr" type="password" ng-model="UserCredintial.old_password" required autocomplete="current-password"><button type="button" class="password-toggle" data-reveal-password aria-controls="current-password" aria-pressed="false">نمایش</button></div></div>
+        <div class="form-field"><label for="new-password">رمز عبور جدید</label><div class="password-wrap"><input id="new-password" class="form-control ltr" type="password" ng-model="UserCredintial.new_password" required minlength="6" autocomplete="new-password" aria-describedby="password-hint"><button type="button" class="password-toggle" data-reveal-password aria-controls="new-password" aria-pressed="false">نمایش</button></div><small class="hint" id="password-hint">حداقل ۶ حرف و متفاوت از رمز فعلی.</small></div>
+        <div class="form-field"><label for="confirm-password">تأیید رمز عبور جدید</label><input id="confirm-password" class="form-control ltr" type="password" ng-model="UserCredintial.new_password_confirmation" required autocomplete="new-password"></div>
+    </div></div>
+    <div class="feedback error" ng-if="hasErrors(errors)" role="alert" ng-cloak><p ng-repeat="error in errors">[[error.join ? error.join('، ') : error]]</p></div><div class="feedback success" ng-if="passwordChanged" role="status" ng-cloak>رمز عبور شما با موفقیت تغییر کرد.</div>
+    <div class="form-actions"><button type="submit" class="btn btn-primary" ng-disabled="saving">@include('elements.icon', ['name'=>'lock']) [[saving ? 'در حال ثبت…' : 'ثبت رمز جدید']]</button><a class="btn btn-secondary" href="{{Auth::user()->role == 'admin' ? '/home' : '/userDashboard'}}">برگشت</a></div>
+</form><aside class="form-aside">@include('elements.icon', ['name'=>'shield'])<h2>حفاظت از حساب</h2><p>از رمز متفاوت برای این حساب استفاده کنید. رمز عبور خود را با دیگران شریک نسازید.</p></aside></div>
 @endsection

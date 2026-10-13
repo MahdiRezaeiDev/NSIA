@@ -7,7 +7,8 @@
     <title>@yield('title', 'پنل مدیریت') | ادارهٔ ملی احصائیه و معلومات</title>
     <link href="/css/public.css" rel="stylesheet">
     <link href="/css/admin-panel.css?v={{ filemtime(public_path('css/admin-panel.css')) }}" rel="stylesheet">
-    <script>var AUTH_API_TOKEN = "";</script>
+    @php $roleLabels = collect(\App\User::getRoles())->mapWithKeys(function($role) { return [$role => $role === 'admin' ? 'مدیر سیستم' : \App\User::roleToDari($role)]; }); @endphp
+    <script>var AUTH_API_TOKEN = ""; window.NSIA_ROLES = @json($roleLabels);</script>
     <script src="/js/app.js"></script>
     <script src="/js/admin.js"></script>
 </head>
@@ -31,7 +32,7 @@
         <div class="sidebar-bottom">
             <a href="/changePasswordForm" class="{{ request()->is('changePasswordForm') ? 'is-active' : '' }}">@include('elements.icon', ['name'=>'lock'])<span>تغییر رمز عبور</span></a>
             <a href="/logout?_token={{ csrf_token() }}">@include('elements.icon', ['name'=>'logout'])<span>خروج از حساب</span></a>
-            <div class="sidebar-account"><span class="avatar">{{ mb_substr(Auth::user()->name, 0, 1) }}</span><div><strong>{{ Auth::user()->name }}</strong><small>{{ Auth::user()->role_in_dari }}</small></div></div>
+            <div class="sidebar-account"><span class="avatar">{{ mb_substr(Auth::user()->name, 0, 1) }}</span><div><strong>{{ Auth::user()->name }}</strong><small>{{ Auth::user()->role == 'admin' ? 'مدیر سیستم' : Auth::user()->role_in_dari }}</small></div></div>
         </div>
     </aside>
     <div class="workspace">

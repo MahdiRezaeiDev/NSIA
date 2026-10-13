@@ -25,7 +25,7 @@ app.controller("ApplicationsCtrl", function(
 
     $window.onbeforeunload = function(){
         var isApplicationView=window.location.href.indexOf('viewIndividualApplication')!=-1;
-        $scope.closeApplication();
+        if (isApplicationView && $scope.application_reference_no) $scope.closeApplication();
         return null;
     }
     $scope.closeApplication=function(){
@@ -150,7 +150,7 @@ app.controller("ApplicationsCtrl", function(
     // $scope.USER_ID = USER_ID;
    
  
-    window.Echo.channel('nsia_database_private-applications')
+    if (window.Echo) window.Echo.channel('nsia_database_private-applications')
     .listen('.opened', function (data) {
         $scope.toggleOpenedStatus(true,data);
     
@@ -177,7 +177,8 @@ app.controller("ApplicationsCtrl", function(
                         $scope.tableOptions.data[i].opened_by="";
                         $scope.tableOptions.data[i].opened_by_user_id=0;
                     }
-                    $scope.gridApi.core.refresh();
+                    if ($scope.gridApi) $scope.gridApi.core.refresh();
+                    $scope.$evalAsync();
 
                 }
             
@@ -253,7 +254,9 @@ app.controller("ApplicationsCtrl", function(
     $scope.cancelApplication = function(reference_no) {
         var con = confirm("آیا شما مطمین هستید که این درخواستی را لغوه کنید؟");
 
-        if (con) {
+        if (con && !$scope.actionProcessing) {
+            $scope.actionProcessing = true;
+            $scope.actionError = '';
             $http
                 .get(
                     "/moveApplicationToNextStep?type=individual&reference_no=" +
@@ -262,6 +265,9 @@ app.controller("ApplicationsCtrl", function(
                 )
                 .then(function() {
                     $window.location.reload();
+                }).catch(function() {
+                    $scope.actionProcessing = false;
+                    $scope.actionError = 'لغو درخواستی انجام نشد. لطفاً دوباره کوشش کنید.';
                 });
         }
     };
@@ -391,6 +397,8 @@ app.controller("UsersCtrl", function(
     $window
 ) {
     $scope.Center = CentersFactory;
+    $scope.roleLabels = window.NSIA_ROLES || {};
+    $scope.UserCredintial = {};
     var paginationOptions = {
         pageNumber: 1,
         pageSize: 50,
@@ -498,28 +506,27 @@ app.controller("UsersCtrl", function(
     };
     $scope.errors = [];
     $scope.saveUser = function() {
+        if ($scope.saving) return;
+        $scope.saving = true;
         $scope.errors = [];
-        $http
-            .post("/admin/saveUser", $scope.User)
-            .then(function(res) {
-                $window.location.href = "/admin/users";
-            })
-            .catch(function(res) {
-                $scope.errors = res.data.errors;
-            });
+        $http.post("/admin/saveUser", $scope.User).then(function(res) {
+            if (res.data && res.data.errors) { $scope.errors = res.data.errors; return; }
+            $window.location.href = "/admin/users";
+        }).catch(function(res) {
+            $scope.errors = (res.data && res.data.errors) || ['ثبت معلومات انجام نشد. دوباره کوشش کنید.'];
+        }).finally(function() { $scope.saving = false; });
     };
     $scope.changePassword = function() {
+        if ($scope.saving) return;
+        $scope.saving = true;
         $scope.errors = [];
-        $scope.showMsg = false;
-        $http
-            .post("/changePassword", $scope.UserCredintial)
-            .then(function(res) {
-                $scope.resetForm();
-                $("#successMsg").removeClass("d-none");
-            })
-            .catch(function(res) {
-                $scope.errors = res.data.errors;
-            });
+        $scope.passwordChanged = false;
+        $http.post("/changePassword", $scope.UserCredintial).then(function() {
+            $scope.resetForm();
+            $scope.passwordChanged = true;
+        }).catch(function(res) {
+            $scope.errors = (res.data && res.data.errors) || ['تغییر رمز انجام نشد. دوباره کوشش کنید.'];
+        }).finally(function() { $scope.saving = false; });
     };
     $scope.resetForm = function() {
         $scope.UserCredintial.old_password = "";
@@ -539,11 +546,13 @@ app.controller("UsersCtrl", function(
     };
     $scope.setUser = function(data) {
         $scope.User = data;
+        $scope.User.active = +data.active;
+        if (data.center_id) $scope.User.center_id = +data.center_id;
     };
 });
 
 app.factory("CentersFactory", function($http, $window) {
-    var c = { model: { country: "1" } };
+    var c = { model: { country: "1", status: 1, enable_appointments: 0, number_of_days_before_appointment: 1 } };
     c.getCenters = function(limit, pageNumber, query) {
         $http
             .get("/admin/getCenters", {
@@ -637,20 +646,23 @@ app.factory("CentersFactory", function($http, $window) {
     };
 
     c.save = function(data) {
-        c.model["appointments"] = { data: data };
-
+        if (c.saving) return;
+        c.saving = true;
+        c.model.appointments = { data: data };
         c.errors = [];
-        $http
-            .post("/admin/saveCenter", c.model)
-            .then(function(res) {
-                $window.location.href = "/admin/centers";
-            })
-            .catch(function(res) {
-                c.errors = res.data.errors;
-            });
+        $http.post("/admin/saveCenter", c.model).then(function(res) {
+            if (res.data && res.data.errors) { c.errors = res.data.errors; return; }
+            $window.location.href = "/admin/centers";
+        }).catch(function(res) {
+            c.errors = (res.data && res.data.errors) || ['ثبت مرکز انجام نشد. دوباره کوشش کنید.'];
+        }).finally(function() { c.saving = false; });
     };
     c.setCenter = function(data) {
         c.model = data;
+        c.model.country = String(data.country);
+        c.model.status = +data.status;
+        c.model.enable_appointments = +data.enable_appointments;
+        c.model.number_of_days_before_appointment = +data.number_of_days_before_appointment;
     };
     return c;
 });
@@ -691,6 +703,7 @@ app.controller("AppointmentsCtrl", function($scope, $http, $window) {
     $scope.setTimes = function(times) {
         for (var i = 0; i < $scope.model.days.length; i++) {
             $scope.model.days[i].times = angular.copy(times);
+            $scope.model.days[i].slot = {start:"", end:"", number_of_appointments:50};
         }
         $scope.times = angular.copy(times);
     };
@@ -728,6 +741,7 @@ app.controller("AppointmentsCtrl", function($scope, $http, $window) {
         };
     };
     $scope.formatHour = function(hour) {
+        hour = String(hour);
         var h = hour.substr(0, 2);
         var m = hour.substr(2, 4);
         return h + ":" + m;
@@ -760,7 +774,7 @@ app.controller("AppointmentsCtrl", function($scope, $http, $window) {
     $scope.addSlot = function(day) {
         var dayIndex = $scope.getDayIndex(day);
 
-        if (day.slot.start == "" || day.slot.end == "") {
+        if (!day.slot || !day.slot.start || !day.slot.end || +day.slot.end <= +day.slot.start) {
             alert("لطفا فاصله زمانی را دقیقا انتخاب نمایید");
             return;
         }
@@ -775,7 +789,7 @@ app.controller("AppointmentsCtrl", function($scope, $http, $window) {
         if (dayIndex !== false) {
             $scope.model.days[dayIndex].slots.push(day.slot);
             $scope.removeTimeSlot(day, day.slot.start, day.slot.end);
-            day.slot = { start: "", end: "" };
+            day.slot = { start: "", end: "", number_of_appointments: 50 };
         }
     };
     $scope.getDayIndex = function(day) {
@@ -815,17 +829,15 @@ app.controller("AppointmentsCtrl", function($scope, $http, $window) {
     };
 
     $scope.saveTemplate = function() {
+        if ($scope.saving) return;
+        $scope.saving = true;
         $scope.errors = [];
-        var data = $scope.getModelData();
-        $http.post("/admin/saveTemplate", data).then(
-            function(res) {
-                console.log("response", res.data);
-                $window.location.href = "/admin/templates";
-            },
-            function(res) {
-                $scope.errors = res.data.errors;
-            }
-        );
+        $http.post("/admin/saveTemplate", $scope.getModelData()).then(function(res) {
+            if (res.data && res.data.errors) { $scope.errors = res.data.errors; return; }
+            $window.location.href = "/admin/templates";
+        }).catch(function(res) {
+            $scope.errors = (res.data && res.data.errors) || ['ثبت قالب انجام نشد. دوباره کوشش کنید.'];
+        }).finally(function() { $scope.saving = false; });
     };
 
     $scope.getTemplates = function() {
@@ -854,15 +866,24 @@ app.controller("AppointmentsCtrl", function($scope, $http, $window) {
         );
     };
     $scope.setTemplate = function(template) {
-        console.log("template", template);
-        if (template["data"] == undefined) {
-            template = JSON.parse(template);
+        if (!template) return;
+        if (typeof template === 'string') {
+            try { template = JSON.parse(template); } catch (e) { return; }
         }
-        console.log("template", template);
-        $scope.model["id"] = template.id;
-        $scope.model.name = template.name;
-        $scope.model.public_holidays = template.data.public_holidays;
-        $scope.model.days = template.data.days;
+        if (!template.data || !Array.isArray(template.data.days)) return;
+        $scope.model.id = template.id || 0;
+        $scope.model.name = template.name || '';
+        $scope.model.public_holidays = angular.copy(template.data.public_holidays || []);
+        $scope.model.days = angular.copy(template.data.days);
+        $scope.model.days.forEach(function(day) {
+            day.slot = {start: "", end: "", number_of_appointments: 50};
+            day.slots = day.slots || [];
+            day.times = angular.copy($scope.times);
+            if (day.slots.length) {
+                var end = Math.max.apply(null, day.slots.map(function(slot) { return +slot.end; }));
+                day.times = day.times.filter(function(time) { return +time.from_value >= end; });
+            }
+        });
     };
     $scope.copyFromPreviousDay = function(index) {
         var activeDays = $scope.getActiveDays();
@@ -871,9 +892,8 @@ app.controller("AppointmentsCtrl", function($scope, $http, $window) {
         var previousDay = activeDays[index - 1];
         var previousDayIndex = $scope.getDayIndex(previousDay);
 
-        $scope.model.days[dayIndex].slots = angular.copy(
-            $scope.model.days[previousDayIndex].slots
-        );
+        $scope.model.days[dayIndex].slots = angular.copy($scope.model.days[previousDayIndex].slots);
+        $scope.model.days[dayIndex].times = angular.copy($scope.model.days[previousDayIndex].times);
     };
 });
 
@@ -903,7 +923,7 @@ app.factory('NoteService',function($http){
         },function(res){
             console.log('error data',res);
             n.processing=false;
-            n.errors = res.data.errors;
+            n.errors = (res.data && res.data.errors) || ['ثبت یادداشت انجام نشد. دوباره کوشش کنید.'];
         });
     }
 

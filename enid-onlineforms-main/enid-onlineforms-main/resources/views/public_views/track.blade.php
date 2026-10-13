@@ -1,30 +1,3 @@
 @extends('layouts.app')
-
-@section('content')
-
-<div class="section" style="padding-top:5%" ng-app="publicApp" ng-controller="IndividualFormCtrl">
-    <div class="row justify-content-center">
-  
-            <div class="col-md-12">
-                <h4> شماره درخواستی : {{$application->reference_no}} </h4>
-            </div>
-            <table class="table table-striped">
-                <tr>
-                    <th>تاریخ</th>
-                    <th>پروسه</th>
-                </tr>
-                @foreach($application->events()->get() as $e)
-                <tr>
-                    <td>
-                        {{$e->date}}
-                    </td>
-                    <td>
-                        {{$e->description}}
-                    </td>
-                </tr>
-                @endforeach
-            </table>
-    </div>
-
-</div>
-@endsection
+@section('title', 'پیگیری درخواستی')
+@section('content')<div class="page-heading"><div><div class="eyebrow">خدمات تذکرهٔ الکترونیکی</div><h1>پیگیری درخواستی</h1><p>نمبر درخواستی: <bdi>{{$application->reference_no}}</bdi></p></div></div><section class="panel"><div class="section-head"><h2>جریان رسیدگی</h2></div><div class="table-wrap" role="region" aria-label="مراحل درخواستی" tabindex="0"><table class="data-table"><thead><tr><th scope="col">تاریخ</th><th scope="col">مرحله</th></tr></thead><tbody>@forelse($application->events()->get() as $event)<tr><td><bdi>{{$event->date}}</bdi></td><td class="wrap-cell">{{$event->description}}</td></tr>@empty<tr><td colspan="2" class="empty-cell">هنوز مرحله‌ای ثبت نشده است.</td></tr>@endforelse</tbody></table></div></section>@endsection

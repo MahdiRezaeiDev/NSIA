@@ -1,104 +1,12 @@
- <div class="row">
-        <div class="col-md-12 mt-5">
-            <label> انتخاب روز های کاری</label>
-        </div>
-        <div class="col-md-2" ng-repeat="d in model.days">
-            <button class="btn-default btn-border btn-block mt-3" ng-click="d.active=!d.active" type="button"> 
-                    <i class="fas fa-check-square" style="color:green" ng-show="d.active"></i> 
-                    <i class="fas fa-times-circle" style="color:red" ng-show="!d.active"></i> 
-                    [[d.label]]
-            </button>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-12 mt-5">
-            <label> انتخاب اوقات کاری</label>
-             
-        </div>
-        <div ng-repeat="(dayKey,day) in getActiveDays()"  class="col-md-12 mt-5" >
-            <div class="card btn-border">
-                <div class="card-body">
-                    <h4 class="card-title">[[day.label]]</h4>
-                    <button class="btn btn-secondary float-right" ng-show="dayKey!=0" ng-click="copyFromPreviousDay(dayKey)">کاپی اوقات از روز گذشته</button>
-                    <div class="row">
-                        <div class="col-md-4">
-                            <label> آغاز فاصله زمانی</label>
-                          
-                            <select class="form-control" ng-model="day.slot.start">
-                                <option ng-repeat="t in day.times" value="[[t.from_value]]"> [[t.from_label]] </label>
-                            </select>
-                        </div>
-                        <div class="col-md-4">
-                            <label> ختم فاصله زمانی</label>
-                            <select class="form-control" ng-model="day.slot.end">
-                                <option ng-repeat="t in day.times" value="[[t.to_value]]"> [[t.to_label]] </label>
-                            </select>
-                        </div>
-                        <div class="col-md-4">
-                            <label> تعداد وقت ملاقات</label>
-                            <input type="number" class="form-control" ng-model="day.slot.number_of_appointments">
-                        
-                        </div>
-                        
-                        <div class="col-md-12 mt-5">
-                            <button class="btn btn-primary btn-block" ng-click="addSlot(day)" type="button"> اضافه</button>
-                        </div>
-                    </div>
-                    <div class="row mt-5">
-                        <div class="col-md-12">
-                        <button class="btn btn-warning pull-right mb-5" type="button" ng-show="day.slots.length > 0" ng-click="resetDayTimes(day)"> <i class="fas fa-undo"></i> انتخاب دوباره</button>
-                            <ul class="list-group">
-                                <li class="list-group-item btn-border" ng-repeat="s in day.slots">
-                                      [[formatHour(s.start)]] الی  [[formatHour(s.end)]]   <span class="badge badge-primary float-right" style="font-size:130%"> [[s.number_of_appointments]]  ملاقات </span> 
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                    
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="row mt-3 mb-3">
-        <div class="col-md-12">
-            <label>تاریخ های رخصتی عمومی (هجری شمسی)</label>
-           
-        </div>
-        <div class="col-md-3">
-            <label> روز </label>
-            <select class="form-control" ng-model="holiday.day">
-                @foreach($days as $day)
-                <option value="{{$day}}"> {{$day}} </option>
-                @endforeach
-            </select>
-        </div>
-        <div class="col-md-3">
-            <label> ماه </label>
-            <select class="form-control" ng-model="holiday.month">
-                @foreach($months as $month)
-                <option value="{{$month}}"> {{$month}} </option>
-                @endforeach
-            </select>
-        </div>
-        <div class="col-md-3">
-            <label> سال </label>
-            <select class="form-control" ng-model="holiday.year">
-                @foreach($years as $year)
-                <option value="{{$year}}"> {{$year}} </option>
-                @endforeach
-            </select>
-        </div>
-        <div class="col-md-3">
-            <button class="btn btn-primary btn-block mt-3" ng-click="addPublicHoliday()" type="button"> اضافه</button>
-        </div>
-
-        <div class="col-md-12 mt-5">
-            <ul class="list-group">
-                <li class="list-group-item btn-border" ng-repeat="(k,dt) in model.public_holidays"> 
-                    [[dt.day]] / [[dt.month]] / [[ dt.year]]
-                    <button class="btn btn-danger float-right" ng-click="removePublicHoliday(k)" type="button">X</button>
-                
-                </li>
-            </ul>
-        </div>
-    </div>
+<div class="weekdays" aria-label="روزهای کاری" ng-cloak><button class="weekday" ng-class="{'is-selected':day.active}" type="button" ng-repeat="day in model.days" ng-click="day.active=!day.active" ng-attr-aria-pressed="[[!!day.active]]">[[day.label]]<small>[[day.active ? 'روز کاری' : 'رخصت']]</small></button></div>
+<div ng-cloak>
+    <div class="empty-state" ng-if="!getActiveDays().length"><strong>روز کاری انتخاب نشده است</strong><p>برای تنظیم اوقات ملاقات، یک روز را فعال کنید.</p></div>
+    <details class="schedule-day" ng-repeat="(dayKey,day) in getActiveDays()" ng-attr-open="[[dayKey === 0 ? '' : undefined]]"><summary>[[day.label]] <span class="muted">[[day.slots.length]] فاصلهٔ زمانی</span></summary><div class="schedule-content">
+        <div class="schedule-tools"><button type="button" class="btn btn-secondary btn-sm" ng-if="dayKey > 0" ng-click="copyFromPreviousDay(dayKey)">کاپی اوقات روز قبلی</button><button class="btn btn-danger btn-sm" type="button" ng-if="day.slots.length" ng-click="resetDayTimes(day)">پاک‌کردن اوقات این روز</button></div>
+        <div class="slot-fields"><div class="form-field"><label for="slot-start-[[day.value]]">از ساعت</label><select id="slot-start-[[day.value]]" class="form-control" ng-model="day.slot.start"><option value="">انتخاب ساعت</option><option ng-repeat="time in day.times" value="[[time.from_value]]">[[time.from_label]]</option></select></div><div class="form-field"><label for="slot-end-[[day.value]]">تا ساعت</label><select id="slot-end-[[day.value]]" class="form-control" ng-model="day.slot.end"><option value="">انتخاب ساعت</option><option ng-repeat="time in day.times" value="[[time.to_value]]" ng-disabled="+time.to_value <= +day.slot.start">[[time.to_label]]</option></select></div><div class="form-field"><label for="slot-capacity-[[day.value]]">ظرفیت ملاقات</label><input id="slot-capacity-[[day.value]]" class="form-control" type="number" min="0" step="1" ng-model="day.slot.number_of_appointments"></div><button class="btn btn-primary" type="button" ng-click="addSlot(day)" ng-disabled="!day.slot.start || !day.slot.end || +day.slot.end <= +day.slot.start || day.slot.number_of_appointments == null">@include('elements.icon', ['name'=>'plus']) افزودن</button></div>
+        <div class="slot-list"><div class="slot" ng-repeat="slot in day.slots"><bdi>[[formatHour(slot.start)]] – [[formatHour(slot.end)]]</bdi><strong>[[slot.number_of_appointments]] ملاقات</strong></div></div>
+    </div></details>
+</div>
+<div class="section-divider"></div><h2>رخصتی‌های عمومی</h2><p class="muted">در تاریخ‌های ثبت‌شده، وقت ملاقات داده نمی‌شود. تاریخ به هجری شمسی است.</p>
+<div class="holiday-fields"><div class="form-field"><label for="holiday-day">روز</label><select id="holiday-day" class="form-control" ng-model="holiday.day"><option value="">روز</option @foreach([] as $unused) @endforeach hidden></option>@foreach($days as $day)<option value="{{$day}}">{{$day}}</option>@endforeach</select></div><div class="form-field"><label for="holiday-month">ماه</label><select id="holiday-month" class="form-control" ng-model="holiday.month"><option value="">ماه</option>@foreach($months as $month)<option value="{{$month}}">{{$month}}</option>@endforeach</select></div><div class="form-field"><label for="holiday-year">سال</label><select id="holiday-year" class="form-control" ng-model="holiday.year"><option value="">سال</option>@foreach($years as $year)<option value="{{$year}}">{{$year}}</option>@endforeach</select></div><button class="btn btn-secondary" type="button" ng-click="addPublicHoliday()" ng-disabled="!holiday.day || !holiday.month || !holiday.year">@include('elements.icon', ['name'=>'plus']) افزودن رخصتی</button></div>
+<div class="slot-list" ng-cloak><div class="slot" ng-repeat="(index,holidayDate) in model.public_holidays"><bdi>[[holidayDate.year]] / [[holidayDate.month]] / [[holidayDate.day]]</bdi><button class="btn btn-danger btn-sm" type="button" ng-click="removePublicHoliday(index)" aria-label="حذف رخصتی [[holidayDate.day]] / [[holidayDate.month]] / [[holidayDate.year]]">@include('elements.icon', ['name'=>'close']) حذف</button></div></div>

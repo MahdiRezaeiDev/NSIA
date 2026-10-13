@@ -23,6 +23,12 @@ class HomeController extends Controller
      */
     public function index()
     {
-        return view('home');
+        $counts = \App\Individualform::applied()
+            ->selectRaw('status, COUNT(*) as total')->groupBy('status')->pluck('total', 'status');
+        return view('home', [
+            'statusCounts' => $counts,
+            'totalApplications' => $counts->sum(),
+            'statusLabels' => \App\Individualform::getStatusLabels(),
+        ]);
     }
 }

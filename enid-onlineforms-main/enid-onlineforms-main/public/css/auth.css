@@ -9,7 +9,7 @@
     font-style: normal; font-weight: 700; font-display: swap;
 }
 .auth-page {
-    --ink: #292361; --muted: #606879; --teal: #007c75; --teal-hover: #00635e;
+    --ink: #192d3b; --muted: #657780; --teal: #007e78; --teal-hover: #00635e;
     --brand-accent: #00a79d; --line: #dbe4e7; --surface: #fff; --error: #a42b35;
     margin: 0; min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column;
     color: var(--ink); background: #f5f8f8; font: 16px/1.75 'NSIA Bahij', Tahoma, sans-serif; text-align: right;
