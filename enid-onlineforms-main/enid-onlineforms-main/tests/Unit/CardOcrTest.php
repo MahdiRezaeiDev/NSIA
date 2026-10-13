@@ -15,6 +15,7 @@ class CardOcrTest extends TestCase
      */
     public function testExample()
     {
+        $this->markTestSkipped('No synthetic OCR image fixtures have been provided.');
         $images =[
 
         ];

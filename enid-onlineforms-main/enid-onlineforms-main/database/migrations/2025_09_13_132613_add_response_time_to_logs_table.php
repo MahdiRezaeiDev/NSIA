@@ -13,6 +13,9 @@ class AddResponseTimeToLogsTable extends Migration
      */
     public function up()
     {
+        if (Schema::hasColumn('logs', 'response_time')) {
+            return;
+        }
         Schema::table('logs', function (Blueprint $table) {
             $table->float('response_time')->nullable()->after('data'); // Add response_time column
         });

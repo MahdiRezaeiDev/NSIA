@@ -44,7 +44,7 @@ class Log extends Model
         $log = new Log;
         $log->action  = $action;
         $log->ip      = '';
-        $log->user_id = '';
+        $log->user_id = 0;
         $log->data    = $data ?? ''; // ✅ never null
         $log->save();
     }
@@ -54,7 +54,7 @@ class Log extends Model
         $log = new Log;
         $log->action  = 'submitForm';
         $log->ip      = $ip;
-        $log->user_id = '';
+        $log->user_id = 0;
         $log->data    = json_encode(['family_form_reference_no' => $family_form_reference_no]);
         $log->save();
         return $log;

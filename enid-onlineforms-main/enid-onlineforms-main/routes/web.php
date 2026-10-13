@@ -25,7 +25,7 @@ Route::middleware(['throttle:1000,1'])->group(function(){
 
 
 
-Auth::routes();
+Auth::routes(['register' => false]);
 Route::middleware(['auth','UserAccess:allUsers','LogRequest'])->group(function(){
     Route::any('/getIndividualApplications', 'MainController@getIndividualApplications');
     Route::get('/viewIndividualApplication', 'MainController@viewIndividualApplication');

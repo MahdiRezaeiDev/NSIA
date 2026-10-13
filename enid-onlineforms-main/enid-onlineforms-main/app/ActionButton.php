@@ -22,6 +22,10 @@ class ActionButton{
 
     public function setWebOnClick($action){
         if (!request()->is('api/*')) {
+            if (preg_match('/(?:\?|&)status=4(?:&|$)/', $action)) {
+                $this->label = 'تثبیت به اساس آرشیف';
+                $action .= '&verification_type=archive&verification_reference_no='.rawurlencode('تثبیت به اساس آرشیف');
+            }
             $action .= (strpos($action, '?') === false ? '?' : '&').'_token='.rawurlencode(csrf_token());
         }
         $this->webOnClick = $action;

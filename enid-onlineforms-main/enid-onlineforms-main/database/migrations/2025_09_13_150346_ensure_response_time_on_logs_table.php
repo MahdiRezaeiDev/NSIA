@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddResponseTimeToLogsTable extends Migration
+class EnsureResponseTimeOnLogsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,6 +13,9 @@ class AddResponseTimeToLogsTable extends Migration
      */
     public function up()
     {
+        if (Schema::hasColumn('logs', 'response_time')) {
+            return;
+        }
         Schema::table('logs', function (Blueprint $table) {
             $table->decimal('response_time', 8, 4)->default(0)->after('data');
         });
@@ -25,8 +28,6 @@ class AddResponseTimeToLogsTable extends Migration
      */
     public function down()
     {
-        Schema::table('logs', function (Blueprint $table) {
-            $table->dropColumn('response_time');
-        });
+        // A previous migration may own this column; retain its historical data.
     }
 }

@@ -4,10 +4,16 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateUsersTable extends Migration
+class EnsureUsersTable extends Migration
 {
     public function up()
     {
+        if (Schema::hasTable('users')) {
+            if (!Schema::hasColumn('users', 'remember_token')) {
+                Schema::table('users', function (Blueprint $table) { $table->rememberToken(); });
+            }
+            return;
+        }
         Schema::create('users', function (Blueprint $table) {
             $table->bigIncrements('id'); // <-- changed here
             $table->string('name');
@@ -17,12 +23,13 @@ class CreateUsersTable extends Migration
             $table->string('role');
             $table->boolean('active')->default(1);
             $table->unsignedBigInteger('center_id')->nullable();
+            $table->rememberToken();
             $table->timestamps();
         });
     }
 
     public function down()
     {
-        Schema::dropIfExists('users');
+        // Preserve accounts that may have existed before this compatibility migration.
     }
 }

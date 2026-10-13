@@ -30,6 +30,12 @@ class AddIvpAttemptFlagToIndividualforms extends Migration
                 $table->boolean('tried_ivp')->default(false);
             });
         }
+        foreach (['individualforms', 'cancelledforms'] as $table) {
+            $columns = \DB::select("SHOW COLUMNS FROM `$table` LIKE 'verification_reference_no'");
+            if ($columns && preg_match('/^varchar\((\d+)\)$/i', $columns[0]->Type, $match) && (int) $match[1] < 128) {
+                \DB::statement("ALTER TABLE `$table` MODIFY `verification_reference_no` VARCHAR(128) NULL DEFAULT ''");
+            }
+        }
     }
 
     public function down()

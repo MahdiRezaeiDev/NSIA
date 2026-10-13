@@ -159,7 +159,12 @@ class MainController extends Controller
     */
     public function moveApplicationToNextStep(Request $r)
     {
-        $response = app(MobileAppController::class)->moveApplicationToNextStep($r);
+        if ((string) $r->input('status') === '4' && $r->input('verification_type') === 'archive') {
+            $r->merge(['verification_reference_no' => 'تثبیت به اساس آرشیف']);
+            $response = app(MobileAppController::class)->updateVerificationReference($r);
+        } else {
+            $response = app(MobileAppController::class)->moveApplicationToNextStep($r);
+        }
         $application = ApplicationAccess::find($r->input('reference_no'));
         $rmId = $r->input('rm_appliction_id', '');
         if (is_string($rmId) && strlen($rmId) === 13) {

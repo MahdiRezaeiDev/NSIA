@@ -40,3 +40,28 @@ Stop with Ctrl+C. For direct CLI commands, load `local-env.ps1` in PowerShell. F
 Source, required static assets, dependency lockfiles, migrations, tests and launch scripts are included. Dependencies, local runtimes, AI tooling, environment credentials, database dumps, uploaded files, caches and logs are excluded. Laravel storage directories and the placeholder image are retained.
 
 The original backend Git history is preserved locally in `.local-backup/backend.git` and is excluded from this repository. PHP 7.4 and Node 12 are legacy versions; these instructions describe the current application requirements.
+
+## Backend hardening and regression checks
+
+For an existing database, apply the additive schema updates before serving requests:
+
+```powershell
+php artisan migrate --force
+```
+
+The updates add the IVP attempt flag, create the cancellation archive and application-list view when absent, and widen short verification-code columns to avoid truncation. The duplicate legacy users/logs migration class names have been separated; compatibility updates preserve existing tables and add the missing remember-login column. Their rollbacks keep existing data. Enable the Imagick extension for document images and PDF attachments. Set `ATTACHMENTS_FILESYSTEM_DISK` and `PDF_FILESYSTEM_DISK` consistently for your environment; local installations use `local`, production normally uses `s3`.
+
+Production requires `APP_ENV=production`, `APP_DEBUG=false`, `CAPTCHA_DRIVER=google`, a valid `CAPTCHA_KEY`, and `CAPTCHA_HOSTNAMES` containing the public forms hostnames. Disabled CAPTCHA is accepted only in local/testing. Login, tracking, form recovery and submission keep their existing endpoint names and response fields. Public recovery still uses the existing reference-number-plus-CAPTCHA workflow; stronger ownership verification would require a corresponding frontend workflow.
+
+Staff access now checks account activity, center scope and permitted transitions. Administrators and auditors retain oversight access; center managers retain the existing government-center scope. Verification uses the stored application's state and validates system codes through IVP, or verifies that a selected local match belongs to the applicant. Existing manual phone/archive verification remains available to authorized verification staff. Legacy photo/document download endpoints now require an API bearer token and application access; external consumers must authenticate instead of relying on the encrypted identifier alone. The existing `verificationApi` service role can read only applications already transmitted to IVP and retains its dedicated callback contract.
+
+Web forms require CSRF tokens. Legacy state-changing web GET actions also require a token; generated action links and logout links include it. The backend's existing manual identity-confirmation action is explicitly labelled and recorded as archive verification, with the same role/center checks as the API. Angular API calls keep their existing bearer-token contract. Logs store limited operational metadata instead of passwords, tokens or applicant payloads. General and activity reports read current events, and the center leader dashboard uses current counts. Print tokens are family-bound and expire after two hours. PDFs retain their templates and omit empty attachment pages and cancelled applicants.
+
+To run the checked-in regression tests with an isolated database:
+
+```powershell
+php artisan backend:prepare-test-database
+php vendor/phpunit/phpunit/phpunit --filter BackendHardeningTest
+```
+
+The preparation command is available only in local/testing and copies schema plus centers, districts and appointment templates into `nsia_test_backend`; it does not copy applicants, accounts or logs. Use `--database=nsia_test_custom` and set `NSIA_TEST_DATABASE=nsia_test_custom` to choose another test database. Test writes are rolled back. The suite covers permissions, transitions, CAPTCHA, CSRF, request logging, print-token scope, route-specific throttling and a synthetic four-person family's registration, review and PDF generation. External IVP/CAPTCHA responses are mocked; live external services and browser clicks require separate deployment verification.

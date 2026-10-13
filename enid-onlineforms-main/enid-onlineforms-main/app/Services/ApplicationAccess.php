@@ -15,7 +15,13 @@ class ApplicationAccess
 
     public static function canRead($user, Individualform $form)
     {
-        if (!$user || !(int) $user->active || !in_array($user->role, User::getRoles(), true)) {
+        if (!$user || !(int) $user->active) {
+            return false;
+        }
+        if ($user->role === 'verificationApi') {
+            return (bool) $form->isSendToIvp;
+        }
+        if (!in_array($user->role, User::getRoles(), true)) {
             return false;
         }
         if ($user->isAdmin() || $user->role === 'audit') {

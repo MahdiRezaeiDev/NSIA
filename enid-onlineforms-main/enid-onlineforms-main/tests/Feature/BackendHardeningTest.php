@@ -80,6 +80,16 @@ class BackendHardeningTest extends TestCase
         $this->assertTrue(ApplicationAccess::canTransition($this->actor('document_checker'), $this->form(), 13));
     }
 
+    public function testVerificationServiceCanReadOnlyTransmittedApplications()
+    {
+        $service = $this->actor('verificationApi', 0);
+        $form = $this->form();
+        $this->assertFalse(ApplicationAccess::canRead($service, $form));
+        $form->isSendToIvp = true;
+        $this->assertTrue(ApplicationAccess::canRead($service, $form));
+        $this->assertFalse(ApplicationAccess::canTransition($service, $form, 3));
+    }
+
     public function testMissingStatusCannotGrantVerificationPermission()
     {
         $user = $this->actor('document_checker');
@@ -188,21 +198,30 @@ class BackendHardeningTest extends TestCase
         \Laravel\Passport\Passport::actingAs($foreign);
         $first = $submitted['applications'][0]['reference_no'];
         $this->getJson('/api/individualapplication-details?reference_no='.$first)->assertStatus(403);
+        $this->getJson('/api/checkApplication?reference_no='.$first)->assertStatus(403);
 
         $verifier = $this->actor('id_verifier');
         $verifier->name = 'Synthetic verifier';
         $verifier->email = 'test-verifier@example.invalid';
         $verifier->password = bcrypt('TEST-ONLY');
         $verifier->save();
+        $this->actingAs($verifier, 'web')->withSession(['_token' => 'UNIT-CSRF'])->get(
+            '/moveApplicationToNextStep?type=individual&status=4&verification_type=archive&reference_no='.$first.'&_token=UNIT-CSRF'
+        )->assertStatus(302);
+        $this->assertSame('تثبیت به اساس آرشیف', Individualform::where('reference_no', $first)->value('verification_reference_no'));
         $this->app->bind(\App\Services\IdentityVerification::class, function () {
             return new class extends \App\Services\IdentityVerification {
                 public function validate(Individualform $form, $code) { return $code === 'VALID-'.$form->reference_no; }
             };
         });
         \Laravel\Passport\Passport::actingAs($verifier);
-        $this->getJson('/api/updateVerificationReference?reference_no='.$first.'&verification_type=system&verification_reference_no=INVALID')->assertStatus(422);
+        $second = $submitted['applications'][1]['reference_no'];
+        $this->getJson('/api/updateVerificationReference?reference_no='.$second.'&verification_type=system&verification_reference_no=INVALID')->assertStatus(422);
         foreach ($submitted['applications'] as $item) {
             $reference = $item['reference_no'];
+            if ($reference === $first) {
+                continue;
+            }
             $this->getJson('/api/updateVerificationReference?reference_no='.$reference.'&verification_type=system&verification_reference_no=VALID-'.$reference)->assertStatus(200);
         }
         $checker = $this->actor('document_checker');
@@ -215,10 +234,11 @@ class BackendHardeningTest extends TestCase
             $this->getJson('/api/moveApplicationToNextStep?type=individual&status=1&reference_no='.$item['reference_no'])->assertStatus(200);
         }
         $this->assertSame(4, Individualform::where('family_form_reference_no', $family)->where('status', 1)->count());
+        $this->getJson('/api/checkApplication?reference_no='.$first)->assertStatus(200);
         $this->getJson('/api/getAttachments?reference_no='.$first)->assertStatus(200)->assertJsonCount(1);
         $pdf = $this->get(str_replace(config('app.url'), '', $submitted['path']))->assertStatus(200)->getContent();
         $this->assertSame('%PDF-', substr($pdf, 0, 5));
-        $parser = new \setasign\Fpdi\Fpdi;
+        $parser = new \setasign\Fpdi\Tcpdf\Fpdi;
         $this->assertSame(22, $parser->setSourceFile(\setasign\Fpdi\PdfParser\StreamReader::createByString($pdf)));
         $newDraft = $this->postJson('/api/saveForm', ['application_id' => '', 'data' => ['members' => []]])->assertStatus(200)->json();
         $payload['application_id'] = $newDraft['application_id'];

@@ -446,6 +446,7 @@ class MobileAppController extends Controller
                 'code'=>404
             ],404);
         }
+        ApplicationAccess::read($r->user(), $app);
         if($app->status  == 4){
             return response()->json([
                 'message'=>'This application is already verified!',
@@ -539,6 +540,7 @@ class MobileAppController extends Controller
     }
 
     public function downloadTazkiraFiles(Request $r){
+        $r->validate(['reference_no' => 'required|string|max:512']);
         $reference_no = str_replace(" ","+",$r->input('reference_no'));
         $reference_no = openssl_decrypt($reference_no,"AES-256-CBC",hex2bin("F14C5084838D392658AF41DC51640469CF11A78B9D6D30B15C781175712C3FD8"),0,hex2bin("16E7D298531DFDFD6C3DAD932DDC59F2"));
         
@@ -552,6 +554,7 @@ class MobileAppController extends Controller
     }
 
     public function downloadPhoto(Request $r){
+        $r->validate(['reference_no' => 'required|string|max:512']);
         $reference_no = str_replace(" ","+",$r->input('reference_no'));
         $reference_no = openssl_decrypt($reference_no,"AES-256-CBC",hex2bin("F14C5084838D392658AF41DC51640469CF11A78B9D6D30B15C781175712C3FD8"),0,hex2bin("16E7D298531DFDFD6C3DAD932DDC59F2"));
         

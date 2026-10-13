@@ -15,7 +15,7 @@ Broadcast::channel('App.User.{id}', function ($user, $id) {
     return (int) $user->id === (int) $id;
 });
 
-Broadcast::channel('App.applications', function ($user, $id) {
+Broadcast::channel('App.applications', function ($user) {
     return (int) $user->active === 1 && in_array($user->role, \App\User::getRoles(), true);
 });
 
