@@ -1083,7 +1083,7 @@ export class IndividualformComponent implements OnInit {
       let year = headOfFamily.form.get('birthday_year').value;
       if (isValidJalaliDate(year, month, day)) {
 
-        let d = Jalaali.toGregorian(parseFloat(year), parseFloat(month), parseFloat(day));
+        let d = Jalaali.toGregorian(jalaliNumber(year), jalaliNumber(month), jalaliNumber(day));
 
         let dob = moment(d.gy + '/' + d.gm + "/" + d.gd, 'YYYY/M/D');
 

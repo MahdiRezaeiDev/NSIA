@@ -280,6 +280,10 @@
                               {{e}}
                             </div>
 
+                            <div class="invalid-feedback" *ngIf="option.id.indexOf('_day')!=-1 && member.form.get(option.id).touched && member.form.get(option.id).errors?.required">
+                              {{option.id|translate}} {{'required_message'|translate}}
+                            </div>
+
                           </div>
                        
                        
