@@ -7,6 +7,7 @@ import { ValidIssueDateValidator } from '../validations/ValidIssueDate';
 import { FileUploader ,FileUploaderOptions, FileItem} from 'ng2-file-upload';
 import * as moment from 'moment';
 import {Md5} from 'ts-md5/dist/md5';
+import { isValidJalaliDate } from './JalaliDate';
 export class Uploader extends FileUploader {
     public errors:any={};
     onAfterAddingFile(file: any) {
@@ -526,7 +527,7 @@ export class FamilyMember{
             let day = this.form.get('birthday_day').value;
             let month = this.form.get('birthday_month').value;
             let year = this.form.get('birthday_year').value;
-            if(!day || !month || !year){
+            if(!isValidJalaliDate(year, month, day)){
                 return false;
             }
     
@@ -642,7 +643,7 @@ export class FamilyMember{
     let dob_year= this.getFieldValue('birthday_year');
     let dob:any    =false;
     let ageIsMoreThan6= true;
-    if(dob_day && dob_month && dob_year){
+    if(isValidJalaliDate(dob_year, dob_month, dob_day)){
            dob = Jalaali.toGregorian(parseFloat(dob_year), parseFloat(dob_month), parseFloat(dob_day));
      
            dob = moment([dob.gy,dob.gm-1,dob.gd]);
@@ -665,7 +666,7 @@ export class FamilyMember{
     let dob_year= this.getFieldValue('birthday_year');
     let dob:any    =false;
     let ageIsMoreThan18= true;
-    if(dob_day && dob_month && dob_year){
+    if(isValidJalaliDate(dob_year, dob_month, dob_day)){
            dob = Jalaali.toGregorian(parseFloat(dob_year), parseFloat(dob_month), parseFloat(dob_day));
            dob = moment([dob.gy,dob.gm-1,dob.gd]);
            

@@ -1415,6 +1415,44 @@ button {
 
 }
 
+/* Select2 creates these elements outside Angular's scoped component styles. */
+app-individualform .select2-container {
+  display: block;
+  min-width: 0 !important;
+  max-width: 100%;
+}
+
+app-individualform .select2-container .select2-selection--single {
+  height: 46px !important;
+  border: 1px solid #b8c5d4 !important;
+  border-radius: 6px !important;
+  font-size: 16px;
+}
+
+app-individualform .select2-container .select2-selection--single .select2-selection__rendered {
+  height: 44px;
+  line-height: 44px !important;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+app-individualform .select2-container .select2-selection--single .select2-selection__arrow {
+  top: 0;
+  height: 44px;
+}
+
+app-individualform .select2-container .select2-selection--multiple {
+  min-height: 46px;
+  border: 1px solid #b8c5d4 !important;
+  border-radius: 6px !important;
+  font-size: 16px;
+}
+
+app-individualform .select2-container .select2-selection:focus {
+  outline: 2px solid #087f76;
+  outline-offset: 2px;
+}
+
 /* Consistent, visible scrollbars for the page and native scrollable controls. */
 html {
   scrollbar-color: #7a8b98 #f1f4f6;

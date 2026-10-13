@@ -46,6 +46,7 @@ import * as moment from 'moment';
 import { NgbModalConfig, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { FormSavedConfirmationComponent} from '../form-saved-confirmation/form-saved-confirmation.component';
 import {Md5} from 'ts-md5/dist/md5';
+import { daysInJalaliMonth, isValidJalaliDate, jalaliNumber } from '../shared/JalaliDate';
 import { NgxSpinnerService } from 'ngx-spinner';
 
 @Component({
@@ -65,7 +66,6 @@ export class IndividualformComponent implements OnInit {
   public villages: any = [];
   public processing: boolean = false;
   public reference_no: string = "";
-  public days = [];
   public months = [];
   public years = [];
   public centerProvinces: any = [];
@@ -123,13 +123,9 @@ export class IndividualformComponent implements OnInit {
   
   constructor(public api: Api, private translate: TranslateService, private recaptchaV3Service: ReCaptchaV3Service, private router: Router,config: NgbModalConfig, private modalService: NgbModal,private spinner:NgxSpinnerService) {
 
-    this.days = [];
     this.months = [];
     this.years = [];
 
-    for (let i = 1; i < 32; i++) {
-      this.days.push(i);
-    }
     for (let i = 1; i < 13; i++) {
       this.months.push({id:i,text:this.getMonthName(i)});
     }
@@ -1085,7 +1081,7 @@ export class IndividualformComponent implements OnInit {
       let day = headOfFamily.form.get('birthday_day').value;
       let month = headOfFamily.form.get('birthday_month').value;
       let year = headOfFamily.form.get('birthday_year').value;
-      if (day && month && year) {
+      if (isValidJalaliDate(year, month, day)) {
 
         let d = Jalaali.toGregorian(parseFloat(year), parseFloat(month), parseFloat(day));
 
@@ -1319,10 +1315,33 @@ public toEnglishNumber(val){
     }
   }
   dateSelected(event,member,fieldName){
-    
-    member.setFieldValue(fieldName,event.value);
-    if(fieldName =='birthday_year'){
+    member.setFieldValue(fieldName,event.value == null ? '' : event.value);
+    this.datePartChanged(member, fieldName);
+    if(fieldName.indexOf('birthday_') === 0){
       this.validateHeadOfFamilyBirthDay();
+    }
+  }
+
+  daysForDate(member, field) {
+    const month = field.options.find(option => /_month$/.test(option.id));
+    const year = field.options.find(option => /_year$/.test(option.id));
+    return daysInJalaliMonth(year && member.form.get(year.id).value,
+      month && member.form.get(month.id).value);
+  }
+
+  datePartChanged(member, fieldName) {
+    const prefix = fieldName.replace(/_(day|month|year)$/, '');
+    const day = member.form.get(prefix + '_day');
+    const month = member.form.get(prefix + '_month');
+    const year = member.form.get(prefix + '_year');
+    if (!day || !month || !year) {
+      return;
+    }
+    const allowed = daysInJalaliMonth(year.value, month.value);
+    if (day.value && allowed.indexOf(jalaliNumber(day.value)) === -1) {
+      // Ask for the day again instead of silently changing the applicant's date.
+      member.setFieldValue(prefix + '_day', '');
+      day.markAsTouched();
     }
   }
 

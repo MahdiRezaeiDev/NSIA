@@ -242,21 +242,22 @@
                        
                             <select *ngIf="option.id.indexOf('_day')!=-1" [formControlName]="option.id"
                               [ngClass]="{'form-control':true}"
-                              dir="rtl" lang="fa" name="{{option.id}}">
-                              <option *ngFor="let d of days" [value]="d">{{d}}</option>
+                              dir="rtl" lang="fa" name="{{option.id}}" (change)="datePartChanged(member,option.id)">
+                              <option value=""></option>
+                              <option *ngFor="let d of daysForDate(member,field)" [value]="d">{{d}}</option>
                             </select>
                             <select *ngIf="option.id.indexOf('_month')!=-1" [formControlName]="option.id"
                               [ngClass]="{'form-control':true}"
-                              dir="rtl" lang="fa" name="{{option.id}}" >
+                              dir="rtl" lang="fa" name="{{option.id}}" (change)="datePartChanged(member,option.id)">
                               <option *ngFor="let d of months" [value]="d.id">{{d.text}}</option>
                             </select>
 
                             <select *ngIf="option.type!='textNumber' && option.id.indexOf('_year')!=-1" [formControlName]="option.id" 
                               [ngClass]="{'form-control':true}"
-                              dir="rtl" lang="fa" name="{{option.id}}" (change)="member.fieldUpdated(option.id,getHeadOfFamily())">
+                              dir="rtl" lang="fa" name="{{option.id}}" (change)="member.fieldUpdated(option.id,getHeadOfFamily());datePartChanged(member,option.id)">
                               <option *ngFor="let d of years" [value]="d">{{d}}</option>
                             </select>
-                            <input type="text" mask="{{option.mask}}"  [patterns]="numberPattern"  (input)="numberToEnglish($event,option.id,member)" [maxlength]="option.maxLength" *ngIf="option.id.indexOf('_year')!=-1 && option.type == 'textNumber'" keydown="numberToEnglish($event,option.id,member)" class="form-control" [formControlName]="option.id" (change)="member.fieldUpdated(option.id,getHeadOfFamily())" >
+                            <input type="text" mask="{{option.mask}}"  [patterns]="numberPattern"  (input)="numberToEnglish($event,option.id,member);datePartChanged(member,option.id)" [maxlength]="option.maxLength" *ngIf="option.id.indexOf('_year')!=-1 && option.type == 'textNumber'" keydown="numberToEnglish($event,option.id,member)" class="form-control" [formControlName]="option.id" (change)="member.fieldUpdated(option.id,getHeadOfFamily());datePartChanged(member,option.id)" >
                          
                             <div *ngIf="option.mask">
                               <input type="{{option.type}}" [formControlName]="option.id"
@@ -297,9 +298,12 @@
                                 {{option.id|translate}}
                                 
                               </label>
-                              <select2 [data]="days"  *ngIf="option.id.indexOf('_day')!=-1" width="100%" height="200px" [value]="member.form.get(option.id) && member.form.get(option.id).value" (valueChanged)="dateSelected($event,member,option.id);errors['members.'+memberKey+'.'+option.id]=[];member.fieldUpdated(field.name,getHeadOfFamily())">
-                                  <option value=""></option>
-                              </select2>
+                              <select *ngIf="option.id.indexOf('_day')!=-1" class="form-control"
+                                [formControlName]="option.id" [name]="option.id"
+                                (change)="datePartChanged(member,option.id);errors['members.'+memberKey+'.'+option.id]=[];member.fieldUpdated(field.name,getHeadOfFamily())">
+                                <option value=""></option>
+                                <option *ngFor="let day of daysForDate(member,field)" [value]="day">{{day}}</option>
+                              </select>
                               <select2 [data]="months"  *ngIf="option.id.indexOf('_month')!=-1" width="100%" height="200px" [value]="member.form.get(option.id) && member.form.get(option.id).value" (valueChanged)="dateSelected($event,member,option.id);errors['members.'+memberKey+'.'+option.id]=[];member.fieldUpdated(field.name,getHeadOfFamily())">
                                   <option value=""></option>
                               </select2>
@@ -312,6 +316,10 @@
   
                               <div class="invalid-feedback" *ngFor="let e of errors['members.'+memberKey+'.'+option.id]">
                                 {{e}}
+                              </div>
+
+                              <div class="invalid-feedback" *ngIf="option.id.indexOf('_day')!=-1 && member.form.get(option.id).touched && member.form.get(option.id).errors?.required">
+                                {{option.id|translate}} {{'required_message'|translate}}
                               </div>
   
                             </div>

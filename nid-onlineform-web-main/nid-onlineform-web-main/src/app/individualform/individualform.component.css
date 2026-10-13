@@ -249,6 +249,15 @@ button {
   margin-top: 0 !important;
 }
 
+:host .form-field > div > .mt-2,
+:host .form-field > div > .mt-3 {
+  margin-top: 0 !important;
+}
+
+:host .form-field > div > div > label {
+  display: block;
+}
+
 :host .form-group {
   margin-bottom: 0;
 }
