@@ -234,6 +234,17 @@ button {
   margin-bottom: 18px;
 }
 
+:host .relationship-field {
+  flex: 0 0 100%;
+  max-width: 100%;
+}
+
+@media (min-width: 768px) {
+  :host .relationship-field > div {
+    max-width: calc(50% - 10px);
+  }
+}
+
 :host .form-field > div {
   margin-top: 0 !important;
 }

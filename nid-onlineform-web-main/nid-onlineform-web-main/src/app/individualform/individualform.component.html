@@ -85,6 +85,7 @@
               <form [formGroup]="member.form" class="row">
                 <ng-container *ngFor="let field of member.fields; let fieldKey = index" >
                   <div class="col-md-{{field.columnWidth}} form-field" [attr.data-field-type]="field.type"
+                    [class.relationship-field]="field.name === 'relationship_with_head_of_family'"
                     [hidden]="field.type === 'hidden' || !member.isVisible(field)">
                 
                     <div  *ngIf="member && member.isVisible(field)">

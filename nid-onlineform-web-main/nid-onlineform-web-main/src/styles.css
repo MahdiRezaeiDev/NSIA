@@ -1415,10 +1415,10 @@ button {
 
 }
 
-/* Keep the page scrollbar visible without taking space from the form. */
+/* Consistent, visible scrollbars for the page and native scrollable controls. */
 html {
   scrollbar-color: #7a8b98 #f1f4f6;
-  scrollbar-width: auto;
+  scrollbar-width: thin;
   scroll-padding-block: 20px;
 }
 
