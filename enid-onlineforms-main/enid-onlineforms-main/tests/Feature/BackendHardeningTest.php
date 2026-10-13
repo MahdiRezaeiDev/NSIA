@@ -165,6 +165,105 @@ class BackendHardeningTest extends TestCase
         $this->get('/moveApplicationToNextStep?type=individual&status=1&reference_no=123')->assertStatus(419);
     }
 
+    public function testWebLoginKeepsAuthenticationAndDariErrors()
+    {
+        $this->get('/login')->assertStatus(200)->assertSee('ورود به حساب کاربری');
+        $this->from('/login')->post('/login', [
+            'email' => 'no-such-web-user@example.invalid', 'password' => 'Synthetic-invalid',
+        ])->assertRedirect('/login')->assertSessionHasErrors('email');
+        $this->get('/login')->assertSee('ایمیل یا رمز عبور درست نیست.');
+        foreach (['admin' => '/home', 'document_checker' => '/userDashboard'] as $role => $destination) {
+            $user = new User;
+            $user->name = 'Synthetic login test';
+            $user->email = 'web-test-'.$role.'@example.invalid';
+            $user->password = \Hash::make('Synthetic-login-test');
+            $user->role = $role;
+            $user->center_id = 18;
+            $user->active = 1;
+            $user->save();
+            $this->post('/login', ['email' => $user->email, 'password' => 'Synthetic-login-test', 'remember' => 'on'])
+                ->assertRedirect($destination);
+            $this->assertSame($user->id, \Auth::id());
+            $this->assertNotEmpty($user->fresh()->remember_token);
+            $this->post('/logout')->assertRedirect('/');
+            $this->assertNull(\Auth::id());
+        }
+    }
+
+    public function testPasswordRecoveryAndResetPreserveRoleRedirectsAndConsumeTokens()
+    {
+        \Notification::fake();
+        $this->get('/password/reset')->assertStatus(200)->assertSee('فراموشی رمز عبور');
+        foreach (['admin' => '/home', 'document_checker' => '/userDashboard'] as $role => $destination) {
+            $user = new User;
+            $user->name = 'Synthetic password recovery';
+            $user->email = 'recovery-'.$role.'@example.invalid';
+            $user->password = \Hash::make('Synthetic-old-password');
+            $user->role = $role;
+            $user->center_id = 18;
+            $user->active = 1;
+            $user->save();
+            $this->from('/password/reset')->post('/password/email', ['email' => $user->email])
+                ->assertRedirect('/password/reset')->assertSessionHas('status');
+            $this->get('/password/reset')->assertSee('لینک بازیابی رمز عبور به ایمیل شما ارسال شد.');
+            $token = null;
+            \Notification::assertSentTo($user, \Illuminate\Auth\Notifications\ResetPassword::class,
+                function ($notification) use (&$token) {$token = $notification->token; return true;});
+            $this->assertNotEmpty($token);
+            $url = '/password/reset/'.$token.'?email='.urlencode($user->email);
+            $this->get($url)->assertStatus(200)->assertSee('تعیین رمز عبور تازه')->assertSee($user->email);
+            $payload = ['email' => $user->email, 'token' => $token, 'password' => 'Synthetic-new-password',
+                'password_confirmation' => 'Synthetic-new-password'];
+            $this->from($url)->post('/password/reset', $payload)->assertRedirect($destination);
+            $this->assertTrue(\Hash::check('Synthetic-new-password', $user->fresh()->password));
+            $this->assertSame($user->id, \Auth::id());
+            $this->assertFalse(\DB::table('password_resets')->where('email', $user->email)->exists());
+            $this->post('/logout')->assertRedirect('/');
+            $this->from($url)->post('/password/reset', $payload)->assertSessionHasErrors('email');
+            $this->assertNull(\Auth::id());
+        }
+    }
+
+    public function testPasswordRecoveryErrorsDoNotChangePasswords()
+    {
+        \Notification::fake();
+        $this->from('/password/reset')->post('/password/email', ['email' => 'unknown-recovery@example.invalid'])
+            ->assertSessionHasErrors('email');
+        $this->get('/password/reset')->assertSee('حسابی با این ایمیل پیدا نشد.');
+        \Notification::assertNothingSent();
+        $user = new User;
+        $user->name = 'Synthetic reset validation';
+        $user->email = 'reset-validation@example.invalid';
+        $user->password = \Hash::make('Synthetic-original-password');
+        $user->role = 'admin';
+        $user->center_id = 18;
+        $user->active = 1;
+        $user->save();
+        $original = $user->password;
+        $token = \Password::broker()->createToken($user);
+        $url = '/password/reset/'.$token.'?email='.urlencode($user->email);
+        $payload = ['email' => $user->email, 'token' => $token, 'password' => 'Synthetic-new-password',
+            'password_confirmation' => 'different-password'];
+        $this->from($url)->post('/password/reset', $payload)->assertSessionHasErrors('password');
+        $this->get($url)->assertSee('رمز عبور و تکرار آن یکسان نیستند.');
+        $payload['password'] = $payload['password_confirmation'] = 'short';
+        $this->from($url)->post('/password/reset', $payload)->assertSessionHasErrors('password');
+        $payload['password'] = $payload['password_confirmation'] = 'Synthetic-new-password';
+        \DB::table('password_resets')->where('email', $user->email)
+            ->update(['created_at' => now()->subMinutes(config('auth.passwords.users.expire') + 1)]);
+        $this->from($url)->post('/password/reset', $payload)->assertSessionHasErrors('email');
+        $this->get($url)->assertSee('لینک بازیابی معتبر نیست یا مهلت آن گذشته است.');
+        $this->assertSame($original, $user->fresh()->password);
+        $this->assertNull(\Auth::id());
+    }
+
+    public function testRecoveryFormsRequireCsrf()
+    {
+        $this->app->instance('env', 'local');
+        $this->post('/password/email', ['email' => 'unknown@example.invalid'])->assertStatus(419);
+        $this->post('/password/reset', ['email' => 'unknown@example.invalid'])->assertStatus(419);
+    }
+
     public function testFamilyRegistrationCenterReviewAndPrintingLifecycle()
     {
         $payload = json_decode(file_get_contents(__DIR__.'/../Fixtures/family-four-members.json'), true);

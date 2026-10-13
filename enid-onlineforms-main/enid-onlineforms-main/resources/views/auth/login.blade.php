@@ -7,7 +7,7 @@
             <svg viewBox="0 0 48 48" fill="none"><rect x="5" y="10" width="38" height="28" rx="5"/><circle cx="17" cy="21" r="4"/><path d="M10 31c1-6 13-6 14 0M29 19h8M29 25h8M29 31h5"/></svg>
         </div>
         <p class="intro-eyebrow">ادارهٔ ملی احصائیه و معلومات</p>
-        <h1 id="welcome-title">به سیستم خدمات<br><span>آنلاین خوش آمدید</span></h1>
+        <h1 id="welcome-title">به سیستم خدمات<br> <span>آنلاین خوش آمدید</span></h1>
         <p class="intro-description">برای دسترسی به فورم‌ها و پیگیری درخواست‌های تذکرهٔ الکترونیکی، وارد حساب کاربری خود شوید.</p>
         <div class="intro-note"><span aria-hidden="true"></span><p>معلومات حساب کاربری خود را محرمانه نگه دارید.</p></div>
     </section>

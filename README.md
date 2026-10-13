@@ -59,11 +59,17 @@ NID image uploads store the actual S3 object paths for signatures, portraits and
 
 Web forms require CSRF tokens. Legacy state-changing web GET actions also require a token; generated action links and logout links include it. The backend's existing manual identity-confirmation action is explicitly labelled and recorded as archive verification, with the same role/center checks as the API. Angular API calls keep their existing bearer-token contract. Logs store limited operational metadata instead of passwords, tokens or applicant payloads. General and activity reports read current events, and the center leader dashboard uses current counts. Print tokens are family-bound and expire after two hours. PDFs retain their templates and omit empty attachment pages and cancelled applicants.
 
-To run the checked-in regression tests with an isolated database:
+The performance migration adds non-unique family-reference and appointment-slot indexes; it does not rewrite records, and its rollback removes only those named indexes. Dashboards aggregate all permitted centers in two queries. Multi-slot appointment days use one count query per day, without caching capacity; final booking validation continues to read current availability. `BackendPerformanceTest` compares dashboard totals and role scopes with the prior calculations and checks full slots, holidays and newly booked appointments.
+
+The backend login at `/login` uses the existing NSIA logo, Bahij fonts and teal/navy palette, with a responsive Dari layout. Its styles and scripts are scoped to the login page. Authentication, CSRF, remember-login and role-based redirects retain their existing behavior; web login errors are localized to Dari.
+
+Password recovery (`/password/reset`) and new-password forms share that authentication layout, with Dari validation and status messages. Successful resets return administrators to `/home` and center staff to `/userDashboard`. Recovery tests fake notifications and verify expired/reused tokens, confirmation errors and CSRF; actual email delivery depends on the configured mail transport. Local access credentials belong outside the repository.
+
+Run the complete suite to include the performance, NID and login checks:
 
 ```powershell
 php artisan backend:prepare-test-database
-php vendor/phpunit/phpunit/phpunit --filter BackendHardeningTest
+php vendor/phpunit/phpunit/phpunit
 ```
 
 The preparation command is available only in local/testing and copies schema plus centers, districts and appointment templates into `nsia_test_backend`; it does not copy applicants, accounts or logs. Use `--database=nsia_test_custom` and set `NSIA_TEST_DATABASE=nsia_test_custom` to choose another test database. Test writes are rolled back. The suite covers permissions, transitions, CAPTCHA, CSRF, request logging, print-token scope, route-specific throttling and a synthetic four-person family's registration, review and PDF generation. External IVP/CAPTCHA responses are mocked; live external services and browser clicks require separate deployment verification.

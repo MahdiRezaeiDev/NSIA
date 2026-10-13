@@ -57,6 +57,10 @@ class Center extends Model
         if (!$slots) {
             return false;
         }
+        if (count($slots) === 1) {
+            $available = static::getAvailableTimes($date, $slots[0], $this->id);
+            return $available ? [$available] : false;
+        }
         $hijriDate = \Hijri::fromCarbon($date);
         $counts = Appointment::where('appointment_date', $hijriDate->format('Y-m-d'))
             ->where('center_id', $this->id);
