@@ -5,6 +5,45 @@
   border-bottom:1px solid #10A79B;
 }
 
+/* Bootstrap rows need their gutter contained by the full-width header. */
+.header > .row {
+  margin-right: 0;
+  margin-left: 0;
+  align-items: center;
+}
+
+.header .row > [class*="col-"] {
+  min-width: 0;
+}
+
+.header #navbar .custom-container {
+  width: 100% !important;
+  padding: 0;
+}
+
+.header .logo-wrapper,
+.header .nsia-logo {
+  max-width: 100%;
+}
+
+.header .logos .nsia-logo img {
+  width: 100%;
+  max-width: 252px;
+  height: auto;
+  max-height: 90px;
+  margin: 0;
+  float: none;
+}
+
+.header #navbar .navbar-nav {
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.header #navbar {
+  margin-top: 0;
+}
+
 .align-center {
   width: fit-content;
   margin-left: auto;

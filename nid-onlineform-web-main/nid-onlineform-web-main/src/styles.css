@@ -181,7 +181,10 @@ button {
 
 /* .service-custom-container, */
 .custom-container {
-  width: 80vw;
+  width: 80%;
+  max-width: 1280px;
+  padding-right: 15px;
+  padding-left: 15px;
   margin-left: auto;
   margin-right: auto;
 
@@ -334,26 +337,6 @@ button {
   padding-left: 30px;
 }
 
-
-/* width */
-::-webkit-scrollbar {
-  width: 5px;
-}
-
-/* Track */
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
-
-/* Handle */
-::-webkit-scrollbar-thumb {
-  background: rgb(226, 226, 226);
-}
-
-/* Handle on hover */
-::-webkit-scrollbar-thumb:hover {
-  background: rgb(138, 137, 137);
-}
 
 /* General CSS */
 .no-data {
@@ -1432,23 +1415,36 @@ button {
 
 }
 
-/* width */
+/* Keep the page scrollbar visible without taking space from the form. */
+html {
+  scrollbar-color: #7a8b98 #f1f4f6;
+  scrollbar-width: auto;
+  scroll-padding-block: 20px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
 ::-webkit-scrollbar {
-  width: 20px;
+  width: 10px;
+  height: 10px;
 }
 
-/* Track */
 ::-webkit-scrollbar-track {
-  background: #f1f1f1; 
+  background: #f1f4f6;
 }
 
-/* Handle */
 ::-webkit-scrollbar-thumb {
-  background: #888; 
+  background: #7a8b98;
+  border: 2px solid #f1f4f6;
+  border-radius: 10px;
+  min-height: 48px;
 }
 
-/* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-  background: #555; 
+  background: #506777;
 }
 

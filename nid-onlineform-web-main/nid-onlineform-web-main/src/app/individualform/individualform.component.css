@@ -157,6 +157,221 @@ button {
   background-color:#10A79B!important;
 }
 
+/* A single page scroll, with gutters that fit inside every card. */
+:host {
+  display: block;
+  min-width: 0;
+  padding-bottom: 32px;
+  color: #282560;
+}
+
+:host .row {
+  margin-right: -10px;
+  margin-left: -10px;
+}
+
+:host [class*="col-"] {
+  min-width: 0;
+  padding-right: 10px;
+  padding-left: 10px;
+}
+
+:host .card {
+  border: 1px solid #dfe4eb;
+  border-radius: 10px;
+}
+
+:host .card-body {
+  padding: 20px;
+}
+
+:host .card-header {
+  padding: 14px 18px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+
+:host .card-header h3,
+:host .card-header h5 {
+  margin-bottom: 0;
+}
+
+:host .lightBlue {
+  background: #eef4fb;
+  border: 1px solid #dbe5f1;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+:host .application-reference > .col-md-12 {
+  margin-top: 24px !important;
+}
+
+:host .application-reference h2 {
+  font-size: 22px;
+  overflow-wrap: anywhere;
+}
+
+:host .application-reference strong {
+  display: block;
+  font-size: 15px;
+  line-height: 1.9;
+  font-weight: normal;
+}
+
+:host .application-steps {
+  margin-top: 20px !important;
+  margin-bottom: 24px !important;
+}
+
+:host .application-steps > .col-md-6 {
+  flex: 0 0 50%;
+  max-width: 50%;
+  padding-bottom: 8px;
+}
+
+:host .form-field {
+  margin-bottom: 18px;
+}
+
+:host .form-field > div {
+  margin-top: 0 !important;
+}
+
+:host .form-group {
+  margin-bottom: 0;
+}
+
+:host label {
+  display: inline-block;
+  font-size: 15px;
+  line-height: 1.6;
+  margin-bottom: 8px;
+}
+
+:host .form-control {
+  max-width: 100%;
+  min-width: 0;
+  height: 46px !important;
+  border-color: #b8c5d4;
+  border-radius: 6px !important;
+  font-size: 16px;
+}
+
+:host .form-control:focus {
+  border-color: #087f76;
+  outline: 2px solid #087f76 !important;
+  outline-offset: 2px;
+  box-shadow: none;
+}
+
+:host .btn {
+  min-height: 44px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  border-radius: 6px !important;
+  font-size: 15px;
+  line-height: 1.5;
+  padding: 9px 12px;
+}
+
+:host .btn:focus-visible,
+:host .upload-btn-wrapper:focus-within {
+  outline: 2px solid #087f76;
+  outline-offset: 3px;
+}
+
+:host .btn-block {
+  width: 100%;
+}
+
+:host .invalid-feedback {
+  width: auto;
+  margin-right: 0;
+  overflow-wrap: anywhere;
+}
+
+:host select2 {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+}
+
+:host .upload-btn-wrapper {
+  max-width: 100%;
+}
+
+:host .upload-btn-wrapper input[type=file] {
+  width: 100%;
+  height: 100%;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+:host .file-btn {
+  max-width: 100%;
+  min-height: 44px;
+  padding: 10px 14px;
+  font-size: 16px;
+  overflow-wrap: anywhere;
+}
+
+:host .table {
+  table-layout: fixed;
+  width: 100%;
+  font-size: 14px;
+}
+
+:host .table th,
+:host .table td {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  padding: 10px 6px;
+  vertical-align: middle;
+}
+
+:host [id^="familymember-"],
+:host #top {
+  scroll-margin-top: 20px;
+}
+
+@media (max-width: 767px) {
+  :host .card-body {
+    padding: 16px 12px;
+  }
+
+  :host .row {
+    margin-right: -6px;
+    margin-left: -6px;
+  }
+
+  :host [class*="col-"] {
+    padding-right: 6px;
+    padding-left: 6px;
+  }
+
+  :host .card-header {
+    padding: 12px;
+    font-size: 16px;
+  }
+
+  :host [data-field-type="btn-group"] .row > [class*="col-"] {
+    flex: 1 1 45%;
+    max-width: 100%;
+    padding-bottom: 8px;
+  }
+
+  :host [data-field-type="dob_auto"] .row > [class*="col-"] {
+    flex: 1 1 80px;
+    max-width: 100%;
+  }
+
+  :host .table .btn {
+    padding: 6px;
+    font-size: 13px;
+  }
+}
+
 
 
 

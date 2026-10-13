@@ -4,7 +4,7 @@
 
 
 
-<div class="row" *ngIf="!submittedForm.reference_no && step > 0">
+<div class="row application-reference" *ngIf="!submittedForm.reference_no && step > 0">
  
   <div class="col-md-12 mt-5 mb-2">
     <div class="row">
@@ -30,7 +30,7 @@
    
   </div>
 </div>
-<div class="row mb-5 mt-5">
+<div class="row application-steps mb-5 mt-5">
     <div class="col-md-6">
         <button type="button" [ngClass]="{'btn btn-outline-primary btn-block':true,'active':step==1}">۱. {{'form_entry_tab'|translate}}</button>
     </div>
@@ -84,7 +84,8 @@
               
               <form [formGroup]="member.form" class="row">
                 <ng-container *ngFor="let field of member.fields; let fieldKey = index" >
-                  <div class="col-md-{{field.columnWidth}}">
+                  <div class="col-md-{{field.columnWidth}} form-field" [attr.data-field-type]="field.type"
+                    [hidden]="field.type === 'hidden' || !member.isVisible(field)">
                 
                     <div  *ngIf="member && member.isVisible(field)">
                       <div class="form-group" *ngIf="field.type=='text'">
