@@ -31,6 +31,6 @@ class CreateNivpResponseTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('nivpresponses');
+        Schema::dropIfExists('ivpresponses');
     }
 }

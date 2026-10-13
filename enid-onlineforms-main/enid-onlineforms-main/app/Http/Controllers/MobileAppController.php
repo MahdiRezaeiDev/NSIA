@@ -460,34 +460,62 @@ class MobileAppController extends Controller
     }
 
     public function uploadNidImages(\App\Http\Requests\UploadNidCardsRequest $r){
-        $signature                      = new \App\Nidsignature;
-        $fileName                       = uniqid().".jpg";
-        $signature->signature_path      = \Storage::disk('s3')->put("nidsignatures/".$fileName,base64_decode($r->input('signature.sign'))); 
-        $fileName                       = uniqid().".jpg";
-        $signature->photo_path          = \Storage::disk('s3')->put("nidsignatures/".$fileName,base64_decode($r->input('signature.photo'))); 
-        $signature->user_id             = $r->user()->id;
-        $signature->save();
+        $disk = null;
+        $paths = [];
+        try {
+            $disk = \Storage::disk('s3');
+            $write = function ($directory, $encoded) use ($disk, &$paths) {
+                $path = $directory.'/'.bin2hex(random_bytes(16)).'.jpg';
+                $paths[] = $path;
+                if (!$disk->put($path, base64_decode($encoded))) {
+                    throw new \RuntimeException('NID image storage failed.');
+                }
+                // put() returns success/failure; metadata needs the object path.
+                return $path;
+            };
+            \DB::transaction(function () use ($r, $write) {
+                $signature = new \App\Nidsignature;
+                $signature->signature_path = $write('nidsignatures', $r->input('signature.sign'));
+                $signature->photo_path = $write('nidsignatures', $r->input('signature.photo'));
+                $signature->user_id = $r->user()->id;
+                $signature->save();
 
-        foreach($r->input('images') as $image){
-            $record                 = new \App\Nidpicture;
-            $record->record_id      = $image['record_id'];
-            $fileName               = uniqid().".jpg";
-            $path                   = \Storage::disk('s3')->put("nidpics/".$fileName,base64_decode($image['file']));
-            $record->file_path      = $path;
-            $record->user_id        = $r->user()->id;
-            $record->signature_id   = $signature->id;
-            $record->status         = 0;
-            $record->save();
+                foreach ($r->input('images') as $image) {
+                    $record = new \App\Nidpicture;
+                    $record->record_id = $image['record_id'];
+                    $record->file_path = $write('nidpics', $image['file']);
+                    $record->nid_number = '';
+                    $record->user_id = $r->user()->id;
+                    $record->signature_id = $signature->id;
+                    $record->status = 0;
+                    $record->save();
+                }
+            });
+        } catch (\Throwable $error) {
+            if ($disk && $paths) {
+                try {
+                    $disk->delete($paths);
+                } catch (\Throwable $cleanupError) {
+                    \App\Log::record('NidImageCleanupFailed', ['error_code'=>'storage_cleanup']);
+                }
+            }
+            \App\Log::record('NidImageUploadFailed', ['error_code'=>'upload_failed']);
+            ApplicationAccess::fail('ذخیرهٔ تصاویر تذکره موفق نشد؛ دوباره کوشش نمایید.', 503);
         }
-
-      return ['message'=>'ok'];
+        return ['message'=>'ok'];
     }
 
     public function getNidNumber(Request $r){
         //Status 0 NOT Processed but RECORD FOUND
         //Status 1 Processed but RECORD FOUND
         //Status 2 Processed
-        $record = \App\Nidpicture::where('record_id',$r->input('record_id'))->first();
+        $records = \App\Nidpicture::where('record_id', $r->input('record_id'));
+        // OCR records belong to their uploader, not to an application/center.
+        // Keep the existing administrator/auditor oversight permission.
+        if (!$r->user()->isAdmin() && $r->user()->role !== 'audit') {
+            $records->where('user_id', $r->user()->id);
+        }
+        $record = $records->first();
         
         if(!$record){
             return response(['status'=>'RECORD NUMBER NOT FOUND'],404);

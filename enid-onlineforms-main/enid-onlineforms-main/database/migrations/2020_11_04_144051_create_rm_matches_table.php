@@ -30,6 +30,6 @@ class CreateRmMatchesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('=rmmatches');
+        Schema::dropIfExists('rmmatches');
     }
 }
