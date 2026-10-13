@@ -7,6 +7,8 @@
     <title>@yield('title', 'پنل مدیریت') | ادارهٔ ملی احصائیه و معلومات</title>
     <link href="/css/public.css" rel="stylesheet">
     <link href="/css/admin.css" rel="stylesheet">
+    <link rel="preload" href="/fonts/Vazirmatn-Variable.woff2" as="font" type="font/woff2" crossorigin>
+    <link href="/css/panel-tokens.css?v={{ filemtime(public_path('css/panel-tokens.css')) }}" rel="stylesheet">
     <link href="/css/admin-panel.css?v={{ filemtime(public_path('css/admin-panel.css')) }}" rel="stylesheet">
     @php $roleLabels = collect(\App\User::getRoles())->mapWithKeys(function($role) { return [$role => $role === 'admin' ? 'مدیر سیستم' : \App\User::roleToDari($role)]; }); @endphp
     <script>var AUTH_API_TOKEN = ""; window.NSIA_ROLES = @json($roleLabels);</script>
@@ -18,7 +20,7 @@
     <button class="sidebar-backdrop" type="button" aria-label="بستن منو" tabindex="-1" data-close-menu></button>
     <aside class="sidebar" id="sidebar" aria-label="منوی اصلی">
         <a class="brand" href="{{ Auth::user()->role == 'admin' ? '/home' : '/userDashboard' }}" aria-label="صفحهٔ اصلی"><img src="/img/logo.jpg" width="192" height="60" alt="ادارهٔ ملی احصائیه و معلومات"></a>
-        <div class="sidebar-caption">سیستم مدیریت تذکرهٔ الکترونیکی</div>
+        <div class="sidebar-caption">مدیریت خدمات تذکرهٔ الکترونیکی</div>
         <div class="nav-label">محیط کاری</div>
         <nav class="sidebar-nav">
             <a href="{{ Auth::user()->role == 'admin' ? '/home' : '/userDashboard' }}" class="{{ request()->is('home', 'userDashboard') ? 'is-active' : '' }}" @if(request()->is('home', 'userDashboard')) aria-current="page" @endif>@include('elements.icon', ['name'=>'dashboard'])<span>نمای کلی</span></a>
@@ -38,8 +40,8 @@
     </aside>
     <div class="workspace">
         <header class="topbar">
-            <div class="topbar-start"><button type="button" class="icon-button menu-toggle" aria-label="باز کردن منو" aria-controls="sidebar" aria-expanded="false" id="menu-toggle">@include('elements.icon', ['name'=>'menu'])</button><span class="topbar-title">ادارهٔ ملی احصائیه و معلومات</span><span class="topbar-divider"></span><span class="muted">پنل {{ Auth::user()->role == 'admin' ? 'مدیریت' : 'کارمند' }}</span></div>
-            <time class="today" datetime="{{ date('Y-m-d') }}">@include('elements.icon', ['name'=>'calendar'])<bdi>{{ \Hijri::now()->format('Y/m/d') }}</bdi></time>
+            <div class="topbar-start"><button type="button" class="icon-button menu-toggle" aria-label="باز کردن منو" aria-controls="sidebar" aria-expanded="false" id="menu-toggle">@include('elements.icon', ['name'=>'menu'])</button><span class="topbar-title">خدمات تذکرهٔ الکترونیکی</span><span class="topbar-divider"></span><span class="muted">پنل {{ Auth::user()->role == 'admin' ? 'مدیریت' : 'کارمند' }}</span></div>
+            <div class="topbar-end"><time class="today" datetime="{{ date('Y-m-d') }}">@include('elements.icon', ['name'=>'calendar'])<span><small>تاریخ امروز</small><bdi>{{ \Hijri::now()->format('Y/m/d') }}</bdi></span></time><a class="topbar-account" href="/changePasswordForm" aria-label="حساب {{ Auth::user()->name }}؛ تغییر رمز عبور"><span class="avatar">{{ mb_substr(Auth::user()->name, 0, 1) }}</span><span>{{ Auth::user()->name }}<small>{{ Auth::user()->role == 'admin' ? 'مدیر سیستم' : Auth::user()->role_in_dari }}</small></span></a></div>
         </header>
         <main id="main-content" class="main-content" tabindex="-1">
             <div class="page-heading"><div><div class="eyebrow">@yield('eyebrow', 'مدیریت خدمات تذکره')</div><h1>@yield('title', 'پنل مدیریت')</h1><p>@yield('description')</p></div><div class="heading-actions">@yield('actions')</div></div>
