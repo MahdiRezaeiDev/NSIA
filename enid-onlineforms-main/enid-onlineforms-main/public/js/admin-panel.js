@@ -48,6 +48,17 @@
     app.run(function ($rootScope) {
         $rootScope.hasErrors = function (errors) { return errors && Object.keys(errors).length > 0; };
     });
+    app.directive('focusErrors', function ($timeout) {
+        return function (scope, element, attributes) {
+            scope.$watchCollection(attributes.focusErrors, function (errors) {
+                if (!errors || !Object.keys(errors).length) return;
+                $timeout(function () {
+                    var field = element[0].querySelector('[aria-invalid="true"]');
+                    if (field) field.focus();
+                });
+            });
+        };
+    });
     app.controller('PanelListCtrl', function ($scope, $http, $window) {
         var kind, requestId = 0, allTemplates = [];
         var endpoints = { users: '/admin/getUsers', centers: '/admin/getCenters', templates: '/admin/getTemplates', applications: '/getIndividualApplications' };

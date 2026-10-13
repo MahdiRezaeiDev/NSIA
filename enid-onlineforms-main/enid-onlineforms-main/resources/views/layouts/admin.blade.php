@@ -10,6 +10,7 @@
     <link rel="preload" href="/fonts/bahij_helvetica_neue_roman_by_bahijvirtualacademy-dammd50_0.c89c9eb963cc00332e6c.ttf" as="font" type="font/ttf" crossorigin>
     <link href="/css/panel-tokens.css?v={{ filemtime(public_path('css/panel-tokens.css')) }}" rel="stylesheet">
     <link href="/css/admin-panel.css?v={{ filemtime(public_path('css/admin-panel.css')) }}" rel="stylesheet">
+    <link href="/css/panel-forms.css?v={{ filemtime(public_path('css/panel-forms.css')) }}" rel="stylesheet">
     @php $roleLabels = collect(\App\User::getRoles())->mapWithKeys(function($role) { return [$role => $role === 'admin' ? 'مدیر سیستم' : \App\User::roleToDari($role)]; }); @endphp
     <script>var AUTH_API_TOKEN = ""; window.NSIA_ROLES = @json($roleLabels);</script>
     <script src="/js/app.js"></script>
