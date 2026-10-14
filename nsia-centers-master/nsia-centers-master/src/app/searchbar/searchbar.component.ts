@@ -60,6 +60,7 @@ export class SearchbarComponent implements OnInit, OnDestroy {
   ngOnDestroy() { this.destroyed.next(); this.destroyed.complete(); }
 
   ngOnInit() {
+    this.lookupError = '';
     if(this.api.isAdmin()){
       this.getCenters();
     }

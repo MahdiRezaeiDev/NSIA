@@ -196,7 +196,7 @@ class ReportsController extends Controller
         }else{
             $center_id = $r->input('center_id',false);
         }
-        $report=new \App\CurrentReport($startDate,$endDate,$center_id,$r->input('status',false));
+        $report=new \App\CurrentReport($startDate,$endDate,$center_id,$r->input('status',false), $r->input('view') === 'individual');
 
         return $report->generateReport();
     }

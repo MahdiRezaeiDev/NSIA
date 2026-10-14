@@ -21,6 +21,7 @@ export class DocumentViewerComponent implements OnChanges, OnDestroy {
  ngOnChanges(){this.index=0;this.pdfOnly=false;this.select();}
  private isPdfValue(value:string){return /^data:application\/pdf[;,]|^JVBER|\.pdf(?:[?#]|$)/i.test(value.trim());}
  select(){
+  const previousSource=this.source, previouslyLoaded=!this.loading && !this.failed;
   this.release();this.source='';this.pdfSource=null;this.zoom=1;this.rotation=0;this.loading=true;this.failed=false;
   const value=(this.items[this.index] || '').trim();if(!value){this.failed=true;this.loading=false;return;}
   if(this.isPdf){
@@ -36,12 +37,14 @@ export class DocumentViewerComponent implements OnChanges, OnDestroy {
   }else if(/^(https?:\/\/|data:image\/(png|jpeg|jpg|gif|webp);base64,|blob:)/i.test(value)){this.source=value;}
   else if(/^[a-z0-9+/=\s]+$/i.test(value)){this.source='data:image/png;base64,'+value;}
   else{this.onError();}
+  // An identical attachment keeps the same DOM image and does not emit another load event.
+  if(this.source && this.source===previousSource && previouslyLoaded){this.loading=false;}
  }
  move(step:number){const next=this.index+step;if(next<0||next>=this.items.length){return;}this.index=next;this.select();}
  imageLoaded(event:any){this.naturalWidth=event.target.naturalWidth || 1;this.naturalHeight=event.target.naturalHeight || 1;this.loading=false;this.measure();}
  onError(){this.loading=false;this.failed=true;}
  changeZoom(step:number){this.zoom=Math.max(1,Math.min(5,Math.round((this.zoom+step)*10)/10));}
- rotate(step:number){this.rotation=(this.rotation+step)%360;}
+ rotate(step:number){this.rotation=(this.rotation+step+360)%360;}
  reset(){this.zoom=1;this.rotation=0;this.measure();}
  filterPdf(){this.pdfOnly=!this.pdfOnly;this.index=0;this.select();}
  toggleExpanded(){this.expanded=!this.expanded;}

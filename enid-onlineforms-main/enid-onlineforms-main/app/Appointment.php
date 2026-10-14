@@ -127,6 +127,10 @@ class Appointment extends Model
 
     public static function getAppointments($user,$formsTable,$center_id=false,$status=false){
         $appointments= \DB::table('familyapplications')->where('apply_for_new_id','بلی');
+        if ($user->role === 'center_manager') {
+            $appointments->where('center_id', '>', 13)->where('center_id', '<', 89)
+                ->whereIn('status', $user->getApplicationAccessStatus());
+        }
         
         $filterByRole = ['admin','center_manager'];
         if( !in_array($user->role,$filterByRole) ){

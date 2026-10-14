@@ -14,9 +14,7 @@ export class FamilyformsReportComponent implements OnInit {
     this.api.selectedDate=false;
   }
   ngOnInit() {
-    if (this.api.httpRequest) { this.api.httpRequest.unsubscribe(); }
-    this.api.processing = false;
-    this.api.applications=[];
+    this.api.resetApplicationResults();
     this.api.loadError = '';
     this.api.exportError = '';
     this.api.hasLoaded = false;

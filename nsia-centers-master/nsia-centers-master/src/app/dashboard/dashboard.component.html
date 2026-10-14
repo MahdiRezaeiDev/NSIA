@@ -8,12 +8,13 @@
     <aside class="ui-card appointment-panel" aria-label="انتخاب تاریخ مراجعه"><app-appointment-calender (dateSelected)="onDateSelected($event)" [selectedDate]="api.selectedDate" [status]="api.status" [center_id]="api.center_id"></app-appointment-calender></aside>
     <section class="applications-results">
       <app-searchbar (searched)="onSearch($event)" [showDatePicker]="showDatePicker" (centerSelected)="onCenterSelected($event)" [center_id]="api.center_id" [status]="api.status" (statusSelected)="onStatusSelected($event)"></app-searchbar>
-      <div *ngIf="api.loadError && !api.processing" class="ui-alert" role="alert"><i class="fas fa-exclamation-circle" aria-hidden="true"></i><p>{{ api.loadError }}</p><button class="ui-button ui-button-secondary" (click)="api.getApplications()">کوشش دوباره</button></div>
+      <div *ngIf="api.loadError && !api.processing" class="ui-alert" role="alert"><i class="fas fa-exclamation-circle" aria-hidden="true"></i><p>{{ api.loadError }}</p><button class="ui-button ui-button-secondary" (click)="api.loadApplicationsPage()">کوشش دوباره</button></div>
       <app-page-skeleton *ngIf="api.processing" variant="cards"></app-page-skeleton>
       <ng-container *ngIf="!api.processing && !api.loadError">
         <div class="ui-card-heading results-heading"><h2>نتیجۀ جستجو</h2><span class="ui-count">{{ api.totalApplicationsCount }} درخواستی</span></div>
         <div class="applicants-grid"><app-applicantinfo *ngFor="let a of api.applications" [applicant]="a" [application_type]="'individual'"></app-applicantinfo></div>
         <div *ngIf="!api.applications.length" class="ui-card ui-empty"><i class="far fa-folder-open" aria-hidden="true"></i><h3>درخواستی پیدا نشد</h3><p>مرکز، تاریخ یا مرحلۀ رسیدگی دیگری را انتخاب کنید.</p></div>
+        <app-applications-pagination></app-applications-pagination>
       </ng-container>
     </section>
   </div>

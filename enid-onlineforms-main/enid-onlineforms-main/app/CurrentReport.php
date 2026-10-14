@@ -8,11 +8,13 @@ class CurrentReport{
     protected $end_date;
     protected $center_id=false;
     protected $status = false;
-    public function __construct($start_date,$end_date,$center_id,$status){
+    protected $individual = false;
+    public function __construct($start_date,$end_date,$center_id,$status,$individual=false){
         $this->start_date   = $start_date;
         $this->end_date     = $end_date;
         $this->center_id    = $center_id;
         $this->status       = $status;
+        $this->individual   = $individual;
     }   
 
     public function generateReport(){
@@ -20,10 +22,22 @@ class CurrentReport{
         $applications=$applications->orderBy('created_at');
         $applications= $applications->get();
         $status = $this->status;
-        $applications= $applications->filter(function($a) use ($status){
-            return $a->status == $status;
-        });
+        if (!$this->individual) {
+            $applications= $applications->filter(function($a) use ($status){
+                return $a->status == $status;
+            });
+        }
         $applications=$applications->map(function($a){
+            if ($this->individual) {
+                return [
+                    'شماره فامیلی' => $a->family_form_reference_no,
+                    'شماره انفرادی' => $a->reference_no,
+                    'اسم' => trim($a->name.' '.$a->surname),
+                    'ولد' => trim($a->father_name.' '.$a->father_surname),
+                    'مرکز' => $a->center_name,
+                    'تاریخ مراجعه' => $a->appointment_date,
+                ];
+            }
             return [
                 'نام'=>$a->name." ".$a->surname,
                 'ولد'=>$a->father_name." ".$a->father_surname,
@@ -50,6 +64,9 @@ class CurrentReport{
     }
 
     public function getQuery($excludeNew=false){
+        if ($this->individual) {
+            return $this->getIndividualQuery();
+        }
         $query = \DB::table('familyapplications')->where('apply_for_new_id','بلی')->orderBy('family_form_reference_no');
         $query=$query->selectRaw('name,surname,father_name,current_residence,father_surname,grand_father_name,grand_father_surname,appointment_date,reference_no,status,family_form_reference_no,relationship_with_head_of_family,primary_contact_no,secondary_contact_no,center_name,count(reference_no) as total_applicants,created_at');
         $filterFieldName='appointment_date';
@@ -73,5 +90,26 @@ class CurrentReport{
        return $query->groupBy('family_form_reference_no');
     }
 
-   
+    private function getIndividualQuery(){
+        $user = \Auth::user();
+        $query = \DB::table('familyapplications')->where('apply_for_new_id', 'بلی')
+            ->where('appointment_date', '>=', $this->start_date->format('Y-m-d'))
+            ->where('appointment_date', '<=', $this->end_date->format('Y-m-d'));
+        if ($user->role !== 'admin') {
+            $query->whereIn('status', $user->getApplicationAccessStatus());
+            if ($user->role === 'center_manager') {
+                $query->where('center_id', '>', 13)->where('center_id', '<', 89);
+            } else {
+                $query->where('center_id', $user->center_id);
+            }
+        }
+        if ($this->center_id) {
+            $query->where('center_id', $this->center_id);
+        }
+        if ($this->status !== false && $this->status !== null && $this->status !== '') {
+            $query->where('status', $this->status);
+        }
+        return $query->orderBy('appointment_date')->orderBy('queue_no')
+            ->orderBy('family_form_reference_no')->orderBy('reference_no');
+    }
 }

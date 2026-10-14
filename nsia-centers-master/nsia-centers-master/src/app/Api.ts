@@ -15,6 +15,10 @@ export class Api {
   public endpoint:string=environment.url+"/api";
   public processing:boolean=false;
   public totalApplicationsCount=0;
+  public currentPage = 1;
+  public lastPage = 1;
+  public pageSize = 200;
+  private applicationQuery: any = {};
   public loadError = '';
   public hasLoaded = false;
   public exporting = false;
@@ -197,26 +201,46 @@ export class Api {
       params['status']=this.status;
     }
  
-    if(this.processing){
-        if (this.httpRequest) { this.httpRequest.unsubscribe(); }
+    if (type === 'individual-report') {
+      params['view'] = 'individual';
     }
-    
-    this.processing=true;
+    this.applicationQuery = Object.assign({}, params);
+    this.loadApplicationsPage(1);
+  }
+
+  resetApplicationResults() {
+    if (this.httpRequest) { this.httpRequest.unsubscribe(); }
+    this.processing = false;
+    this.applications = [];
+    this.totalApplicationsCount = 0;
+    this.currentPage = 1;
+    this.lastPage = 1;
+    this.applicationQuery = {};
+  }
+
+  loadApplicationsPage(page: number = this.currentPage) {
+    if (!Number.isInteger(page) || page < 1) { return; }
+    if (this.httpRequest) { this.httpRequest.unsubscribe(); }
+    this.currentPage = page;
+    const params = Object.assign({}, this.applicationQuery, {page, limit: this.pageSize});
+    this.processing = true;
     this.loadError = '';
     this.hasLoaded = true;
-    this.httpRequest=this.process("/getIndividualApplications",params,"GET").pipe(timeout(30000)).subscribe((res:any)=>{
-      
-          this.applications = res.applications.data || [];
-          this.totalApplicationsCount = res.applications.total == null ? this.applications.length : res.applications.total;
-          
-          this.processing=false;
-        
-      },(error)=>{
-          this.loadError = 'دریافت معلومات انجام نشد. لطفاً دوباره کوشش کنید.';
-          
-          this.processing=false;
-      
-      });
+    this.httpRequest = this.process('/getIndividualApplications', params, 'GET').pipe(timeout(30000)).subscribe((res: any) => {
+      const pagination = res.applications;
+      this.applications = pagination.data || [];
+      this.totalApplicationsCount = pagination.total == null ? this.applications.length : Number(pagination.total);
+      this.lastPage = Number(pagination.last_page) || Math.max(1, Math.ceil(this.totalApplicationsCount / this.pageSize));
+      this.currentPage = Number(pagination.current_page) || page;
+      if (this.currentPage > this.lastPage) {
+        this.loadApplicationsPage(this.lastPage);
+        return;
+      }
+      this.processing = false;
+    }, () => {
+      this.loadError = 'دریافت معلومات انجام نشد. لطفاً دوباره کوشش کنید.';
+      this.processing = false;
+    });
   }
 
   getCheckEvents(start_date,end_date){
@@ -445,6 +469,10 @@ export class Api {
     if (this.exporting) { return; }
     const httpOptions = Object.assign({}, this.httpOptions);
     httpOptions['responseType'] = 'blob';
+    if (action === '/downloadCurrentReport' || action === '/downloadFamilyReport') {
+      // Export the full filtered report, independent of calendar/lookups and the visible page.
+      httpOptions['params'] = Object.assign({}, this.applicationQuery);
+    }
     this.exporting = true;
     this.exportError = '';
     this.http.get(this.endpoint + action, httpOptions).pipe(

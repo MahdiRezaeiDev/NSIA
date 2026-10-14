@@ -73,8 +73,18 @@ class AppointmentsController extends Controller
 
     public function getDates(Request $r){
      
-        $center_id = $r->user()->center_id;
-        $cacheName = $r->user()->getCacheName($r->all());
+        $user = $r->user();
+        $center_id = in_array($user->role, ['admin', 'center_manager'])
+            ? $r->input('center_id', false) : $user->center_id;
+        if ($center_id === 'false') {
+            $center_id = false;
+        }
+        // Include names and scope in the key, and bypass results cached before center filtering was fixed.
+        $cacheName = 'appointment-dates:v2:'.sha1(json_encode([
+            'user' => $user->id, 'role' => $user->role, 'center' => $center_id,
+            'statuses' => $user->getApplicationAccessStatus(), 'status' => $r->input('status', false),
+            'today' => \Hijri::now()->format('Y-m-d'),
+        ]));
         $result = \Cache::remember($cacheName,7200,function() use ($r,$center_id){
             $today = \Hijri::now();
             return [

@@ -33,7 +33,9 @@ class MainController extends Controller
         $allowedStatus  = \Auth::user()->getApplicationAccessStatus();
         $applications   = \DB::table('familyapplications');
         $limit          = $r->input('limit',200);
-        $applications = $applications->selectRaw('count(reference_no) as total_applicants,reference_no,family_form_reference_no,name,surname,father_name,father_surname,appointment_date,center_id,status,opened_by,opened,primary_contact_no,secondary_contact_no,queue_no');
+        // Existing consumers expect one row per family; reports opt into individual rows.
+        $individual = $r->input('view') === 'individual';
+        $applications = $applications->selectRaw(($individual ? '1' : 'count(reference_no)').' as total_applicants,reference_no,family_form_reference_no,name,surname,father_name,father_surname,appointment_date,center_id,center_name,status,opened_by,opened_by_user_id,opened,primary_contact_no,secondary_contact_no,queue_no');
           if( $r->input('appointment_start_date') ){
             $d= explode("-",$r->input('appointment_start_date'));
             $startDate = new \Hijri($d[0],$d[1],$d[2]);
@@ -66,7 +68,7 @@ class MainController extends Controller
         }
         else{
            
-            if($r->input('status')!=null){
+            if($status !== false && $status !== null && $status !== ''){
                 $applications   =  $applications->where('status',$r->input('status') );
             } 
 
@@ -124,10 +126,19 @@ class MainController extends Controller
        //$applications=$applications->where('relationship_with_head_of_family',1);
         $limit = max(1, min(5000, (int) $limit));
         $page = max(1, (int) $r->input('page', 1));
-        $families = (clone $applications)->select('family_form_reference_no')->groupBy('family_form_reference_no');
-        $total = \DB::query()->fromSub($families, 'filtered_families')->count();
+        if ($individual) {
+            $total = (clone $applications)->count();
+        } else {
+            $families = (clone $applications)->select('family_form_reference_no')->groupBy('family_form_reference_no');
+            $total = \DB::query()->fromSub($families, 'filtered_families')->count();
+            $applications->groupBy('family_form_reference_no');
+        }
         $result = $applications->orderBy('appointment_date', 'asc')->orderBy('queue_no', 'asc')
-            ->orderBy('family_form_reference_no', 'asc')->groupBy('family_form_reference_no')->forPage($page, $limit)->get();
+            ->orderBy('family_form_reference_no', 'asc');
+        if ($individual) {
+            $result->orderBy('reference_no', 'asc');
+        }
+        $result = $result->forPage($page, $limit)->get();
 
         return ['applications' => new \Illuminate\Pagination\LengthAwarePaginator($result, $total, $limit, $page),
             'appointmentDate' => $appointmentDate];

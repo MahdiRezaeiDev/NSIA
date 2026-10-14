@@ -66,11 +66,18 @@ export class AppointmentCalenderComponent implements OnInit, OnDestroy {
     
       this.today = res.today;
       this.processing=false;
-      if(sessionStorage.getItem('selectedDate') == null){
-        this.selectFirstDate();
-      }else{
-          try { this.selectDate(JSON.parse(sessionStorage.getItem('selectedDate'))); }
-          catch (_) { sessionStorage.removeItem('selectedDate'); this.selectFirstDate(); }
+      let saved = this.selectedDate;
+      if (!saved) {
+        try { saved = JSON.parse(sessionStorage.getItem('selectedDate')); }
+        catch (_) { sessionStorage.removeItem('selectedDate'); }
+      }
+      const day = saved && this.findDate(saved);
+      if (day) {
+        this.selectDate(day);
+      } else {
+        sessionStorage.removeItem('selectedDate');
+        const previous = saved;
+        if (!this.selectFirstDate() && previous) { this.dateSelected.emit(false); }
       }
 
     },(error)=>{
@@ -80,6 +87,16 @@ export class AppointmentCalenderComponent implements OnInit, OnDestroy {
             this.router.navigateByUrl("/login");
         }
     });
+  }
+
+  private findDate(date: any) {
+    for (const year of this.dates) {
+      for (const month of year.months) {
+        const day = month.days.find(d => d.y == date.y && d.m == date.m && d.d == date.d);
+        if (day) { return day; }
+      }
+    }
+    return false;
   }
 
   selectFirstDate(){

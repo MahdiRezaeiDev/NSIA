@@ -1,4 +1,5 @@
 import { DocumentViewerComponent } from './document-viewer/document-viewer.component';
+import { ApplicationsPaginationComponent } from './applications-pagination/applications-pagination.component';
 import { BrowserModule } from '@angular/platform-browser';
 import { PageSkeletonComponent } from './page-skeleton/page-skeleton.component';
 import { NgModule } from '@angular/core';
@@ -60,6 +61,7 @@ export const echoConfig: EchoConfig = {
   declarations: [
     DocumentViewerComponent,
     PageSkeletonComponent,
+    ApplicationsPaginationComponent,
     AppComponent,
     UserDropDownComponent,
     LoginComponent,

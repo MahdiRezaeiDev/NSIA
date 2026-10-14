@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, NgZone } from '@angular/core';
 import { Api } from '../Api';
 import { NgxSpinnerService } from "ngx-spinner";
 import { map } from "rxjs/operators";
@@ -11,21 +11,20 @@ import { Router, ActivatedRoute } from '@angular/router';
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
-export class DashboardComponent implements OnInit {
-  public applications:Array<any>=[];
-  public socket:any;
+export class DashboardComponent implements OnInit, OnDestroy {
+  private routeSubscription: any;
+  private readonly applicationChannel = 'nsia_database_private-applications';
   public family_form_reference_no ="";
   private httpRequest:any;
   public showDatePicker=false;
-  constructor(public api:Api,private spinner:NgxSpinnerService,private route: ActivatedRoute,private router:Router) {
+  constructor(public api:Api,private spinner:NgxSpinnerService,private route: ActivatedRoute,private router:Router, private zone: NgZone) {
     this.setListeners();
-    this.route.queryParams.subscribe(params=>{
+    this.routeSubscription = this.route.queryParams.subscribe(params=>{
       let center_id:any= +params['center_id'] || false;
       let status:any =false;
      
       if(params && 'status' in params){
        status=params['status'];
-       console.log('STATUS',status);
       }
       if(status =='undefined'){
         status=false;
@@ -72,7 +71,8 @@ export class DashboardComponent implements OnInit {
 
   onDateSelected(d){
 
-    sessionStorage.setItem('selectedDate',JSON.stringify(d));
+    if (d) { sessionStorage.setItem('selectedDate', JSON.stringify(d)); }
+    else { sessionStorage.removeItem('selectedDate'); }
     this.api.selectedDate = d;
     this.api.searchQuery=false;
     this.api.getApplications();
@@ -99,26 +99,31 @@ export class DashboardComponent implements OnInit {
     
   }
   private setListeners(){
-    this.api.echoService.echo.channel('nsia_database_private-applications').listen('.opened',res=>{
-      
-      for(let a of this.applications){
-        if( res.application.family_form_reference_no == a.family_form_reference_no ){
-            a.opened=true;
-            a.opened_by= res.application.username;
-            a.opened_by_user_id= res.application.user_id;
-        }
+    const channel = this.api.echoService.echo.channel(this.applicationChannel);
+    channel.listen('.opened', res => this.updateOpenedState(res, true));
+    channel.listen('.closed', res => this.updateOpenedState(res, false));
+  }
+
+  private updateOpenedState(res: any, opened: boolean) {
+    if (!res || !res.application) { return; }
+    const event = res.application;
+    this.zone.run(() => {
+      for (const application of this.api.applications) {
+        if (event.family_form_reference_no != application.family_form_reference_no) { continue; }
+        if (!opened && application.opened_by_user_id && event.user_id
+            && application.opened_by_user_id != event.user_id) { continue; }
+        application.opened = opened;
+        application.opened_by = opened ? event.username : '';
+        application.opened_by_user_id = opened ? event.user_id : 0;
       }
-  });
-  this.api.echoService.echo.channel('nsia_database_private-applications').listen('.closed',res=>{
-  
-      for(let a of this.applications){
-        if( res.application.family_form_reference_no == a.family_form_reference_no ){
-            a.opened=false;
-            a.opened_by='';
-            a.opened_by_user_id= 0;
-        }
-      }
-  });
+    });
+  }
+
+  ngOnDestroy() {
+    if (this.routeSubscription) { this.routeSubscription.unsubscribe(); }
+    this.api.echoService.echo.leaveChannel(this.applicationChannel);
+    if (this.api.httpRequest) { this.api.httpRequest.unsubscribe(); }
+    this.api.processing = false;
   }
 
   moveApplicationToVip(){
