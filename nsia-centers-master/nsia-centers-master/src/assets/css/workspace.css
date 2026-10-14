@@ -74,6 +74,7 @@
 .ui-modal .comparison-images > section { min-width:0; }
 .ui-modal .comparison-images h3 { font-size:15px; margin:0 0 12px; }
 .ui-modal .iv-container,.ui-page .iv-container { max-width:100%; }
+.ui-page .nav-pills button.nav-link { border:0; }
 @media(max-width:1100px) { .ui-fields { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 @media(max-width:600px) {
  .ui-heading { flex-direction:column; align-items:stretch; gap:16px; margin-bottom:22px; }

@@ -11,5 +11,6 @@
       <button type="submit" class="ui-button search-submit" [disabled]="api.processing"><i class="fas fa-search" aria-hidden="true"></i>{{ api.processing ? 'در حال دریافت…' : 'جستجو' }}</button>
     </div>
     <p *ngIf="dateError" class="ui-field-error" role="alert">{{ dateError }}</p>
+    <div *ngIf="lookupError" class="ui-alert" role="alert">{{lookupError}}<button type="button" class="ui-button ui-button-secondary" (click)="ngOnInit()">دریافت دوباره</button></div>
   </form>
 </section>

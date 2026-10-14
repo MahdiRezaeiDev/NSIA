@@ -1,3 +1,4 @@
+import { DocumentViewerComponent } from './document-viewer/document-viewer.component';
 import { BrowserModule } from '@angular/platform-browser';
 import { PageSkeletonComponent } from './page-skeleton/page-skeleton.component';
 import { NgModule } from '@angular/core';
@@ -21,7 +22,6 @@ import { SearchbarComponent } from './searchbar/searchbar.component';
 import { IndividualformdetailsComponent } from './individualformdetails/individualformdetails.component';
 import { ApplicantinfoComponent } from './applicantinfo/applicantinfo.component';
 import { ApplicationdetailsComponent } from './applicationdetails/applicationdetails.component';
-import { ImageViewerModule } from 'ng2-image-viewer';
 import {MatIconModule} from '@angular/material/icon';
 import { NoteComponent } from './note/note.component';
 import { ProcessreportComponent } from './processreport/processreport.component';
@@ -58,6 +58,7 @@ export const echoConfig: EchoConfig = {
 
 @NgModule({
   declarations: [
+    DocumentViewerComponent,
     PageSkeletonComponent,
     AppComponent,
     UserDropDownComponent,
@@ -96,7 +97,6 @@ export const echoConfig: EchoConfig = {
     Select2Module,
     //HttpClientXsrfModule.disable(),
     HttpClientModule,
-    ImageViewerModule,
     
     NgxLaravelEchoModule.forRoot(echoConfig),
     MatIconModule

@@ -1,11 +1,11 @@
-import { Component, OnInit, Output,EventEmitter, Input, Injectable, ViewChild, AfterViewInit, AfterViewChecked } from '@angular/core';
+import { Component, OnInit, Output,EventEmitter, Input, Injectable, ViewChild, AfterViewInit, AfterViewChecked, OnDestroy } from '@angular/core';
 import { Api } from '../Api';
 import { NgbCalendar, NgbCalendarPersian, NgbDatepickerI18n, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { DariCalender } from '../shared/DariCalender';
 import { fromGregorian } from '@ng-bootstrap/ng-bootstrap/datepicker/jalali/jalali';
 import * as moment from 'jalali-moment';
-import { Observable } from 'rxjs';
-import { debounceTime, distinctUntilChanged, map } from 'rxjs/operators';
+import { Subject } from 'rxjs';
+import { takeUntil, timeout } from 'rxjs/operators';
 import { setTime } from 'ngx-bootstrap/chronos/utils/date-setters';
 @Component({
   selector: 'app-searchbar',
@@ -17,9 +17,11 @@ import { setTime } from 'ngx-bootstrap/chronos/utils/date-setters';
   ]
 })
 
-export class SearchbarComponent implements OnInit {
+export class SearchbarComponent implements OnInit, OnDestroy {
   public searchTerm:string  ="";
   public dateError = '';
+  public lookupError = '';
+  private destroyed = new Subject<void>();
   public centers:any=[];
 
   @Input() center_id:any=false;
@@ -55,6 +57,8 @@ export class SearchbarComponent implements OnInit {
      
   }
 
+  ngOnDestroy() { this.destroyed.next(); this.destroyed.complete(); }
+
   ngOnInit() {
     if(this.api.isAdmin()){
       this.getCenters();
@@ -85,9 +89,10 @@ export class SearchbarComponent implements OnInit {
   }
 
   getCenters(){
-    this.api.process("/getCenters?type=name",{},'GET').subscribe( (res:any)=>{
+    this.lookupError = '';
+    this.api.process("/getCenters?type=name",{},'GET').pipe(timeout(30000),takeUntil(this.destroyed)).subscribe( (res:any)=>{
         this.centers    = res.centers;
-        this.centers.unshift({'text':'',id:'',name:''});
+        this.centers.unshift({'text':'تمام مراکز',id:'',name:'تمام مراکز'});
         this.centers    = this.centers.map((c)=>{
           c['text'] = c.name;
           return c;
@@ -98,7 +103,7 @@ export class SearchbarComponent implements OnInit {
         //this.statusList.unshift({description:"تمام فورم ها",status:false});
         this.autoSelectCenter();
         this.autoStatusCenter();
-    });
+    }, () => this.lookupError = 'دریافت فهرست مراکز انجام نشد. لطفاً دوباره کوشش کنید.');
   }
   filterByCenter(center){
     // Select2 can emit while its initial options are being populated.
@@ -134,8 +139,10 @@ export class SearchbarComponent implements OnInit {
   }
   
   private getStatusList(){
-    this.api.process("/getStatusList",{}).subscribe(data=>{
+    this.api.process("/getStatusList",{}).pipe(timeout(30000),takeUntil(this.destroyed)).subscribe(data=>{
        this.statusList = data;
-    })
+       this.autoStatusCenter();
+    }, () => this.lookupError = 'دریافت مراحل پروسه انجام نشد. لطفاً دوباره کوشش کنید.')
   }
 }
+
