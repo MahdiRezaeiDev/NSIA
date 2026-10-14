@@ -121,7 +121,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     if (this.routeSubscription) { this.routeSubscription.unsubscribe(); }
-    this.api.echoService.echo.leaveChannel(this.applicationChannel);
+    this.api.echoService.echo.leave(this.applicationChannel);
     if (this.api.httpRequest) { this.api.httpRequest.unsubscribe(); }
     this.api.processing = false;
   }
