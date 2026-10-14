@@ -1,20 +1,9 @@
-<div [ngClass]="{'card shadow-lg p-3 mb-5 bg-white rounded':true}">
-  
-    <div [ngClass]="{'card-body':true,opened:applicant.opened!=0}">
-        <div class="row">
-           <div class="col-md-12">
-                <h6 class="card-title">{{applicant.name}} {{applicant.surname}} ولد {{applicant.father_name}} {{applicant.father_surname}}</h6>
-                <p class="card-text">{{applicant.family_form_reference_no}}</p>
-                <p class="card-text box">  تاریخ:  {{applicant.appointment_date}} نوبت:{{applicant.queue_no}}  </p>
-            
-            </div>
-        
-        </div>
-    
-      
-    </div>
-    <div class="card-footer">
-        <h3 *ngIf="applicant.opened==1">  زیر کار  {{applicant.opened_by}} </h3>
-        <button *ngIf="canOpen()" class="btn btn-primary btn-block" [routerLink]="['/view-application-details',application_type,applicant.reference_no]">معلومات بیشتر</button>
-    </div>
-</div>
+<article class="applicant-card" [class.applicant-opened]="applicant.opened != 0">
+  <div class="applicant-top"><span class="applicant-icon"><i class="far fa-user" aria-hidden="true"></i></span><span class="reference-label">شمارهٔ فورم فامیلی<bdi>{{ applicant.family_form_reference_no }}</bdi></span></div>
+  <h3>{{ applicant.name }} {{ applicant.surname }}</h3>
+  <p class="father-name">ولد {{ applicant.father_name }} {{ applicant.father_surname }}</p>
+  <dl><div><dt><i class="far fa-calendar-alt" aria-hidden="true"></i>تاریخ مراجعه</dt><dd><bdi>{{ applicant.appointment_date }}</bdi></dd></div><div><dt><i class="fas fa-list-ol" aria-hidden="true"></i>نوبت</dt><dd>{{ applicant.queue_no }}</dd></div></dl>
+  <p *ngIf="applicant.opened == 1" class="opened-note"><i class="fas fa-user-clock" aria-hidden="true"></i>زیر کار {{ applicant.opened_by }}</p>
+  <a *ngIf="canOpen()" class="applicant-link" [routerLink]="['/view-application-details',application_type,applicant.reference_no]">مشاهدۀ معلومات<i class="fas fa-arrow-left" aria-hidden="true"></i></a>
+  <p *ngIf="!canOpen()" class="locked-note"><i class="fas fa-lock" aria-hidden="true"></i>در حال بررسی توسط کارمند دیگر</p>
+</article>

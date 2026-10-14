@@ -1,30 +1,10 @@
-<div class="container">
-    <h3>راپور ها</h3>
-    <div class="row mt-5 mb-5">
-        <div class="col-md-4">
-                <button [ngClass]="{'btn btn-block':true, 'btn-primary':!isReportSelected('appointment'), 'btn-success':isReportSelected('appointment')}" (click)="selectReportType('appointment')">راپور تغیر تاریخ ملاقات</button>
-        </div>
-        <div class="col-md-4">
-            <button [ngClass]="{'btn btn-block':true, 'btn-primary':!isReportSelected('check'), 'btn-success':isReportSelected('check')}" (click)="selectReportType('check')">راپور چک اسناد</button>
-        </div>
-    </div>
-    <app-searchbar *ngIf="reportType" (centerSelected)="onCenterSelected($event)" [showStatusButton]="false" [center_id]="center_id" [status]="status" (statusSelected)="onStatusSelected($event)" [showDatePicker]="true" [reportType]="reportType"></app-searchbar>
-
-
-    <div class="row mt-5">
-        <div class="col-md-10"></div>
-        <div class="col-md-2" *ngIf="api.applications.length>0">
-            <button class="btn btn-primary btn-block" (click)="api.exportToXls('/downloadCurrentReport')"> Export To XLS  <i class="fas fa-file-csv"></i></button>
-        </div>
-        <div class="col-md-12">
-            تعداد درخواستی ها {{api.events.length}}
-            <table class="table table-striped" *ngIf="isReportSelected('appointment')">
+<section class="ui-page" dir="rtl"><header class="ui-heading"><div><p class="ui-eyebrow">راپورهای مرکز</p><h1>راپور بررسی اسناد</h1><p class="ui-description">تغییر تاریخ ملاقات و چک اسناد را در مراکز پیگیری کنید.</p></div><a class="ui-button ui-button-secondary" routerLink="/reports"><i class="fas fa-arrow-right" aria-hidden="true"></i> همهٔ راپورها</a></header><div class="ui-tabs" role="group" aria-label="نوع راپور"><button [attr.aria-pressed]="isReportSelected('appointment')" (click)="selectReportType('appointment')">تغییر تاریخ ملاقات</button><button [attr.aria-pressed]="isReportSelected('check')" (click)="selectReportType('check')">چک اسناد</button></div><app-searchbar *ngIf="reportType" (centerSelected)="onCenterSelected($event)" [showStatusButton]="false" [center_id]="center_id" [status]="status" (statusSelected)="onStatusSelected($event)" [showDatePicker]="true" [reportType]="reportType"></app-searchbar><div class="ui-alert" role="alert" *ngIf="api.loadError">{{api.loadError}}</div><div class="ui-alert" role="alert" *ngIf="api.exportError">{{api.exportError}}</div><app-page-skeleton *ngIf="api.processing"></app-page-skeleton><section class="ui-card" *ngIf="!api.processing && !api.loadError"><div class="ui-card-heading"><h2>ریکاردهای ثبت‌شده</h2><span class="ui-count">{{api.events.length}} ریکارد</span></div><div class="ui-table-scroll" tabindex="0" role="region" aria-label="نتیجهٔ راپور" *ngIf="api.events.length"><table class="ui-table" *ngIf="isReportSelected('appointment')">
                 <thead>
                     <tr>
                         <th>اسم کارمند</th>
                         <th>شماره فامیلی</th>
                         <th>تفصیلات</th>
-                        <th>مرکز</th>
+                        <th>تاریخ</th><th>مرکز</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -36,8 +16,7 @@
                         <td>{{a.center_name}}</td>
                     </tr>
                 </tbody>
-            </table>
-            <table class="table table-striped" *ngIf="isReportSelected('check')">
+            </table><table class="ui-table" *ngIf="isReportSelected('check')">
                 <thead>
                     <tr>
                         <th>اسم کارمند</th>
@@ -56,7 +35,4 @@
                         <td>{{a.center_name}}</td>
                     </tr>
                 </tbody>
-            </table>
-        </div>
-    </div>
-</div>
+            </table></div><div class="ui-empty" *ngIf="!api.processing && !api.loadError && !api.events.length"><i class="far fa-file-alt" aria-hidden="true"></i><h3>{{api.hasLoaded ? 'ریکاردی پیدا نشد' : 'راپور خود را آماده کنید'}}</h3><p>{{api.hasLoaded ? 'محدودهٔ تاریخ یا فلترها را تغییر دهید.' : 'تاریخ و فلترهای مورد نظر را انتخاب کرده، جستجو را بزنید.'}}</p></div></section></section>

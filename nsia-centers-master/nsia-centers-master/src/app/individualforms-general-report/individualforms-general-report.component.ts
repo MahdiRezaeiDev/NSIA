@@ -1,112 +1,47 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Api } from '../Api';
 import * as moment from 'jalali-moment';
-import { NgxSpinnerService } from 'ngx-spinner';
-import { NgbCalendar, NgbCalendarPersian, NgbDatepickerI18n, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import { Subject } from 'rxjs';
+import { takeUntil, timeout, finalize } from 'rxjs/operators';
+import { NgbCalendar, NgbCalendarPersian, NgbDatepickerI18n } from '@ng-bootstrap/ng-bootstrap';
 import { DariCalender } from '../shared/DariCalender';
 @Component({
-  selector: 'app-individualforms-general-report',
-  templateUrl: './individualforms-general-report.component.html',
-  styleUrls: ['./individualforms-general-report.component.css'],
-  providers:[
-    {provide: NgbCalendar, useClass: NgbCalendarPersian},
-    {provide: NgbDatepickerI18n, useClass: DariCalender}
-  ]
+ selector:'app-individualforms-general-report',
+ templateUrl:'./individualforms-general-report.component.html',
+ styleUrls:['./individualforms-general-report.component.css'],
+ providers:[{provide:NgbCalendar,useClass:NgbCalendarPersian},{provide:NgbDatepickerI18n,useClass:DariCalender}]
 })
-export class IndividualformsGeneralReportComponent implements OnInit {
-  public center_id ="false";
-  public status    = 1;
-  public user_id:any= 0;
-  public users:any=[];
-  statusList:any=[];
-  public selectedStatus:any="";
-  public start_date:any;
-  public end_date:any;
-  public events:Array<{
-    date:string,
-    reference_no:string,
-    description:string,
-    user_id:number,
-    username:string
-  }>=[];
-  constructor(public api:Api,public spinner:NgxSpinnerService) { 
-    this.api.selectedDate=false;
+export class IndividualformsGeneralReportComponent implements OnInit, OnDestroy {
+ public status=1; public user_id:any=0; public users:any=[]; public statusList:any=[];
+ public selectedStatus:any={status:1,description:'چک شد'};
+ public start_date:any; public end_date:any; public events:any=[];
+ public loading=false; public searched=false; public errorMessage=''; public lookupError='';
+ private destroyed = new Subject<void>();
+ constructor(public api:Api) {}
+ ngOnInit() {
+  const today=moment().locale('fa');
+  this.start_date={day:+today.format('DD'),month:+today.format('MM'),year:+today.format('YYYY')};
+  this.end_date=Object.assign({},this.start_date);
+  this.api.exportError='';
+  this.api.process('/getCenterUsers',{},'GET').pipe(timeout(30000),takeUntil(this.destroyed)).subscribe(
+   (users:any)=>this.users=users,()=>this.lookupError='دریافت فهرست کارمندان انجام نشد. صفحه را تازه کنید.');
+  this.api.process('/getStatusList',{}).pipe(timeout(30000),takeUntil(this.destroyed)).subscribe(
+   (data:any)=>this.statusList=data.filter(d=>d.status!=0),()=>this.lookupError='دریافت مراحل پروسه انجام نشد. صفحه را تازه کنید.');
+ }
+ getEvents() {
+  if(this.loading){return;}
+  this.errorMessage='';
+  if(!this.start_date || !this.end_date || !this.start_date.year || !this.end_date.year){
+   this.errorMessage='تاریخ شروع و ختم را به شکل درست انتخاب کنید.';return;
   }
-
-  ngOnInit() {
-    this.api.applications=[];
-    this.getCenterUsers();
-    this.getStatusList();
-    if(this.status == 1){
-      this.selectedStatus= {step: 1, status: 1, description: "چک شد", color: "rgb(5,245,20)"};
-    }
-    let today = moment().locale('fa');
-
-this.start_date= {
-  "day":+today.format('DD'),
-  "month":+today.format('MM'),
-  "year":+today.format('YYYY'),
-};
-//today.add(0,'day');
-this.end_date= {
-  "day":+today.format('DD'),
-  "month":+today.format('MM'),
-  "year":+today.format('YYYY'),
-};
-  }
-
-
-  onCenterSelected(id){
-    this.api.center_id = id;
-    if(this.api.appointment_start_date == undefined || this.api.appointment_end_date==undefined){
-      return false;
-    }
-    this.api.getApplications(this.api.appointment_start_date,this.api.appointment_end_date,'general'); 
-  }
-
-  getEvents(){
-    this.spinner.show();
-     let start = this.start_date.year+"-"+this.start_date.month+"-"+this.start_date.day;
-     let end = this.end_date.year+"-"+this.end_date.month+"-"+this.end_date.day;
-      this.api.process("/getEvents",{
-        start:start,
-        end:end,
-        status:this.status,
-        user_id:this.user_id
-      },'GET').subscribe((events:any)=>{
-        this.events = events;
-        this.spinner.hide();
-      },()=>{
-        this.spinner.hide();
-        alert('لطفا دوباره کوشش کنید');
-      });
-  }
-
-  getCenterUsers(){
-      this.api.process("/getCenterUsers",{},"GET").subscribe((users:any)=>{
-          this.users = users;
-      },()=>{
-        alert('یک مشکل رخ داد لطفا دوباره کوشش نمایید');
-      });
-  }
-
-  selectUser(event){
-    console.log('event',event);
-      this.user_id = event.value;
-
-  }
-  private getStatusList(){
-    this.api.process("/getStatusList",{}).subscribe((data:any)=>{
-       this.statusList = data.filter((d)=>{
-        return d.status!=0;
-       });
-      
-    })
-  }
-
-  public selectStatus(status){
-    this.status = status.status
-    this.selectedStatus=status;
-  }
-
+  const key=d=>d.year*10000+d.month*100+d.day;
+  if(key(this.start_date)>key(this.end_date)){this.errorMessage='تاریخ ختم نباید پیش از تاریخ شروع باشد.';return;}
+  this.loading=true; this.searched=true; this.api.exportError='';
+  this.api.process('/getEvents',{start:this.api.formatDate(this.start_date),end:this.api.formatDate(this.end_date),status:this.status,user_id:this.user_id},'GET')
+   .pipe(timeout(30000),takeUntil(this.destroyed),finalize(()=>this.loading=false)).subscribe(
+   (events:any)=>this.events=events,()=>this.errorMessage='دریافت راپور انجام نشد. لطفاً دوباره کوشش کنید.');
+ }
+ selectUser(event){if(event){this.user_id=event.value;}}
+ selectStatus(status){this.status=status.status;this.selectedStatus=status;}
+ ngOnDestroy(){this.destroyed.next();this.destroyed.complete();}
 }

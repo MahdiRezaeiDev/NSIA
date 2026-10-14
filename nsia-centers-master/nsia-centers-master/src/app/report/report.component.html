@@ -1,15 +1,1 @@
-<div class="container">
-    <div class="row">
-        <div class="col-md-12">
-            <h2>راپور ها</h2>
-        </div>
-        
-    </div>
-    <div class="row mt-5 mb-5" *ngFor="let type of reports">
-        <div class="col-md-4"></div>
-        <div class="col-md-4">
-                <button class="btn btn-primary btn-block" [routerLink]="type.path">{{type.name}}</button>
-        </div>
-        <div class="col-md-4"></div>
-    </div>
-</div>
+<section class="ui-page report-hub" dir="rtl"><header class="ui-heading"><div><p class="ui-eyebrow">بررسی و پیگیری</p><h1>راپورها</h1><p class="ui-description">درخواستی‌ها و فعالیت کارمندان را بر اساس تاریخ و وضعیت بررسی کنید.</p></div><span class="report-emblem"><i class="fas fa-chart-bar" aria-hidden="true"></i></span></header><div class="report-grid"><a *ngFor="let report of reports; let i = index" [routerLink]="report.path" class="report-link"><span class="report-icon"><i class="fas" [class.fa-file-alt]="i === 0" [class.fa-user-clock]="i !== 0" aria-hidden="true"></i></span><h2>{{report.name}}</h2><p>{{i === 0 ? 'جستجوی درخواستی‌ها بر اساس مرکز، تاریخ و مرحلهٔ پروسه.' : 'بررسی فعالیت‌های ثبت‌شدهٔ کارمندان در یک محدودهٔ زمانی.'}}</p><span class="report-open">مشاهدهٔ راپور <i class="fas fa-arrow-left" aria-hidden="true"></i></span></a></div></section>

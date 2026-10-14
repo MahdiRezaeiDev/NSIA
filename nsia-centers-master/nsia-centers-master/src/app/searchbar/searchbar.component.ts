@@ -17,11 +17,12 @@ import { setTime } from 'ngx-bootstrap/chronos/utils/date-setters';
   ]
 })
 
-export class SearchbarComponent implements OnInit,AfterViewInit {
+export class SearchbarComponent implements OnInit {
   public searchTerm:string  ="";
+  public dateError = '';
   public centers:any=[];
 
-  @Input() center_id=false;
+  @Input() center_id:any=false;
   @Input() status=false;
   @Input() showStatusButton=true;
   @Input() reportType:string='individual';
@@ -65,20 +66,22 @@ export class SearchbarComponent implements OnInit,AfterViewInit {
     this.getStatusList();
   }
 
-  ngAfterViewInit(){
-    setTimeout(()=>{
-      if(this.showDatePicker){
-        this.startDate._elRef.value=Date();
-      }
-      
-    },2000);
-  
-   // this.startDate.nativeElement.value = 'abc' ; 
-  }
-
-
   search(){
     this.searched.emit(this.searchTerm);
+  }
+
+  searchDates() {
+    this.dateError = '';
+    if (!this.start_date || !this.end_date || !this.start_date.year || !this.end_date.year) {
+      this.dateError = 'تاریخ شروع و ختم را به شکل درست انتخاب کنید.';
+      return;
+    }
+    const key = d => d.year * 10000 + d.month * 100 + d.day;
+    if (key(this.start_date) > key(this.end_date)) {
+      this.dateError = 'تاریخ ختم نباید پیش از تاریخ شروع باشد.';
+      return;
+    }
+    this.api.getApplications(this.start_date, this.end_date, this.reportType);
   }
 
   getCenters(){

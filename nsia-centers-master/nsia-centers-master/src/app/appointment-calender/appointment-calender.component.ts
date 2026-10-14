@@ -1,4 +1,5 @@
-import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
+import { Component, OnInit, Input, EventEmitter, Output, OnDestroy } from '@angular/core';
+import { timeout } from 'rxjs/operators';
 import { Api } from '../Api';
 import { Router } from '@angular/router';
 @Component({
@@ -6,11 +7,12 @@ import { Router } from '@angular/router';
   templateUrl: './appointment-calender.component.html',
   styleUrls: ['./appointment-calender.component.css']
 })
-export class AppointmentCalenderComponent implements OnInit {
+export class AppointmentCalenderComponent implements OnInit, OnDestroy {
   public dates:any=[];
   private _center_id;
   private _status=false;
-  private processing=false;
+  public processing=false;
+  public errorMessage = '';
   public today;
   private httpClient:any;
   @Input() selectedDate:any=false;
@@ -42,23 +44,24 @@ export class AppointmentCalenderComponent implements OnInit {
   getDates(){
     let params = {};
     if(this.center_id == "false"){
-      this.center_id = false;
+      this._center_id = false;
     }
     if(this.center_id){
       params = {center_id:this.center_id};
     }
     if(this.status == undefined){
-        this.status=false;
+        this._status=false;
     }
     if(this.status!==false){
       params['status'] = this._status;
     }
     if(this.processing){
-      this.httpClient.unsubscribe();
+      if (this.httpClient) { this.httpClient.unsubscribe(); }
     }
     this.processing=true;
+    this.errorMessage = '';
 
-    this.httpClient=this.api.process("/appointmentDates",params,"GET").subscribe((res:any)=>{
+    this.httpClient=this.api.process("/appointmentDates",params,"GET").pipe(timeout(30000)).subscribe((res:any)=>{
       this.dates = res.list;
     
       this.today = res.today;
@@ -66,10 +69,12 @@ export class AppointmentCalenderComponent implements OnInit {
       if(sessionStorage.getItem('selectedDate') == null){
         this.selectFirstDate();
       }else{
-          this.selectDate( JSON.parse(sessionStorage.getItem('selectedDate')));
+          try { this.selectDate(JSON.parse(sessionStorage.getItem('selectedDate'))); }
+          catch (_) { sessionStorage.removeItem('selectedDate'); this.selectFirstDate(); }
       }
 
     },(error)=>{
+      this.errorMessage = 'دریافت تقویم انجام نشد.';
       this.processing=false;
         if(error.status == 401 ){
             this.router.navigateByUrl("/login");
@@ -86,10 +91,9 @@ export class AppointmentCalenderComponent implements OnInit {
     for(let y of this.dates){
         for(let month of y.months){
             if(this.selectedDate== false){
-              if(month.value == this.today.month){
+              if(this.today && y.year == this.today.year && month.value == this.today.month){
                   let day = month.days.find(d=>d.d == this.today.day);
-                  this.selectDate(day);
-                  return true;
+                  if (day) { this.selectDate(day); return true; }
               }
           
             }
@@ -99,7 +103,10 @@ export class AppointmentCalenderComponent implements OnInit {
     }
   }
 
+  ngOnDestroy() { if (this.httpClient) { this.httpClient.unsubscribe(); } }
+
   selectDate(d){
+    if (!d || !d.y || !d.m || !d.d) { return; }
     this.selectedDate = d;
     this.openMonth(d.y,d.m);
     this.dateSelected.emit(d);

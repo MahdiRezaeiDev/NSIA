@@ -1,52 +1,4 @@
-<div class="container">
-    <div class="row mb-5">
-        <div class="col-md-12">
-            <h1>راپور فعالیت های کاری</h1>
-        </div>
-    </div>
-    <div class="row mb-5">
-        <div class="col-md-3">
-                تاریخ شروع
-                <input type="text"  [(ngModel)]="start_date" ngbDatepicker class="form-control" #startDate="ngbDatepicker"  (click)="startDate.open()"/>
-        </div>
-        <div class="col-md-3">
-                تاریخ ختم 
-                <input type="text" [(ngModel)]="end_date" ngbDatepicker class="form-control" #endDate="ngbDatepicker"  (click)="endDate.open()"/>
-        </div>
-        <div class="col-md-2">
-            <label>فلتر به اساس حالت</label>
-            <div ngbDropdown >
-                    <button [ngClass]="{'btn btn-outline-primary btn-block':true,'active':selectedStatus?.description}" id="dropdownBasic1" ngbDropdownToggle>
-                        {{selectedStatus.description}}
-                      
-                    </button>
-                    <div ngbDropdownMenu aria-labelledby="dropdownBasic1" >
-                      <button ngbDropdownItem *ngFor="let s of statusList" (click)="selectStatus(s)"> {{s?.description}}</button>
-                    
-                    </div>
-            </div>
-        </div>
-            <div class="col-md-4">
-                <label>فلتر به اساس نام کارمند</label>
-                <select2 [data]="users" [cssImport]="true" width="100%" (valueChanged)="selectUser($event)"></select2>
-            </div>
-        
-    </div>
-    <div class="row">
-        <div class="col-md-4"></div>
-        <div class="col-md-4">
-          
-                <button class="btn btn-success btn-block " (click)="getEvents()">جستجو</button>
-
-                <button *ngIf="events.length>0" class="btn btn-primary btn-block mt-4" (click)="api.exportToXls('/downloadActivityReport')"> Export To XLS  <i class="fas fa-file-csv"></i></button>
-           
-        </div>
-        <div class="col-md-4"></div>
-    </div>
-    <div class="row mt-5">
-        <div class="col-md-12">
-        تعداد درخواستی های انفرادی {{events.length}}
-            <table class="table table-striped">
+<section class="ui-page" dir="rtl"><header class="ui-heading"><div><p class="ui-eyebrow">راپورهای مرکز</p><h1>راپور فعالیت‌های کاری</h1><p class="ui-description">فعالیت‌های ثبت‌شده را بر اساس کارمند، تاریخ و مرحلهٔ پروسه بررسی کنید.</p></div><a class="ui-button ui-button-secondary" routerLink="/reports"><i class="fas fa-arrow-right" aria-hidden="true"></i> همهٔ راپورها</a></header><form class="ui-card" (ngSubmit)="getEvents()"><div class="ui-fields"><div class="ui-field"><label for="start-activity">تاریخ شروع</label><div class="date-control"><input id="start-activity" class="form-control" name="start" [(ngModel)]="start_date" ngbDatepicker #startPicker="ngbDatepicker" dir="ltr" placeholder="سال-ماه-روز" autocomplete="off"><button type="button" (click)="startPicker.toggle()" aria-label="انتخاب تاریخ شروع"><i class="far fa-calendar-alt" aria-hidden="true"></i></button></div></div><div class="ui-field"><label for="end-activity">تاریخ ختم</label><div class="date-control"><input id="end-activity" class="form-control" name="end" [(ngModel)]="end_date" ngbDatepicker #endPicker="ngbDatepicker" dir="ltr" placeholder="سال-ماه-روز" autocomplete="off"><button type="button" (click)="endPicker.toggle()" aria-label="انتخاب تاریخ ختم"><i class="far fa-calendar-alt" aria-hidden="true"></i></button></div></div><div class="ui-field"><label id="activity-status-label">مرحلهٔ پروسه</label><div ngbDropdown #statusMenu="ngbDropdown"><button type="button" class="ui-button ui-button-secondary w-100" ngbDropdownToggle aria-labelledby="activity-status-label">{{selectedStatus.description}}</button><div ngbDropdownMenu><button type="button" ngbDropdownItem *ngFor="let s of statusList" (click)="selectStatus(s); statusMenu.close()">{{s.description}}</button></div></div></div><div class="ui-field"><label id="activity-user-label">کارمند</label><select2 aria-labelledby="activity-user-label" [data]="users" [cssImport]="false" width="100%" (valueChanged)="selectUser($event)"></select2></div></div><div class="ui-alert" role="alert" *ngIf="lookupError">{{lookupError}}</div><div class="ui-actions"><button type="submit" class="ui-button" [disabled]="loading || !!lookupError"><i class="fas fa-search" aria-hidden="true"></i>{{loading ? 'در حال جستجو…' : 'جستجوی فعالیت‌ها'}}</button><p class="ui-hint">تاریخ‌ها به تقویم هجری شمسی است.</p></div></form><div class="ui-alert" role="alert" *ngIf="errorMessage">{{errorMessage}}</div><div class="ui-alert" role="alert" *ngIf="api.exportError">{{api.exportError}}</div><app-page-skeleton *ngIf="loading" label="در حال دریافت فعالیت‌ها…"></app-page-skeleton><section class="ui-card" *ngIf="!loading && !errorMessage"><div class="ui-card-heading"><h2>فعالیت‌های ثبت‌شده <span class="ui-count">{{events.length}} ریکارد</span></h2><button *ngIf="events.length" class="ui-button ui-button-secondary" [disabled]="api.exporting" (click)="api.exportToXls('/downloadActivityReport')"><i class="fas fa-file-excel" aria-hidden="true"></i>{{api.exporting ? 'در حال آماده‌سازی…' : 'دانلود راپور اکسل'}}</button></div><div class="ui-table-scroll" tabindex="0" role="region" aria-label="راپور فعالیت" *ngIf="events.length"><table class="ui-table">
                 <thead>
                     <tr>
                         <th>تاریخ</th>
@@ -59,13 +11,10 @@
                 <tbody>
                     <tr *ngFor="let a of events">
                         <td>{{a.date}}</td>
-                        <td><a href="/view-application-details/individual/{{a.reference_no}}" target="_blank">{{a.reference_no}}</a></td>
+                        <td><a href="/view-application-details/individual/{{a.reference_no}}" target="_blank" rel="noopener"><bdi dir="ltr">{{a.reference_no}}</bdi></a></td>
                         <td>{{a.description}}</td>
                         <td>{{a.username}}</td>
                        
                     </tr>
                 </tbody>
-            </table>
-        </div>
-    </div>
-</div>
+            </table></div><div class="ui-empty" *ngIf="!events.length"><i class="fas fa-history" aria-hidden="true"></i><h3>{{searched ? 'فعالیتی پیدا نشد' : 'راپور فعالیت‌ها را آماده کنید'}}</h3><p>{{searched ? 'محدودهٔ تاریخ یا فلترها را تغییر دهید.' : 'تاریخ و فلترهای مورد نظر را انتخاب کرده، جستجو را بزنید.'}}</p></div></section></section>

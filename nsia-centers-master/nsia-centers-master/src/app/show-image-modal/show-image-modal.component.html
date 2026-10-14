@@ -1,11 +1,4 @@
-<div class="modal-header">
-    <h2 class="modal-title" id="modal-basic-title">مقایسه معلومات اساس با فورم آنلاین</h2>
-    <button type="button" class="close" aria-label="Close" (click)="ref.dismiss('Cross click')">
-      <span aria-hidden="true">&times;</span>
-    </button>
-  </div>
-  <div class="modal-body">
-    <table class="table table-bordered" *ngIf="record">
+<div class="ui-modal"><header class="modal-header"><div><p class="ui-eyebrow">بررسی تثبیت هویت</p><h2 class="modal-title" id="comparison-title">مقایسهٔ کتاب اساس و فورم آنلاین</h2></div><button type="button" class="close" aria-label="بستن" [disabled]="submitting" (click)="ref.dismiss()"><span aria-hidden="true">&times;</span></button></header><div class="modal-body"><div class="ui-table-scroll" tabindex="0" role="region" aria-label="مقایسهٔ معلومات"><table class="ui-table" *ngIf="record">
       <tr>
         <th colspan="5">  <h3>معلومات کتاب اساس</h3></th>
       </tr>
@@ -24,7 +17,7 @@
         <td>{{record?.book_name}} <br>صـ {{record?.page_number}} </td>
       </tr>
       <tr>
-        <th colspan="5">     <h3>معلومات فارم آنلاین</h3></th>
+        <th colspan="5">     <h3>معلومات فورم آنلاین</h3></th>
       </tr>
       <tr>
         <th>اسم</th>
@@ -40,29 +33,4 @@
         <td>{{application.original_residence_province}} {{application.original_residence_district}} </td>
         <td>{{application.paper_id_volume}}  {{application.paper_id_year}} ص {{application.paper_id_page}} ث {{application.paper_id_registration}}</td>
       </tr>
-    </table>
-    <div class="row mt-3">
-      <div class="col-md-3"></div>
-      <div class="col-md-6">
-        <button class="btn btn-success btn-block" (click)="verify()" type="button"> <i class="fas fa-check"></i> تثبیت هویت شد </button>
-      </div>
-      <div class="col-md-3"></div>
-    </div>
-    <div class="row">
-      <div class="col-md-6">
-          <app-image-viewer *ngIf="image" [download]="false" [images]="[image]" 
-          idContainer="books" [loadOnInit]="true"></app-image-viewer>
-      </div>
-      <div class="col-md-6">
-    
-        <app-image-viewer  [download]="false" [images]="attachments"
-        idContainer="applicationdetails" [loadOnInit]="true" ></app-image-viewer>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-md-6">
-        <button class="btn btn-outline-danger calendar btn-block" (click)="ref.dismiss('Cross click')" type="button"> پستن</button>
-      </div>
-  
-    </div>
-  </div>
+    </table></div><div class="ui-alert" role="alert" *ngIf="errorMessage">{{errorMessage}}</div><div class="comparison-images"><section><h3>تصویر کتاب اساس</h3><app-page-skeleton *ngIf="loading" variant="cards" label="در حال دریافت تصویر…"></app-page-skeleton><div class="ui-alert" role="alert" *ngIf="imageError">{{imageError}}<button class="ui-button ui-button-secondary" (click)="getImage()">دریافت دوباره</button></div><app-image-viewer *ngIf="image && !loading" [download]="false" [images]="[image]" idContainer="books" [loadOnInit]="true"></app-image-viewer></section><section><h3>ضمایم درخواستی</h3><app-image-viewer *ngIf="attachments.length" [download]="false" [images]="attachments" idContainer="applicationdetails" [loadOnInit]="true"></app-image-viewer><p class="ui-empty" *ngIf="!attachments.length">ضمیمه‌ای موجود نیست.</p></section></div></div><footer class="modal-footer"><button class="ui-button" type="button" (click)="verify()" [disabled]="submitting || loading"><i class="fas fa-check" aria-hidden="true"></i>{{submitting ? 'در حال ثبت…' : 'تثبیت هویت شد'}}</button><button class="ui-button ui-button-secondary" type="button" [disabled]="submitting" (click)="ref.dismiss()">بستن</button></footer></div>

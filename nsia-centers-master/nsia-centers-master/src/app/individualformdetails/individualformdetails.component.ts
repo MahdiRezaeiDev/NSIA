@@ -1,199 +1,66 @@
-import { Component, OnInit, OnDestroy,Input,AfterViewInit } from '@angular/core';
+import { Component, OnDestroy, Input } from '@angular/core';
 import { Api } from '../Api';
-import { NgxSpinnerService } from "ngx-spinner";
-import { Router, NavigationEnd } from '@angular/router';
-import { Observable, Observer } from 'rxjs';
-import {ImagePipe} from '../image.pipe';
-import { HttpClient } from '@angular/common/http';
-import {NgbModal, ModalDismissReasons} from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { Subject, Subscription } from 'rxjs';
+import { takeUntil, timeout, finalize } from 'rxjs/operators';
 import { VerificationModalComponent } from '../verification-modal/verification-modal.component';
 import { ShowImageModalComponent } from '../show-image-modal/show-image-modal.component';
-@Component({
-  selector: 'app-individualformdetails',
-  templateUrl: './individualformdetails.component.html',
-  styleUrls: ['./individualformdetails.component.css']
-})
-
-export class IndividualformdetailsComponent implements OnInit,OnDestroy{
-  private _reference_no:string;
-  @Input() set reference_no(val:string){
-    this._reference_no = val;
-    this.getApplicationDetails();
-  }
-
-  get reference_no(){
-    return this._reference_no;
-  }
-  public  applicant:any;
-  public  members:any;
-  public  attachments =[];
-  public  opened_panel="ngb-panel-0";
-  public  queue_no="";
-  public  actions:any=[];
-  public  total_applicants=0;
-  public  processes:any=[];
-  public loadGallery=false;
-  public matches:any=[];
-  constructor(public api:Api,public spinner:NgxSpinnerService,private router:Router,private http:HttpClient,private modal:NgbModal) { 
-    
-  }
-
-  ngOnInit() {
-    //this.spinner.show();
-    
-   
-    
-    
-  }
-
-
-  getApplicationDetails(){
-    //this.spinner.show();
-   
-    if(this.api.isVerification()){
-      this.getMatches(this.reference_no);
-    }
-    
-    this.api.process("/individualapplication-details",{reference_no:this.reference_no},'GET').subscribe((res:any)=>{
-      this.applicant    = res.application;
-      this.members      = res.members;
-      this.getAttachments(this.reference_no);
-      this.total_applicants = res.total_applicants;
-      this.queue_no     = res.queue_no;
-      this.actions      = res.actions;
-      this.processes    = res.processes;
-      this.spinner.hide();
-      
-      this.opened_panel="ngb-panel-0";
-      this.api.process("/applicationOpened",{reference_no:this.reference_no},"GET").subscribe(res=>{
-     
-      },res=>{
-      
-      });
-    },(error)=>{
-     this.spinner.hide();
-    });
-  }
-
- public panelChanged(event){
-    this.opened_panel = event.panelId;
+@Component({selector:'app-individualformdetails',templateUrl:'./individualformdetails.component.html',styleUrls:['./individualformdetails.component.css']})
+export class IndividualformdetailsComponent implements OnDestroy {
+ private _reference_no:string;
+ @Input() set reference_no(val:string){this._reference_no=val;if(val){this.getApplicationDetails();}}
+ get reference_no(){return this._reference_no;}
+ public applicant:any; public members:any=[]; public attachments:any=[]; public opened_panel='ngb-panel-0';
+ public queue_no=''; public actions:any=[]; public total_applicants=0; public processes:any=[]; public loadGallery=false; public matches:any=[];
+ public loading=false; public errorMessage=''; public attachmentError=''; public matchesError=''; public actionPending=false; public actionError='';
+ private destroyed=new Subject<void>(); private changed=new Subject<void>(); private attachmentRequest:Subscription;
+ constructor(public api:Api,private modal:NgbModal){}
+ getApplicationDetails(){
+  this.changed.next();this.loading=true;this.errorMessage='';this.actionError='';this.matches=[];this.matchesError='';
+  this.attachments=[];this.loadGallery=false;this.attachmentError='';
+  if(this.api.isVerification()){this.getMatches(this.reference_no);}
+  this.api.process('/individualapplication-details',{reference_no:this.reference_no},'GET')
+   .pipe(timeout(30000),takeUntil(this.changed),takeUntil(this.destroyed),finalize(()=>this.loading=false)).subscribe((res:any)=>{
+    this.applicant=res.application;this.members=res.members || [];this.total_applicants=res.total_applicants;
+    this.queue_no=res.queue_no;this.actions=res.actions || [];this.processes=res.processes || [];this.opened_panel='ngb-panel-0';
+    this.getAttachments(this.reference_no);
+    this.api.process('/applicationOpened',{reference_no:this.reference_no},'GET').pipe(takeUntil(this.destroyed)).subscribe(()=>{},()=>{});
+   },()=>this.errorMessage='دریافت معلومات درخواستی انجام نشد.');
  }
- public isOpened(id){
-    if(this.opened_panel == id){
-      return true;
-    }
-
-    return false;
- }
-
- public changeStatus(path){
-   let con = confirm('آیا مطمین هستید که این درخواستی را به مرحله بعدی انتقال دهید؟');
-  if(!con){
-    return false;
-  }
-   let ahead=this.showVerificationPopUp(path);
-
-   if(!ahead){
-     return false;
-   }
-
-   this.processAction(path);
- }
-
- ngOnDestroy(){
-
-  this.api.process("/applicationClosed",{reference_no:this.reference_no},"GET").subscribe(res=>{
-    
-  });
- }
-
+ panelChanged(event){this.opened_panel=event.panelId;}
+ isOpened(id){return this.opened_panel===id;}
  getAttachments(reference_no){
-   this.attachments=[];
-   this.api.process("/getAttachments",{reference_no:reference_no},'GET').subscribe((res:any)=>{
-      this.attachments = res;
-      this.loadGallery=true;
-   });
+  if(this.attachmentRequest){this.attachmentRequest.unsubscribe();}
+  this.loadGallery=false;this.attachmentError='';this.attachments=[];
+  this.attachmentRequest=this.api.process('/getAttachments',{reference_no:reference_no},'GET')
+   .pipe(timeout(30000),takeUntil(this.changed),takeUntil(this.destroyed),finalize(()=>this.loadGallery=true)).subscribe(
+    (res:any)=>this.attachments=res || [],()=>this.attachmentError='دریافت ضمایم انجام نشد.');
  }
-
- currentMemberIndex(){
-    let index=this.members.findIndex((e)=>{
-      console.log('log',e.apply_for_new_id);
-      if(e.apply_for_new_id=='بلی'){
-        return e.reference_no == this.reference_no;
-      }
-
-     
-    });
-    console.log('index found',index);
-    return index;
+ currentMemberIndex(){return this.members.findIndex(e=>e.apply_for_new_id==='بلی' && e.reference_no===this.reference_no);}
+ private nextMember(){
+  const index=this.currentMemberIndex(), next=this.members[index+1];
+  const target=index>-1 && next && next.apply_for_new_id==='بلی' ? next : this.members[0];
+  if(target){this.reference_no=target.reference_no;}else{this.getApplicationDetails();}
  }
-
- public showVerificationPopUp(path){
-    let params:any = this.getUrlParams(path);
-    if(params.hasOwnProperty('status') && params.status == '4'){
-      let modal=this.modal.open(VerificationModalComponent,{ size: 'xl' });
-          modal.componentInstance.reference_no = this.reference_no;
-          modal.result.then((result)=>{
-            console.log('RESULT',result);
-           
-            
-              let index = this.currentMemberIndex();
-              if( index > -1 ){
-                  let member = this.members[index+1];
-                  if(member!==undefined && member.apply_for_new_id=='بلی'){
-                    this.reference_no = member.reference_no;
-                  }else{
-                    this.reference_no = this.members[0].reference_no;
-                  }
-                  
-              }else{
-                  this.reference_no = this.members[0].reference_no;
-              }
-
-              this.getApplicationDetails();
-          });
-      return false;
-    }
-    return  true;
+ changeStatus(path){
+  if(this.actionPending || !confirm('آیا مطمئن هستید که این درخواستی را به مرحلهٔ بعدی انتقال دهید؟')){return;}
+  if(this.showVerificationPopUp(path)){this.processAction(path);}
  }
-
- private getUrlParams(url) {
-	var params = {};
-	var parser = document.createElement('a');
-	parser.href = url;
-	var query = parser.search.substring(1);
-	var vars = query.split('&');
-	for (var i = 0; i < vars.length; i++) {
-		var pair = vars[i].split('=');
-		params[pair[0]] = decodeURIComponent(pair[1]);
-	}
-	return params;
-};
-
-private processAction(path){
-  this.spinner.show();
-  this.api.process(path,{},'GET').subscribe(res=>{
-  
-   let index = this.currentMemberIndex();
-   if( index > -1 ){
-       let member = this.members[index+1];
-       if(member!==undefined && member.apply_for_new_id=='بلی'){
-         this.reference_no = member.reference_no;
-       }else{
-         this.reference_no = this.members[0].reference_no;
-       }
-      
-   }else{
-       this.reference_no = this.members[0].reference_no;
-   }
-   this.getApplicationDetails();
-   
-  },(errors)=>{
-     this.spinner.hide();
-     this.api.displayErrors(errors.error.errors);
-  });
-}
- 
+ showVerificationPopUp(path){
+  const url=document.createElement('a');url.href=path;
+  const params=new URLSearchParams(url.search);
+  if(params.get('status')==='4'){
+   const modal=this.modal.open(VerificationModalComponent,{size:'xl',ariaLabelledBy:'verification-title'});
+   modal.componentInstance.reference_no=this.reference_no;
+   modal.result.then(()=>this.nextMember(),()=>{});return false;
+  }
+  return true;
+ }
+ private processAction(path){
+  this.actionPending=true;this.actionError='';
+  this.api.process(path,{},'GET').pipe(takeUntil(this.destroyed),finalize(()=>this.actionPending=false)).subscribe(
+   ()=>this.nextMember(),()=>this.actionError='تغییر مرحله انجام نشد. لطفاً وضعیت درخواستی را بررسی کنید.');
+ }
   public getMartialStatus(status){
     if(status == "1"){
       return 'متاهل';
@@ -208,44 +75,18 @@ private processAction(path){
     }
   }
 
-  public getMatches(reference_no){
-    this.matches=[];
-    console.log('GETTING MATCHES');
-    this.api.process("/getMatches?reference_no="+reference_no,{},"GET").subscribe((res)=>{
-      console.log('response',res);
-      this.matches= res;
-    },function(){
-      alert('Can not get matches');
-    });
-  }
 
-
-  public openModal(record,type){
-      let modal=this.modal.open(ShowImageModalComponent,{ size: 'xl' });
-          modal.componentInstance.record      = record;
-          modal.componentInstance.type        = type;
-          modal.componentInstance.actions     = this.actions;
-          modal.componentInstance.application = this.applicant;
-          modal.componentInstance.attachments = this.attachments;
-          modal.result.then((result)=>{          
-            console.log('RESULT',result);
-            let index = this.currentMemberIndex();
-              if( index > -1 ){
-                  let member = this.members[index+1];
-                  if(member!==undefined && member.apply_for_new_id=='بلی'){
-                    this.reference_no = member.reference_no;
-                  }else{
-                    this.reference_no = this.members[0].reference_no;
-                  }
-                  
-              }else{
-                  this.reference_no = this.members[0].reference_no;
-              }
-
-              this.getApplicationDetails();
-        });
-        
-      return false;
-    return  true;
+ getMatches(reference_no){
+  this.api.process('/getMatches?reference_no='+reference_no,{},'GET').pipe(timeout(30000),takeUntil(this.changed),takeUntil(this.destroyed)).subscribe(
+   (res:any)=>this.matches=res || [],()=>this.matchesError='دریافت معلومات مقایسه انجام نشد.');
+ }
+ openModal(record,type){
+  const modal=this.modal.open(ShowImageModalComponent,{size:'xl',ariaLabelledBy:'comparison-title'});
+  Object.assign(modal.componentInstance,{record:record,type:type,actions:this.actions,application:this.applicant,attachments:this.attachments});
+  modal.result.then(()=>this.nextMember(),()=>{});
+ }
+ ngOnDestroy(){
+  this.destroyed.next();this.destroyed.complete();this.changed.complete();
+  if(this.reference_no){this.api.process('/applicationClosed',{reference_no:this.reference_no},'GET').subscribe(()=>{},()=>{});}
  }
 }

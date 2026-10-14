@@ -27,7 +27,8 @@
               "./node_modules/@angular/material/prebuilt-themes/pink-bluegrey.css",
               "src/styles.css",
               "src/assets/css/bootstrap_rtl.css",
-              "node_modules/ng2-image-viewer/imageviewer.scss"
+              "node_modules/ng2-image-viewer/imageviewer.scss",
+              "src/assets/css/workspace.css"
             ],
             "scripts": []
           },

@@ -1,0 +1,93 @@
+/* Shared presentation for the centers workspace. All assets remain local. */
+.ui-page, .ui-modal { --ui-ink:#252743; --ui-muted:#647181; --ui-line:#dfe6ed; --ui-teal:#087d76; --ui-error:#ac3041; color:var(--ui-ink); font:16px/1.8 'Bahij Halvetica',sans-serif; text-align:right; }
+.ui-page { max-width:1500px; margin:0 auto; min-width:0; }
+.ui-page *, .ui-modal * { box-sizing:border-box; }
+.ui-page h1,.ui-page h2,.ui-page h3,.ui-modal h2 { font-family:'Bahij Halvetica bold',sans-serif; }
+.ui-page h1 { font-size:27px; line-height:1.6; margin:0; }
+.ui-page h2 { font-size:19px; margin:0; }
+.ui-page h3 { font-size:16px; margin:0; }
+.ui-heading { display:flex; align-items:center; justify-content:space-between; gap:20px; margin-bottom:26px; }
+.ui-eyebrow { color:var(--ui-teal); font-size:13px; margin:0 0 5px; }
+.ui-description { font-size:14px; color:var(--ui-muted); margin:7px 0 0; }
+.ui-card { background:#fff; border:1px solid var(--ui-line); border-radius:12px; padding:24px; margin-bottom:20px; min-width:0; }
+.ui-card-heading { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:20px; }
+.ui-page .ui-button,.ui-modal .ui-button { display:inline-flex; justify-content:center; align-items:center; gap:10px; min-height:46px; padding:10px 17px; border:1px solid var(--ui-teal); border-radius:8px; background:var(--ui-teal); color:#fff; font:14px/1.7 'Bahij Halvetica',sans-serif; cursor:pointer; text-decoration:none; transition:background .15s; }
+.ui-page .ui-button:hover,.ui-modal .ui-button:hover { background:#06655f; color:#fff; }
+.ui-page .ui-button-secondary,.ui-modal .ui-button-secondary { background:#fff; border-color:var(--ui-line); color:#45586a; }
+.ui-page .ui-button-secondary:hover,.ui-modal .ui-button-secondary:hover { background:#f1f6f5; color:#087d76; }
+.ui-page button:disabled,.ui-modal button:disabled { opacity:.65; cursor:wait; }
+.ui-page :is(a,button,input,textarea,select):focus-visible,.ui-modal :is(a,button,input,textarea,select):focus-visible { outline:3px solid #18a99c; outline-offset:3px; }
+.ui-page input,.ui-page select,.ui-page textarea,.ui-modal input,.ui-modal textarea { font-family:inherit; font-size:16px; }
+.ui-field { display:flex; flex-direction:column; min-width:0; gap:7px; }
+.ui-field > label { margin:0; font-size:14px; color:#435164; }
+.ui-field .form-control { height:46px; min-width:0; border:1px solid #cbd6df; border-radius:8px; padding:10px 12px; color:var(--ui-ink); box-shadow:none; background:#fff; }
+.ui-field textarea.form-control { height:auto; min-height:104px; resize:vertical; }
+.ui-field .form-control:focus { border-color:var(--ui-teal); box-shadow:0 0 0 3px #087d761a; }
+.ui-field input[dir=ltr] { text-align:left; }
+.ui-fields { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:18px; align-items:end; }
+.ui-actions { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-top:22px; }
+.ui-alert { display:flex; align-items:flex-start; gap:10px; border:1px solid #ebc8ce; border-radius:9px; background:#fff4f5; color:var(--ui-error); padding:14px 16px; margin:16px 0; font-size:14px; }
+.ui-alert p { margin:0; }
+.ui-alert i { margin-top:5px; }
+.ui-alert .ui-button { margin-right:auto; }
+.ui-success { background:#eef8f4; border-color:#c9e8db; color:#21664f; }
+.ui-hint,.ui-field-error { font-size:13px; color:var(--ui-muted); margin:0; }
+.ui-field-error { color:var(--ui-error); }
+.ui-table-scroll { min-width:0; overflow:auto; scrollbar-width:thin; scrollbar-color:#becbd4 #f4f7f9; border:1px solid #e5eaf0; border-radius:9px; }
+.ui-table-scroll:focus-visible { outline:3px solid #18a99c; outline-offset:2px; }
+.ui-table { width:100%; margin:0; border-collapse:collapse; font-size:14px; }
+.ui-table th,.ui-table td { padding:13px 16px; border-bottom:1px solid #e9eef2; vertical-align:middle; }
+.ui-table thead th { background:#f6f8fb; color:#617184; font-size:13px; font-weight:normal; white-space:nowrap; }
+.ui-table tbody tr:last-child td { border-bottom:0; }
+.ui-table tbody tr:hover { background:#fbfcfd; }
+.ui-table a { color:var(--ui-teal); text-underline-offset:4px; }
+.ui-table [dir=ltr] { text-align:right; unicode-bidi:isolate; }
+.ui-empty { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; padding:38px 18px; color:var(--ui-muted); text-align:center; font-size:14px; }
+.ui-empty > i { display:grid; place-items:center; width:54px; height:54px; border-radius:15px; background:#eef3f7; color:#7f93a3; font-size:24px; margin-bottom:3px; }
+.ui-empty p { margin:0; }
+.ui-count { display:inline-flex; align-items:center; padding:4px 10px; border:1px solid #dce5ed; background:#f7f9fb; border-radius:7px; color:#53687b; font-size:13px; }
+.ui-tabs { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:22px; }
+.ui-tabs button { padding:10px 16px; border:1px solid var(--ui-line); background:#fff; color:#526477; border-radius:8px; min-height:46px; font:14px/1.7 'Bahij Halvetica',sans-serif; cursor:pointer; }
+.ui-tabs button[aria-pressed=true] { background:#e8f5f1; border-color:#9dcac0; color:#076e66; }
+.ui-page .dropdown-menu { max-width:calc(100vw - 36px); border:1px solid var(--ui-line); border-radius:9px; padding:7px; box-shadow:0 10px 30px #24274414; text-align:right; font:14px/1.7 'Bahij Halvetica',sans-serif; }
+.ui-page .dropdown-item { min-height:44px; white-space:normal; padding:10px 12px; border-radius:5px; }
+.ui-page .select2-container { max-width:100%; min-width:0; font-size:15px; }
+.ui-page .select2-container .select2-selection--single { height:46px; border:1px solid #cbd6df; border-radius:8px; }
+.ui-page .select2-container .select2-selection--single .select2-selection__rendered { line-height:44px; padding:0 12px 0 28px; text-align:right; }
+.ui-page .select2-container .select2-selection--single .select2-selection__arrow { height:44px; left:7px; right:auto; }
+.ui-page .select2-container--focus .select2-selection { border-color:#087d76; }
+.ui-page ngb-datepicker { font-family:'Bahij Halvetica',sans-serif; font-size:14px; direction:rtl; }
+.ui-page .date-control { display:flex; align-items:center; gap:8px; }
+.ui-page .date-control > input { flex:1; width:0; }
+.ui-page .date-control > button { flex:0 0 44px; min-height:46px; padding:0; border:1px solid #cbd6df; border-radius:8px; background:#f8fafb; color:#087d76; cursor:pointer; }
+.ui-modal { padding:0; direction:rtl; }
+.ui-modal .modal-header { padding:22px 24px; background:#f8fafc; border-bottom:1px solid var(--ui-line); align-items:center; gap:12px; }
+.ui-modal .modal-title { font-size:20px; margin:0; }
+.ui-modal .modal-body { padding:24px; }
+.ui-modal .modal-footer { padding:16px 24px; border-top:1px solid var(--ui-line); gap:10px; }
+.ui-modal .close { width:44px; height:44px; padding:0; margin:0 auto 0 0; flex-shrink:0; font-size:27px; opacity:1; color:#687789; }
+.ui-modal .ui-table { min-width:550px; }
+.ui-modal .ui-field { margin-top:20px; }
+.ui-modal .ui-tabs { margin:0; }
+.ui-modal .ui-tabs button { flex:1; }
+.ui-modal .comparison-images { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:20px; margin-top:24px; }
+.ui-modal .comparison-images > section { min-width:0; }
+.ui-modal .comparison-images h3 { font-size:15px; margin:0 0 12px; }
+.ui-modal .iv-container,.ui-page .iv-container { max-width:100%; }
+@media(max-width:1100px) { .ui-fields { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media(max-width:600px) {
+ .ui-heading { flex-direction:column; align-items:stretch; gap:16px; margin-bottom:22px; }
+ .ui-page h1 { font-size:24px; }
+ .ui-card { padding:18px 16px; }
+ .ui-fields { grid-template-columns:minmax(0,1fr); gap:16px; }
+ .ui-card-heading { flex-wrap:wrap; gap:12px; }
+ .ui-table { min-width:590px; }
+ .ui-alert { flex-wrap:wrap; }
+ .ui-tabs button { flex:1; }
+ .ui-modal .modal-body { padding:20px 16px; }
+ .ui-modal .modal-header { padding:16px; }
+ .ui-modal .modal-title { font-size:18px; }
+ .ui-modal .ui-tabs { flex-direction:column; }
+ .ui-modal .comparison-images { grid-template-columns:minmax(0,1fr); }
+}
+@media(prefers-reduced-motion:reduce) { .ui-page *,.ui-modal * { transition:none!important; } }

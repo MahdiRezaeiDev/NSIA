@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject } from 'rxjs';
+import { timeout, finalize } from 'rxjs/operators';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ErrorMessageComponent } from './error-message/error-message.component';
 import {HttpParams} from "@angular/common/http";
@@ -14,6 +15,10 @@ export class Api {
   public endpoint:string=environment.url+"/api";
   public processing:boolean=false;
   public totalApplicationsCount=0;
+  public loadError = '';
+  public hasLoaded = false;
+  public exporting = false;
+  public exportError = '';
   private token:string="";
   public isLoggedInEvent:any=false;
   public httpOptions = {};
@@ -193,28 +198,30 @@ export class Api {
     }
  
     if(this.processing){
-        this.httpRequest.unsubscribe();
+        if (this.httpRequest) { this.httpRequest.unsubscribe(); }
     }
     
     this.processing=true;
-    this.spinner.show();
-    this.httpRequest=this.process("/getIndividualApplications",params,"GET").subscribe((res:any)=>{
-      console.log('THE RESPONSE',res);
-          this.applications = res.applications.data;
-          this.spinner.hide();
+    this.loadError = '';
+    this.hasLoaded = true;
+    this.httpRequest=this.process("/getIndividualApplications",params,"GET").pipe(timeout(30000)).subscribe((res:any)=>{
+      
+          this.applications = res.applications.data || [];
+          this.totalApplicationsCount = res.applications.total == null ? this.applications.length : res.applications.total;
+          
           this.processing=false;
         
       },(error)=>{
-          alert('یک مشکل رخ داد لطفا دوباره کوشش نمایید');
-          this.spinner.hide();
+          this.loadError = 'دریافت معلومات انجام نشد. لطفاً دوباره کوشش کنید.';
+          
           this.processing=false;
       
       });
   }
 
   getCheckEvents(start_date,end_date){
-    if(!this.center_id){
-      alert('لطفا یکی از مراکز را انتخاب کنید!');
+    if(!this.center_id || this.center_id === 'false'){
+      this.loadError = 'لطفاً یکی از مراکز را انتخاب کنید.';
       return false;
     }
     let params={};
@@ -232,28 +239,29 @@ export class Api {
     }
    
     if(this.processing){
-        this.httpRequest.unsubscribe();
+        if (this.httpRequest) { this.httpRequest.unsubscribe(); }
     }
     this.events=[];
     this.processing=true;
-    this.spinner.show();
-    this.httpRequest=this.process("/getAuditReport",params,"GET").subscribe((res:any)=>{
-      console.log('THE RESPONSE',res);
+    this.loadError = '';
+    this.hasLoaded = true;
+    this.httpRequest=this.process("/getAuditReport",params,"GET").pipe(timeout(30000)).subscribe((res:any)=>{
+      
           this.events = res;
-          this.spinner.hide();
+          
           this.processing=false;
         
       },(error)=>{
-          alert('یک مشکل رخ داد لطفا دوباره کوشش نمایید');
-          this.spinner.hide();
+          this.loadError = 'دریافت معلومات انجام نشد. لطفاً دوباره کوشش کنید.';
+          
           this.processing=false;
       
       });
   }
 
   getTransferEvents(start_date,end_date){
-    if(!this.center_id){
-      alert('لطفا یکی از مراکز را انتخاب کنید!');
+    if(!this.center_id || this.center_id === 'false'){
+      this.loadError = 'لطفاً یکی از مراکز را انتخاب کنید.';
       return false;
     }
     let params={};
@@ -271,20 +279,21 @@ export class Api {
     }
    
     if(this.processing){
-        this.httpRequest.unsubscribe();
+        if (this.httpRequest) { this.httpRequest.unsubscribe(); }
     }
     this.events=[];
     this.processing=true;
-    this.spinner.show();
-    this.httpRequest=this.process("/getTransferReport",params,"GET").subscribe((res:any)=>{
-      console.log('THE RESPONSE',res);
+    this.loadError = '';
+    this.hasLoaded = true;
+    this.httpRequest=this.process("/getTransferReport",params,"GET").pipe(timeout(30000)).subscribe((res:any)=>{
+      
           this.events = res;
-          this.spinner.hide();
+          
           this.processing=false;
         
       },(error)=>{
-          alert('یک مشکل رخ داد لطفا دوباره کوشش نمایید');
-          this.spinner.hide();
+          this.loadError = 'دریافت معلومات انجام نشد. لطفاً دوباره کوشش کنید.';
+          
           this.processing=false;
       
       });
@@ -296,7 +305,8 @@ export class Api {
       return false;
     }
     this.processing=true;
-    this.spinner.show();
+    this.loadError = '';
+    this.hasLoaded = true;
     let params ={};
     if(this.searchQuery){
       params = {q:this.searchQuery};
@@ -318,16 +328,16 @@ export class Api {
     if(this.status!==false){
       params['status']=this.status;
     }
-    this.httpRequest=this.process("/getApplications",params,"GET").subscribe((res:any)=>{
+    this.httpRequest=this.process("/getApplications",params,"GET").pipe(timeout(30000)).subscribe((res:any)=>{
           this.applications = res.applications;
           this.statusList = res.statusList;
           this.totalApplicationsCount = res.total_applications;
-          this.spinner.hide();
+          
           this.processing=false;
         
       },(error)=>{
-          alert('یک مشکل رخ داد لطفا دوباره کوشش نمایید');
-          this.spinner.hide();
+          this.loadError = 'دریافت معلومات انجام نشد. لطفاً دوباره کوشش کنید.';
+          
           this.processing=false;
       
       });
@@ -369,32 +379,33 @@ export class Api {
     }
     
     if(this.processing){
-        this.httpRequest.unsubscribe();
+        if (this.httpRequest) { this.httpRequest.unsubscribe(); }
     }
     
     this.processing=true;
-    this.spinner.show();
+    this.loadError = '';
+    this.hasLoaded = true;
       try{
-        this.httpRequest=this.process("/getStats",params,"GET").subscribe((res:any)=>{
+        this.httpRequest=this.process("/getStats",params,"GET").pipe(timeout(30000)).subscribe((res:any)=>{
           this.applications = res;
-          this.spinner.hide();
+          
           this.processing=false;
         
       },(error)=>{
-          alert('یک مشکل رخ داد لطفا دوباره کوشش نمایید');
-          this.spinner.hide();
+          this.loadError = 'دریافت معلومات انجام نشد. لطفاً دوباره کوشش کنید.';
+          
           this.processing=false;
 
       });
     }
     catch(error){
-      this.spinner.hide();
+      
     }
     
   }
 
   formatDate(d){
-    return d.year+"-"+d.month+"-"+d.day;
+    return typeof d === 'string' ? d : d.year+"-"+d.month+"-"+d.day;
   }
 
   exportToCsv(){
@@ -431,15 +442,15 @@ export class Api {
 
 
   exportToXls(action){
-    let httpOptions = Object.assign({},this.httpOptions);
-    httpOptions['responseType']="blob";
-    this.spinner.show();
-    this.http.get(this.endpoint+action,httpOptions).subscribe(res=>{
-      this.downloadFile(res);
-      this.spinner.hide();
-    },e=>{
-      this.spinner.hide();
-      alert('یک مشکل رخ داد!');
+    if (this.exporting) { return; }
+    const httpOptions = Object.assign({}, this.httpOptions);
+    httpOptions['responseType'] = 'blob';
+    this.exporting = true;
+    this.exportError = '';
+    this.http.get(this.endpoint + action, httpOptions).pipe(
+      timeout(60000), finalize(() => this.exporting = false)
+    ).subscribe(res => this.downloadFile(res), () => {
+      this.exportError = 'دانلود راپور انجام نشد. لطفاً دوباره کوشش کنید.';
     });
   }
 

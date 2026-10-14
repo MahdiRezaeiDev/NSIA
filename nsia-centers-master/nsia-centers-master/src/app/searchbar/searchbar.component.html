@@ -1,59 +1,15 @@
-<div class="row mb-5">
-        <div class="col-md-8">
-        
-            <form *ngIf="!showDatePicker">
-                <div class="row">
-                    <div class="col-md-6">
-                        <button class="btn btn-primary btn-block" (click)="showDatePicker=true" *ngIf="false">فلتر به اساس تاریخ</button>
-                        <input class="form-control form-control-dark w-100" type="text" [(ngModel)]="searchTerm" name="search" placeholder="جستجو" aria-label="Search">
-                    </div>
-                    <div class="col-md-4">
-                        <button class="btn btn-primary" (click)="search()">
-                            جستجو <i class="fas fa-search"></i></button>
-                    </div>
-                </div>
-              
-            </form>
-            <div class="row" *ngIf="showDatePicker">
-                <div class="col-md-2">
-                    <a href="#" class="btn btn-primary btn-block" (click)="showDatePicker=false" *ngIf="false">جستجو به اساس نام و کود</a>
-                </div>
-                <div class="col-md-4">
-                   
-                    تاریخ شروع
-                    <input type="text"  [(ngModel)]="start_date" ngbDatepicker class="form-control" #startDate="ngbDatepicker"  (click)="startDate.open()"/>
-                </div>
-                <div class="col-md-4">
-                    تاریخ ختم 
-                    <input type="text" [(ngModel)]="end_date" ngbDatepicker class="form-control" #endDate="ngbDatepicker"  (click)="endDate.open()"/>
-                </div>
-                <div class="col-md-2">
-                    <button class="btn btn-primary btn-block mt-4" (click)="api.getApplications(start_date,end_date,reportType)">جستجو</button>
-                 
-                </div>
-            </div>
-        
-        </div>
-
-
-        <div class="col-md-4">
-                
-            <div ngbDropdown  *ngIf="showStatusButton" >
-                <button [ngClass]="{'btn btn-outline-primary btn-block':true,'active':selectedStatus?.description}" id="dropdownBasic1" ngbDropdownToggle>
-                    {{selectedStatus.description}}
-                  
-                </button>
-                <div ngbDropdownMenu aria-labelledby="dropdownBasic1" >
-                  <button ngbDropdownItem *ngFor="let s of statusList" (click)="filterByStatus(s)"> {{s?.description}}</button>
-                
-                </div>
-            </div>
-
-            <div ngbDropdown *ngIf="api.isAdmin() || api.isAudit()" class="mt-3">
-                انتخاب مرکز
-                <select2 *ngIf="centers.length" [data]="centers" [value]="center_id ? '' + center_id : ''" [cssImport]="true" width="100%" (valueChanged)="filterByCenter($event)"></select2>
-            </div>
-        </div>
-        
+<section class="ui-card search-panel" aria-label="جستجو و فلتر">
+  <form (ngSubmit)="showDatePicker ? searchDates() : search()" novalidate>
+    <div class="ui-fields search-fields">
+      <div *ngIf="!showDatePicker" class="ui-field search-query"><label for="request-search">نام یا کود درخواستی</label><input id="request-search" class="form-control" type="search" [(ngModel)]="searchTerm" name="search" placeholder="نام یا کود را بنویسید"></div>
+      <ng-container *ngIf="showDatePicker">
+        <div class="ui-field"><label for="report-start">تاریخ شروع</label><div class="date-control"><input id="report-start" dir="ltr" [(ngModel)]="start_date" name="start" ngbDatepicker class="form-control" #startDate="ngbDatepicker" placeholder="سال-ماه-روز"><button type="button" (click)="startDate.toggle()" aria-label="انتخاب تاریخ شروع"><i class="far fa-calendar-alt" aria-hidden="true"></i></button></div></div>
+        <div class="ui-field"><label for="report-end">تاریخ ختم</label><div class="date-control"><input id="report-end" dir="ltr" [(ngModel)]="end_date" name="end" ngbDatepicker class="form-control" #endDate="ngbDatepicker" placeholder="سال-ماه-روز"><button type="button" (click)="endDate.toggle()" aria-label="انتخاب تاریخ ختم"><i class="far fa-calendar-alt" aria-hidden="true"></i></button></div></div>
+      </ng-container>
+      <div class="ui-field" *ngIf="showStatusButton"><label id="status-filter-label">مرحلۀ رسیدگی</label><div ngbDropdown #statusMenu="ngbDropdown"><button class="ui-button ui-button-secondary status-selector" id="status-filter" ngbDropdownToggle type="button" aria-labelledby="status-filter-label status-filter">{{ selectedStatus?.description || 'تمام مراحل' }}</button><div ngbDropdownMenu aria-labelledby="status-filter"><button ngbDropdownItem type="button" *ngFor="let s of statusList" (click)="statusMenu.close();filterByStatus(s)">{{ s.description }}</button></div></div></div>
+      <div class="ui-field" *ngIf="api.isAdmin() || api.isAudit()"><label id="center-filter-label">مرکز خدمات</label><select2 *ngIf="centers.length" [data]="centers" [value]="center_id && center_id !== 'false' ? '' + center_id : ''" [cssImport]="true" width="100%" (valueChanged)="filterByCenter($event)"></select2><div *ngIf="!centers.length" class="control-placeholder" aria-label="در حال دریافت مراکز"></div></div>
+      <button type="submit" class="ui-button search-submit" [disabled]="api.processing"><i class="fas fa-search" aria-hidden="true"></i>{{ api.processing ? 'در حال دریافت…' : 'جستجو' }}</button>
     </div>
-   
+    <p *ngIf="dateError" class="ui-field-error" role="alert">{{ dateError }}</p>
+  </form>
+</section>

@@ -1,18 +1,1 @@
-<table class="table table-striped">
-    <tr>
-        <th>تاریخ</th>
-        <th>پروسه</th>
-        <th>زمان</th>
-        <th>کارمند</th>
-    </tr>
-    <tbody>
-        <tr *ngFor="let e of processes">
-            <td>{{e.date}}</td>
-            <td>{{e.description}}</td>
-            <td>{{e.minutes}} دقیقه</td>
-            <td>{{e.username}}</td>
-        </tr>
-    </tbody>
-
-
-</table>
+<section class="ui-card"><div class="ui-card-heading"><h2>سابقهٔ پروسه</h2><span class="ui-count">{{processes.length}} مرحله</span></div><div class="ui-table-scroll" tabindex="0" role="region" aria-label="سابقهٔ پروسه" *ngIf="processes.length"><table class="ui-table"><thead><tr><th>تاریخ</th><th>پروسه</th><th>زمان</th><th>کارمند</th></tr></thead><tbody><tr *ngFor="let e of processes"><td><bdi>{{e.date}}</bdi></td><td>{{e.description}}</td><td>{{e.minutes}} دقیقه</td><td>{{e.username}}</td></tr></tbody></table></div><div class="ui-empty" *ngIf="!processes.length"><i class="fas fa-history" aria-hidden="true"></i><p>هنوز مرحله‌ای برای این درخواستی ثبت نشده است.</p></div></section>

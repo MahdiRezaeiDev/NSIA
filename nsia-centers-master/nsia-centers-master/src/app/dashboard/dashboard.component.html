@@ -1,32 +1,20 @@
-<div class="row mb-5" *ngIf="api.userDetails.role == 'team_leader'">
-    <div class="col-md-12">
-        <h3>انتقال تاریخ درخواستی </h3>
-    </div>
-    <div class="col-md-3">
-        <label>شماره فارم فامیلی</label>
-        <input type="text" [(ngModel)]="family_form_reference_no" class="form-control">
-    </div>
-    <div class="col-md-2">
-        <br>
-        <button class="btn btn-primary btn-block mt-2" (click)="moveApplicationToVip()">جستجو و انتقال</button>
-    </div>
-</div>
-<div class="row mt-5">
-    <div class="col-md-3">
-        <app-appointment-calender (dateSelected)="onDateSelected($event)" [selectedDate]="api.selectedDate" [status]="api.status" [center_id]="api.center_id"></app-appointment-calender>
-
-    </div>
-    <div class="col-md-9">
-        <app-searchbar (searched)="onSearch($event)" [showDatePicker]="showDatePicker" (centerSelected)="onCenterSelected($event)" [center_id]="api.center_id" [status]="api.status" (statusSelected)="onStatusSelected($event)"></app-searchbar>
-        <div class="row">
-            <div class="col-md-12 mb-3">
-                تعداد فورم های فامیلی {{api.totalApplicationsCount}}
-            </div>
-            <div class="col-4" *ngFor="let a of api.applications">
-                <app-applicantinfo [applicant]="a" [application_type]="'individual'"></app-applicantinfo>
-              
-            </div>
-        </div>
-    </div>
- 
+<div class="ui-page applications-page">
+  <header class="ui-heading"><div><p class="ui-eyebrow">رسیدگی به درخواستی‌ها</p><h1>فهرست درخواستی‌ها</h1><p class="ui-description">مرکز، مرحلۀ رسیدگی و تاریخ مراجعه را انتخاب کنید.</p></div></header>
+  <section class="ui-card transfer-card" *ngIf="api.userDetails.role === 'team_leader'">
+    <h2>انتقال تاریخ درخواستی</h2>
+    <div class="transfer-fields"><div class="ui-field"><label for="family-transfer">شمارهٔ فورم فامیلی</label><input id="family-transfer" dir="ltr" type="text" [(ngModel)]="family_form_reference_no" class="form-control"></div><button type="button" class="ui-button" (click)="moveApplicationToVip()">جستجو و انتقال</button></div>
+  </section>
+  <div class="applications-layout">
+    <aside class="ui-card appointment-panel" aria-label="انتخاب تاریخ مراجعه"><app-appointment-calender (dateSelected)="onDateSelected($event)" [selectedDate]="api.selectedDate" [status]="api.status" [center_id]="api.center_id"></app-appointment-calender></aside>
+    <section class="applications-results">
+      <app-searchbar (searched)="onSearch($event)" [showDatePicker]="showDatePicker" (centerSelected)="onCenterSelected($event)" [center_id]="api.center_id" [status]="api.status" (statusSelected)="onStatusSelected($event)"></app-searchbar>
+      <div *ngIf="api.loadError && !api.processing" class="ui-alert" role="alert"><i class="fas fa-exclamation-circle" aria-hidden="true"></i><p>{{ api.loadError }}</p><button class="ui-button ui-button-secondary" (click)="api.getApplications()">کوشش دوباره</button></div>
+      <app-page-skeleton *ngIf="api.processing" variant="cards"></app-page-skeleton>
+      <ng-container *ngIf="!api.processing && !api.loadError">
+        <div class="ui-card-heading results-heading"><h2>نتیجۀ جستجو</h2><span class="ui-count">{{ api.totalApplicationsCount }} درخواستی</span></div>
+        <div class="applicants-grid"><app-applicantinfo *ngFor="let a of api.applications" [applicant]="a" [application_type]="'individual'"></app-applicantinfo></div>
+        <div *ngIf="!api.applications.length" class="ui-card ui-empty"><i class="far fa-folder-open" aria-hidden="true"></i><h3>درخواستی پیدا نشد</h3><p>مرکز، تاریخ یا مرحلۀ رسیدگی دیگری را انتخاب کنید.</p></div>
+      </ng-container>
+    </section>
+  </div>
 </div>

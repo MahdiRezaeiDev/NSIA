@@ -1,0 +1,4 @@
+<div class="loading-skeleton" [class.cards]="variant === 'cards'" [class.detail]="variant === 'detail'" role="status" aria-live="polite" aria-busy="true">
+  <span class="sr-only">{{ label }}</span>
+  <div *ngFor="let item of items" class="skeleton-item" aria-hidden="true"><span></span><span></span><span></span></div>
+</div>

@@ -1,33 +1,13 @@
-<h2>تاریخ ملاقات</h2>
-<div *ngFor="let d of dates" class="mt-3">
-    <button class="btn btn-dark btn-block" (click)="openYear(d.year)"> 
-        <i class="fas fa-caret-down" *ngIf="d.open"></i>
-        <i class="fas fa-caret-left" *ngIf="!d.open"></i>
-        {{d.year}}
-    </button>
-    <div *ngIf="d.open">
-        
-        <div *ngFor="let m of d.months" class="mt-1">
-            <button class="btn btn-secondary btn-block" (click)="openMonth(d.year,m.value)">
-                <i class="fas fa-caret-down" *ngIf="m.open"></i>
-                <i class="fas fa-caret-left" *ngIf="!m.open"></i>
-                {{m.month}}
-            </button>
-            <div *ngIf="m.open">
-              
-                <div class="row" style="padding-right:15px;padding-left:15px">
-                    <div class="col-md-6" *ngFor="let d of m.days" style="margin:0px!important;padding:3px">
-                        <button [ngClass]="{'btn btn-warning btn-block':true,active:d.value ==selectedDate.value }" (click)="selectDate(d)">
-                            <p class="date-day">{{d.d}}</p>
-                           
-                            <p class="family-count" >{{d.total_family}} <i class="fas fa-users"></i></p> 
-                            <p class="individual-count" >{{d.total_individual}} <i class="fas fa-user"></i></p>
-                        
-                            </button>
-                            
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+<div class="appointment-heading"><i class="far fa-calendar-alt" aria-hidden="true"></i><div><h2>تاریخ مراجعه</h2><p>روز مورد نظر را انتخاب کنید.</p></div></div>
+<app-page-skeleton *ngIf="processing"></app-page-skeleton>
+<div *ngIf="errorMessage && !processing" class="ui-alert" role="alert"><p>{{ errorMessage }}</p><button type="button" class="ui-button ui-button-secondary" (click)="getDates()">کوشش دوباره</button></div>
+<p *ngIf="!processing && !errorMessage && !dates.length" class="calendar-empty">تاریخی برای نمایش موجود نیست.</p>
+<div *ngIf="!processing && !errorMessage" class="calendar-years">
+  <section *ngFor="let year of dates" class="calendar-year">
+    <button class="year-toggle" type="button" [attr.aria-expanded]="!!year.open" (click)="openYear(year.year)"><span>{{ year.year }}</span><i class="fas" [class.fa-chevron-down]="year.open" [class.fa-chevron-left]="!year.open" aria-hidden="true"></i></button>
+    <div *ngIf="year.open" class="calendar-months"><section *ngFor="let month of year.months">
+      <button type="button" class="month-toggle" [attr.aria-expanded]="!!month.open" (click)="openMonth(year.year,month.value)">{{ month.month }}<i class="fas" [class.fa-minus]="month.open" [class.fa-plus]="!month.open" aria-hidden="true"></i></button>
+      <div *ngIf="month.open" class="calendar-days"><button type="button" *ngFor="let day of month.days" class="day-button" [class.day-selected]="day.value === selectedDate?.value" [attr.aria-pressed]="day.value === selectedDate?.value" (click)="selectDate(day)"><strong>{{ day.d }}</strong><span>{{ day.total_family }} فامیل</span><small>{{ day.total_individual }} نفر</small></button></div>
+    </section></div>
+  </section>
 </div>

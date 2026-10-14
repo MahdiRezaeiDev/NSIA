@@ -14,10 +14,21 @@ export class IndividualformsReportComponent implements OnInit {
     this.api.selectedDate=false;
   }
   ngOnInit() {
+    if (this.api.httpRequest) { this.api.httpRequest.unsubscribe(); }
+    this.api.processing = false;
     this.api.applications=[];
+    this.api.loadError = '';
+    this.api.exportError = '';
+    this.api.hasLoaded = false;
+    this.api.searchQuery = false;
+    this.api.appointment_start_date = undefined;
+    this.api.appointment_end_date = undefined;
+    this.api.center_id = false;
+    this.api.status = this.status;
   }
   onCenterSelected(id){
-    this.api.center_id = id;
+    this.center_id = id;
+    this.api.center_id = id || false;
     if(this.api.appointment_start_date == undefined || this.api.appointment_end_date==undefined){
       return false;
     }
@@ -25,6 +36,7 @@ export class IndividualformsReportComponent implements OnInit {
   }
 
   onStatusSelected(status){
+    this.status = status;
     this.api.status= status;
     if(this.api.appointment_start_date == undefined || this.api.appointment_end_date==undefined){
       return false;

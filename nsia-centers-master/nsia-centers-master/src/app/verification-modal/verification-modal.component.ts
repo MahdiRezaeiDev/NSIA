@@ -1,7 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { Api } from '../Api';
-import { NgxSpinnerService } from 'ngx-spinner';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-verification-modal',
@@ -12,21 +12,26 @@ export class VerificationModalComponent implements OnInit {
   @Input() public reference_no = '';
   public verification_reference_no       = '';
   public verification_type    ='system';
-  constructor(public ref:NgbActiveModal,private api:Api,private spinner:NgxSpinnerService) { }
+  constructor(public ref:NgbActiveModal,private api:Api) { }
 
+  public submitting=false;
+  public errorMessage='';
   ngOnInit() {
   }
   public updateVerification(){
-    this.spinner.show();
+    if(this.submitting){return;}
+    this.errorMessage='';
+    if(!this.verification_reference_no.trim()){this.errorMessage='شمارهٔ تثبیت هویت را درج کنید.';return;}
+    this.submitting=true;
     this.api.process("/updateVerificationReference",{
       reference_no:this.reference_no,
       verification_type:this.verification_type,
       verification_reference_no:this.verification_reference_no
-    },'GET').subscribe((res)=>{
+    },'GET').pipe(finalize(()=>this.submitting=false)).subscribe((res)=>{
       this.ref.close(this.verification_reference_no);
     },(error)=>{
-      this.spinner.hide();
-      alert('یک مشکل رخ داد لطفا دوباره کوشش نمایید');
+
+      this.errorMessage='ثبت تثبیت هویت انجام نشد. لطفاً معلومات را بررسی کنید.';
     });
 
 

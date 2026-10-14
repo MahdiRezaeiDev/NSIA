@@ -1,66 +1,6 @@
-<div class="row" *ngIf="applicant?.name">
-  <div class="col-md-9">
-    <ngb-tabset type="pills">
-      <ngb-tab title="معلومات درخواست کننده">
-        <ng-template ngbTabContent="ngbTabContent">
-          <div class="row mt-5">
-            <div class="col-md-4">
-              <img [src]="applicant?.photo | image | async" class="rounded mx-auto d-block photo" alt=""
-                style="max-height:150px"></div>
-            <div class="col-md-8">
-              <h3> شماره انفرادی {{applicant?.reference_no}} </h3>
-              <h6 class="box">
-                تعداد اعضای خانواده
-                {{total_applicants}}</h6>
-              <h6 class="box">
-                نوبت
-                {{queue_no}}</h6>
-              <h6 class="card-title">
-               
-                {{applicant?.name}}
-                {{applicant?.surname}}
-                ولد
-                {{applicant?.father_name}}
-                {{applicant?.father_surname}}
-              </h6>
-              <h6 class="card-title">{{applicant?.relationship}}</h6>
-              <div class="alert alert-success">
-                {{applicant?.statusDescription}}
-              
-                
-              </div>
-              <div class="alert alert-info" *ngIf="applicant?.verification_reference_no && api.isIdVerificationReference(applicant?.verification_reference_no)">
-                شماره تثبیت هویت: <a href="http://149.54.11.58:100/pages/search/verify/?ID={{applicant?.verification_reference_no}}" dir="ltr" target="_blank">{{applicant?.verification_reference_no}}</a> 
-              </div>
-              <div class="alert alert-info" *ngIf="applicant?.verification_reference_no && api.isIdVerificationReference(applicant?.verification_reference_no)==false">
-                شماره تثبیت هویت: <span dir="ltr">{{applicant?.verification_reference_no}} </span>
-              </div>
-
-            </div>
-          </div>
-
-          <div class="card shadow-lg p-3 mb-5 bg-white rounded" *ngIf="applicant?.name">
-
-
-            <div class="card-body">
-              
-              <div class="row">
-                <div class="col-md-12">
-                  <h5>{{applicant?.center_name}}</h5>
-                  <div class="row mb-4">
-                    <!--
-                      <div class="col-md-12">
-                        <div class="alert alert-warning">لطفا معلومات تمام اعضای خانواده را چک نموده بعدا حالت درخواستی را تغیر دهید. این گذینه حالت  درخواستی تمام اعضای فامیل را تغیر میدهد.</div>
-                      </div>
-                    -->
-
-                    <div class="col-md-4" *ngFor="let a of actions">
-                      <button class="{{a.webClass}} btn-block" (click)="changeStatus(a.webOnClick)">{{a.label}}</button>
-                    </div>
-                  </div>
-                  <ngb-accordion #acc="ngbAccordion" [activeIds]="opened_panel" [closeOthers]="true"
+<section class="ui-page detail-page" dir="rtl"><header class="ui-heading"><div><p class="ui-eyebrow">بررسی درخواستی</p><h1>جزئیات درخواستی</h1><p class="ui-description">معلومات فردی، اسناد و مراحل پروسهٔ اعضای فامیل</p></div><a routerLink="/dashboard" class="ui-button ui-button-secondary"><i class="fas fa-arrow-right" aria-hidden="true"></i>فهرست درخواستی‌ها</a></header><app-page-skeleton *ngIf="loading" variant="detail" label="در حال دریافت معلومات درخواستی…"></app-page-skeleton><div class="ui-alert" role="alert" *ngIf="errorMessage">{{errorMessage}}<button *ngIf="!loading" class="ui-button ui-button-secondary" (click)="getApplicationDetails()">دریافت دوباره</button></div><div class="detail-layout" *ngIf="!loading && applicant?.name"><main class="detail-main"><section class="ui-card applicant-summary"><img [src]="applicant.photo | image | async" alt="عکس درخواست‌کننده" class="applicant-photo"><div class="applicant-title"><p class="ui-eyebrow">شمارهٔ انفرادی <bdi dir="ltr">{{applicant.reference_no}}</bdi></p><h2>{{applicant.name}} {{applicant.surname}}</h2><p>ولد {{applicant.father_name}} {{applicant.father_surname}}</p><span class="status-chip">{{applicant.statusDescription}}</span><p class="verification-ref" *ngIf="applicant?.verification_reference_no">شمارهٔ تثبیت هویت: <a *ngIf="api.isIdVerificationReference(applicant.verification_reference_no)" href="http://149.54.11.58:100/pages/search/verify/?ID={{applicant.verification_reference_no}}" target="_blank" rel="noopener"><bdi>{{applicant.verification_reference_no}}</bdi></a><bdi *ngIf="!api.isIdVerificationReference(applicant.verification_reference_no)">{{applicant.verification_reference_no}}</bdi></p></div><dl class="applicant-meta"><div><dt>مرکز</dt><dd>{{applicant.center_name}}</dd></div><div><dt>اعضای فامیل</dt><dd>{{total_applicants}} نفر</dd></div><div><dt>نوبت</dt><dd>{{queue_no || '—'}}</dd></div><div><dt>قرابت</dt><dd>{{applicant.relationship}}</dd></div></dl></section><div class="ui-alert" *ngIf="actionError" role="alert">{{actionError}}</div><ngb-tabset type="pills"><ngb-tab title="معلومات درخواست‌کننده"><ng-template ngbTabContent><section class="ui-card detail-information"><div class="ui-card-heading"><h2>معلومات و اسناد</h2><span class="ui-count">فورم انفرادی</span></div><div class="detail-actions" *ngIf="actions.length"><button *ngFor="let action of actions" class="ui-button" [disabled]="actionPending" (click)="changeStatus(action.webOnClick)">{{actionPending ? 'در حال اجرا…' : action.label}}</button></div><ngb-accordion #acc="ngbAccordion" [activeIds]="opened_panel" [closeOthers]="true"
                     (panelChange)="panelChanged($event)">
-                    <ngb-panel>
+                    <ngb-panel id="ngb-panel-0">
                       <ng-template ngbPanelTitle="ngbPanelTitle">
                         <span>معلومات عمومی &nbsp;
                           <i
@@ -68,7 +8,7 @@
                         </span>
                       </ng-template>
                       <ng-template ngbPanelContent="ngbPanelContent">
-                        <table class="table table-striped">     
+                        <div class="ui-table-scroll detail-data" tabindex="0" role="region" aria-label="معلومات درخواستی"><table class="ui-table">     
                           <tbody>
                             <tr>
                               <td>اسم</td>
@@ -78,11 +18,11 @@
                               <td>{{applicant.surname}}</td>
                             </tr>
                             <tr>
-                              <td>Name</td>
-                              <td>{{applicant.english_name}}
+                              <td>اسم به انگلیسی</td>
+                              <td><bdi dir="ltr">{{applicant.english_name}}</bdi>
                               </td>
-                              <td>Surname</td>
-                              <td>{{applicant.english_surname}}</td>
+                              <td>تخلص به انگلیسی</td>
+                              <td><bdi dir="ltr">{{applicant.english_surname}}</bdi></td>
                             </tr>
                             <tr>
                               <td>ولد</td>
@@ -142,11 +82,11 @@
                               <td>سکونت فعلی</td>
                               <td colspan="3">
                                 ولایت:
-                                {{applicant.current_residence.province}}
+                                {{applicant.current_residence?.province}}
                                 &nbsp; ولسوالی : &nbsp;
-                                {{applicant.current_residence.district}}
+                                {{applicant.current_residence?.district}}
                                 &nbsp; قریه: &nbsp; &nbsp;
-                                {{applicant.current_residence.village}}
+                                {{applicant.current_residence?.village}}
                               </td>
                             </tr>
                             <tr>
@@ -191,7 +131,7 @@
                                 {{applicant.kochi_spring_residence_district }}
                                 {{applicant.kochi_spring_residence_village }}
                               </td>
-                              <td>گروپ خون</td>
+                              <td>محل رهایش زمستان (برای کوچی‌ها)</td>
                               <td>
                                 {{applicant.kochi_winter_residence_province }}
                                 {{applicant.kochi_winter_residence_district }}
@@ -202,11 +142,11 @@
 
 
                           </tbody>
-                        </table>
+                        </table></div>
 
                       </ng-template>
                     </ngb-panel>
-                    <ngb-panel>
+                    <ngb-panel id="ngb-panel-1">
                       <ng-template ngbPanelTitle="ngbPanelTitle">
                         <span>معلومات تذکره &nbsp;
                           <i
@@ -218,21 +158,21 @@
                         <h4 *ngIf="!applicant.has_id" class="alter alter-danger">
                           تذکره ندارد
                         </h4>
-                        <table class="table table-striped" *ngIf="applicant.has_id">
+                        <div class="ui-table-scroll detail-data" tabindex="0" role="region" aria-label="معلومات درخواستی"><table class="ui-table" *ngIf="applicant.has_id">
                           <tbody>
                             <tr>
                               <td>محل صدور</td>
                               <td>
                                 ولایت:
-                                {{applicant.original_residence.province}}
+                                {{applicant.original_residence?.province}}
                               </td>
                               <td>
                                 ولسوالی:
-                                {{applicant.original_residence.district}}
+                                {{applicant.original_residence?.district}}
                               </td>
                               <td>
                                 قریه:
-                                {{applicant.original_residence.village}}
+                                {{applicant.original_residence?.village}}
                               </td>
                             </tr>
                             <tr>
@@ -271,11 +211,11 @@
                               </td>
                             </tr>
                           </tbody>
-                        </table>
+                        </table></div>
                       </ng-template>
                     </ngb-panel>
 
-                    <ngb-panel>
+                    <ngb-panel id="ngb-panel-2">
                       <ng-template ngbPanelTitle="ngbPanelTitle">
                         <span>معلومات تماس &nbsp;
                           <i
@@ -283,7 +223,7 @@
                         </span>
                       </ng-template>
                       <ng-template ngbPanelContent="ngbPanelContent">
-                        <table class="table table-striped">
+                        <div class="ui-table-scroll detail-data" tabindex="0" role="region" aria-label="معلومات درخواستی"><table class="ui-table">
                           <tbody>
                             <tr>
                               <td>شماره تماس اولی</td>
@@ -297,10 +237,10 @@
 
                             </tr>
                           </tbody>
-                        </table>
+                        </table></div>
                       </ng-template>
                     </ngb-panel>
-                    <ngb-panel *ngIf="applicant.first_gurantor_name">
+                    <ngb-panel id="ngb-panel-3" *ngIf="applicant.first_gurantor_name">
                       <ng-template ngbPanelTitle="ngbPanelTitle">
                         <span>تصدیق کننده اولی &nbsp;
                           <i
@@ -311,7 +251,7 @@
                         <h4 *ngIf="!applicant.first_gurantor_name" class="alter alter-danger">
                           تصدیق کننده ندارد
                         </h4>
-                        <table class="table table-striped" *ngIf="applicant.first_gurantor_name">
+                        <div class="ui-table-scroll detail-data" tabindex="0" role="region" aria-label="معلومات درخواستی"><table class="ui-table" *ngIf="applicant.first_gurantor_name">
                           <tbody>
                             <tr>
                               <td>نام و تخلص</td>
@@ -339,7 +279,7 @@
                               <td>{{applicant.first_gurantor_contact_no}}</td>
                             </tr>
                             <tr>
-                              <td colspan="6" style="background-color: lightblue;">
+                              <td colspan="6" class="detail-subheading">
                                 <h4>
                                   معلومات تذکره</h4>
                               </td>
@@ -368,12 +308,12 @@
                               </td>
                             </tr>
                           </tbody>
-                        </table>
+                        </table></div>
                       </ng-template>
                     </ngb-panel>
 
 
-                    <ngb-panel *ngIf="applicant.second_gurantor_name">
+                    <ngb-panel id="ngb-panel-4" *ngIf="applicant.second_gurantor_name">
                       <ng-template ngbPanelTitle="ngbPanelTitle">
                         <span>تصدیق کننده دومی &nbsp;
                           <i
@@ -382,7 +322,7 @@
                       </ng-template>
                       <ng-template ngbPanelContent="ngbPanelContent">
 
-                        <table class="table table-striped">
+                        <div class="ui-table-scroll detail-data" tabindex="0" role="region" aria-label="معلومات درخواستی"><table class="ui-table">
                           <tbody>
                             <tr>
                               <td>نام و تخلص</td>
@@ -407,7 +347,7 @@
                               <td>{{applicant.second_gurantor_contact_no}}</td>
                             </tr>
                             <tr>
-                              <td colspan="6" style="background-color: lightblue;">
+                              <td colspan="6" class="detail-subheading">
                                 <h4>
                                   معلومات تذکره</h4>
                               </td>
@@ -436,83 +376,11 @@
                               </td>
                             </tr>
                           </tbody>
-                        </table>
+                        </table></div>
                       </ng-template>
                     </ngb-panel>
 
-                  </ngb-accordion>
-
-                </div>
-
-              </div>
-              <h2>ضمایم</h2>
-              <div class="spinner-border text-primary" role="status" *ngIf="!loadGallery" >
-                <span class="sr-only">لطفا صبر کنید...</span>
-              </div>
-          
-              <app-image-viewer *ngIf="loadGallery && attachments.length>0" [download]="false" [images]="attachments"
-                [idContainer]="'idOnHTML'" [loadOnInit]="true"></app-image-viewer>
-                <h4 *ngIf="attachments.length > 0 && matches.length > 0">معلومات مقایسه شده با سیستم IVP</h4>
-                <table class="table table-bordered" *ngIf="attachments.length >0  && matches.length > 0">
-                  <tr>
-                    <td>اسم</td>
-                    <td>ولد</td>
-                    <td>ولدیت</td>
-                    <td>عمر</td>
-                    <td>شباهت</td>
-                    <td></td>
-                    <td></td>
-                  </tr>
-                  <tr *ngFor="let m of matches">
-                    <td>{{m.name}}</td>
-                    <td>{{m.father_name}}</td>
-                    <td>{{m.grand_father_name}}</td>
-                    <td>{{m.age}} سال {{m.age_year}}</td>
-                    <td>{{m.match_score}}%</td>
-                    <td><button class="btn btn-primary" (click)="openModal(m,'cropped')">باز نمودن ریکارد</button></td>
-                    <td><button class="btn btn-primary" (click)="openModal(m,'full')"> باز نمودن صفحه مکمل</button></td>
-                  </tr>
-                </table>
-            </div>
-
-          </div>
-        
-          <app-note *ngIf="applicant?.reference_no" [application_type]='"individualform"' [reference_no]="applicant?.reference_no"></app-note>
-        </ng-template>
-      </ngb-tab>
-      <ngb-tab>
-        <ng-template ngbTabTitle="ngbTabTitle">معلومات پروسه</ng-template>
-        <ng-template ngbTabContent="ngbTabContent">
-          <app-processreport [processes]="processes" *ngIf="applicant.reference_no"></app-processreport>
-        </ng-template>
-      </ngb-tab>
-
-    </ngb-tabset>
-
-  </div>
-  <div class="col-md-3" style="padding-right:0px">
-    <div class="card shadow-lg mb-5 bg-white rounded" *ngFor="let applicant of members" style="padding:0px;margin:0px">
-
-      <div class="card-body" style="padding:0px">
-        <img [src]="applicant?.photo | image | async" class="rounded mx-auto d-block photo" alt=""
-        style="max-height:150px">
-        <div class="row">
-          <div class="col-md-12">
-            <p class="card-text">
-              شماره درخواستی
-              {{applicant.reference_no}}</p>
-
-              <h6 class="alert alert-success" *ngIf="applicant.apply_for_new_id=='بلی'">{{applicant.statusDescription}}</h6>
-              <div class="alert alert-info" *ngIf="applicant?.verification_reference_no && api.isIdVerificationReference(applicant?.verification_reference_no)">
-                شماره تثبیت هویت: <a href="http://149.54.11.58:100/pages/search/verify/?ID={{applicant?.verification_reference_no}}" dir="ltr" target="_blank">{{applicant?.verification_reference_no}}</a> 
-              </div>
-              <div class="alert alert-info" *ngIf="applicant?.verification_reference_no && api.isIdVerificationReference(applicant?.verification_reference_no)==false">
-                شماره تثبیت هویت: <span dir="ltr">{{applicant?.verification_reference_no}}</span> 
-              </div>
-            </div>
-          <div class="col-md-12">
-
-            <table class="table table-striped">
+                  </ngb-accordion></section><section class="ui-card"><div class="ui-card-heading"><h2>ضمایم درخواستی</h2><span class="ui-count" *ngIf="loadGallery">{{attachments.length}} ضمیمه</span></div><app-page-skeleton *ngIf="!loadGallery" variant="cards" label="در حال دریافت ضمایم…"></app-page-skeleton><div class="ui-alert" role="alert" *ngIf="attachmentError">{{attachmentError}}<button class="ui-button ui-button-secondary" (click)="getAttachments(reference_no)">دریافت دوباره</button></div><app-image-viewer *ngIf="loadGallery && attachments.length" [download]="false" [images]="attachments" idContainer="idOnHTML" [loadOnInit]="true"></app-image-viewer><div class="ui-empty" *ngIf="loadGallery && !attachmentError && !attachments.length"><i class="far fa-images" aria-hidden="true"></i><p>برای این درخواستی ضمیمه‌ای موجود نیست.</p></div><div class="ui-alert" *ngIf="matchesError" role="alert">{{matchesError}}</div><section *ngIf="attachments.length && matches.length" class="matches-section"><h3>مقایسه با سیستم <bdi>IVP</bdi></h3><div class="ui-table-scroll" tabindex="0" role="region" aria-label="مقایسهٔ اسناد"><table class="ui-table"><thead><tr><th>اسم</th><th>ولد</th><th>ولدیت</th><th>عمر</th><th>شباهت</th><th>مشاهده</th></tr></thead><tbody><tr *ngFor="let m of matches"><td>{{m.name}}</td><td>{{m.father_name}}</td><td>{{m.grand_father_name}}</td><td>{{m.age}} سال {{m.age_year}}</td><td>{{m.match_score}}٪</td><td><div class="match-actions"><button class="ui-button ui-button-secondary" (click)="openModal(m,'cropped')">ریکارد</button><button class="ui-button ui-button-secondary" (click)="openModal(m,'full')">صفحهٔ مکمل</button></div></td></tr></tbody></table></div></section></section><app-note [application_type]="'individualform'" [reference_no]="applicant.reference_no"></app-note></ng-template></ngb-tab><ngb-tab title="معلومات پروسه"><ng-template ngbTabContent><app-processreport [processes]="processes"></app-processreport></ng-template></ngb-tab></ngb-tabset></main><aside class="family-sidebar" aria-label="اعضای فامیل"><div class="ui-card-heading"><h2>اعضای فامیل</h2><span class="ui-count">{{members.length}} نفر</span></div><article class="family-member" *ngFor="let applicant of members" [class.current-member]="applicant.reference_no === reference_no"><div class="member-top"><img [src]="applicant.photo | image | async" alt="عکس عضو فامیل"><div><h3>{{applicant.name}} {{applicant.surname}}</h3><bdi dir="ltr">{{applicant.reference_no}}</bdi></div></div><span class="status-chip" *ngIf="applicant.apply_for_new_id === 'بلی'">{{applicant.statusDescription}}</span><p class="verification-ref" *ngIf="applicant?.verification_reference_no">شمارهٔ تثبیت هویت: <a *ngIf="api.isIdVerificationReference(applicant.verification_reference_no)" href="http://149.54.11.58:100/pages/search/verify/?ID={{applicant.verification_reference_no}}" target="_blank" rel="noopener"><bdi>{{applicant.verification_reference_no}}</bdi></a><bdi *ngIf="!api.isIdVerificationReference(applicant.verification_reference_no)">{{applicant.verification_reference_no}}</bdi></p><table class="member-table">
               <tbody>
                 <tr>
                   <td>اسم</td>
@@ -578,27 +446,4 @@
 
                 </tr>
               </tbody>
-            </table>
-
-
-          </div>
-        
-
-        </div>
-
-
-      </div>
-      <div class="card-footer" *ngIf="applicant.apply_for_new_id=='بلی'">
-
-        <button class="btn btn-primary btn-block"
-          [routerLink]="['/view-application-details','individual',applicant?.reference_no]">معلومات بیشتر</button>
-      </div>
-
-    
-
-
-
-    </div>
-  </div>
-
-</div>
+            </table><a class="ui-button ui-button-secondary" *ngIf="applicant.apply_for_new_id === 'بلی'" [attr.aria-current]="applicant.reference_no === reference_no ? 'page' : null" [routerLink]="['/view-application-details','individual',applicant.reference_no]">{{applicant.reference_no === reference_no ? 'در حال مشاهده' : 'مشاهدهٔ درخواستی'}}<i class="fas fa-arrow-left" aria-hidden="true"></i></a></article></aside></div></section>

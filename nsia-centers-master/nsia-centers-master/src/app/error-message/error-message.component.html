@@ -1,15 +1,1 @@
-
-<div class="modal-header">
-    <h4 class="modal-title">{{message}}</h4>
-    <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss('Cross click')">
-      <span aria-hidden="true">&times;</span>
-    </button>
-  </div>
-  <div class="modal-body">
-    <ul>
-        <li class="errors" *ngFor="let e of errors">{{e}}</li>
-    </ul>
-  </div>
-  <div class="modal-footer">
-    <button type="button" class="btn btn-outline-dark" (click)="activeModal.close('Close click')">بستن</button>
-  </div>
+<div class="ui-modal"><header class="modal-header"><h2 class="modal-title">بررسی معلومات</h2><button class="close" type="button" aria-label="بستن" (click)="activeModal.dismiss()"><span aria-hidden="true">&times;</span></button></header><div class="modal-body"><div class="ui-alert" role="alert"><i class="fas fa-exclamation-circle" aria-hidden="true"></i><p>{{message || 'عملیات انجام نشد. لطفاً معلومات را بررسی کنید.'}}</p></div><ul class="error-list" *ngIf="errorList.length"><li *ngFor="let error of errorList">{{error}}</li></ul></div><footer class="modal-footer"><button class="ui-button" (click)="activeModal.dismiss()" type="button">بستن</button></footer></div>

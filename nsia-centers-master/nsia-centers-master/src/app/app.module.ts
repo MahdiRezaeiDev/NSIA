@@ -1,4 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
+import { PageSkeletonComponent } from './page-skeleton/page-skeleton.component';
 import { NgModule } from '@angular/core';
 import { HttpClientModule, HttpClientXsrfModule } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
@@ -57,6 +58,7 @@ export const echoConfig: EchoConfig = {
 
 @NgModule({
   declarations: [
+    PageSkeletonComponent,
     AppComponent,
     UserDropDownComponent,
     LoginComponent,
