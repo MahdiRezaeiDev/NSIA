@@ -1,32 +1,39 @@
+<div class="workspace" [class.signed-in]="api.userDetails?.name" dir="rtl" lang="fa-AF">
+  <a *ngIf="api.userDetails?.name" href="#workspace-content" class="skip-link">رفتن به محتوای صفحه</a>
+  <aside *ngIf="api.userDetails?.name" class="sidebar" aria-label="منوی اصلی">
+    <a class="sidebar-brand" [routerLink]="canManage ? '/admin-dashboard' : '/dashboard'" aria-label="صفحۀ اصلی مراکز">
+      <img src="assets/images/logo.png" width="795" height="283" alt="ادارهٔ ملی احصائیه و معلومات">
+      <span>سیستم مدیریت مراکز</span>
+    </a>
+    <div class="nav-caption">فضای کاری</div>
+    <nav class="workspace-nav" aria-label="صفحات مراکز">
+      <a *ngIf="canManage" routerLink="/admin-dashboard" routerLinkActive="nav-active"
+         #overview="routerLinkActive" [attr.aria-current]="overview.isActive ? 'page' : null">
+        <i class="fas fa-th-large" aria-hidden="true"></i><span>داشبورد</span>
+      </a>
+      <a routerLink="/dashboard" routerLinkActive="nav-active" #requests="routerLinkActive"
+         [attr.aria-current]="requests.isActive ? 'page' : null">
+        <i class="far fa-file-alt" aria-hidden="true"></i><span>درخواستی‌ها</span>
+      </a>
+      <a *ngIf="canManage" routerLink="/reports" routerLinkActive="nav-active"
+         #reports="routerLinkActive" [attr.aria-current]="reports.isActive ? 'page' : null">
+        <i class="fas fa-chart-bar" aria-hidden="true"></i><span>راپورها</span>
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <span class="sidebar-footer-icon" aria-hidden="true"><i class="fas fa-fingerprint"></i></span>
+      <div>خدمات تذکرهٔ الکترونیکی<small>ادارهٔ ملی احصائیه و معلومات</small></div>
+    </div>
+  </aside>
 
-  <nav class="navbar navbar-dark sticky-top bg-nsia flex-md-nowrap p-0" *ngIf="api.userDetails?.name">
-    <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="/"><img src="/assets/images/logo.png" width="100%"></a>
-    <div class="col-md-2" *ngIf="api.userDetails?.role=='admin' || api.userDetails?.role=='team_leader' ||api.userDetails?.role=='center_manager'">
-      <button class="btn btn-dark btn-block" routerLink="/admin-dashboard" > <i class="fas fa-clipboard-list"></i> دشبورد</button>
-    </div>
-    <div class="col-md-2">
-      <button class="btn btn-dark btn-block" routerLink="/dashboard"> <i class="fas fa-list"></i>  درخواستی ها</button>
-    </div>
-    <div class="col-md-2">
-      <button class="btn btn-dark btn-block" routerLink="/reports"  *ngIf="api.userDetails?.role=='admin' || api.userDetails?.role=='team_leader' || api.userDetails?.role=='center_manager'"> <i class="fas fa-chart-line"></i> راپور ها </button>
-    </div>
-    <div class="col-md-2">
-     
-    </div>
-    <div class="col-md-4">
+  <div class="workspace-body">
+    <header *ngIf="api.userDetails?.name" class="workspace-header">
+      <div class="header-location"><span>سیستم مراکز</span><i class="fas fa-angle-left" aria-hidden="true"></i><strong>{{ pageTitle }}</strong></div>
       <app-user-drop-down [user]="api.userDetails"></app-user-drop-down>
+    </header>
+    <main id="workspace-content" tabindex="-1" [class.workspace-main]="api.userDetails?.name" [class.guest-main]="!api.userDetails?.name">
+      <router-outlet></router-outlet>
+    </main>
   </div>
-  </nav>
-
-  <div class="container-fluid">
-    <div class="row">
-      <ngx-spinner></ngx-spinner>
-    
-
-      <main role="main" class="col-md-12 pt-3">
-       
-          <router-outlet></router-outlet>
-   
-      </main>
-    </div>
-  </div>
+  <ngx-spinner></ngx-spinner>
+</div>

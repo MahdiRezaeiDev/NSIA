@@ -15,6 +15,11 @@ export class UserDropDownComponent implements OnInit {
   ngOnInit() {
   }
 
+  get roleName(): string {
+    const names = { admin: 'مدیر سیستم', team_leader: 'مسؤول تیم', center_manager: 'مدیر مرکز', audit: 'بررسی‌کننده', id_verifier: 'مسؤول تثبیت هویت' };
+    return names[this.user.role] || this.user.role_dari || 'کارمند مرکز';
+  }
+
   logout(){
     this.api.logout();
     this.router.navigateByUrl("/");

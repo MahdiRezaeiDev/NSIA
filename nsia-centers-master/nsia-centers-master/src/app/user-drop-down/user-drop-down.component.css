@@ -1,0 +1,16 @@
+:host { display: block; font-family: 'Bahij Halvetica', sans-serif; }
+.user-trigger { display: flex; align-items: center; gap: 10px; max-width: 100%; border: 1px solid transparent; border-radius: 9px; padding: 4px 8px; background: transparent; color: #2b2b48; cursor: pointer; font: inherit; text-align: right; min-height: 48px; }
+.user-trigger::after { display: none; }
+.user-trigger:hover { background: #f3f6f8; }
+.user-trigger:focus-visible, .account-options button:focus-visible { outline: 3px solid #087d76; outline-offset: 2px; }
+.user-avatar { display: grid; place-items: center; width: 40px; height: 40px; flex-shrink: 0; border-radius: 50%; background: #eaf4f1; color: #087d76; font-size: 17px; }
+.user-info { min-width: 0; display: grid; gap: 3px; line-height: 1.6; }
+.user-name { display: block; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; }
+.user-info small { color: #6b7786; font-size: 12px; }
+.menu-chevron { font-size: 10px; margin-right: 8px; color: #778391; }
+.account-options { min-width: 210px; padding: 7px; border: 1px solid #dce3e9; border-radius: 10px; box-shadow: 0 10px 30px rgba(35,39,69,.1); text-align: right; font-size: 14px; }
+.account-options button { display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 10px 12px; border-radius: 6px; font: inherit; cursor: pointer; }
+.account-options button:active { background: #eaf4f1; color: #087d76; }
+.account-options i { width: 17px; text-align: center; }
+.account-options .logout-option { color: #ac3041; }
+@media (max-width: 480px) { .user-trigger { gap: 7px; padding: 3px; } .user-avatar { width: 34px; height: 34px; } .user-name { max-width: 108px; font-size: 13px; } .menu-chevron { margin-right: 2px; } }

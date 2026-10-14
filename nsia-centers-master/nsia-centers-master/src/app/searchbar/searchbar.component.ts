@@ -98,9 +98,11 @@ export class SearchbarComponent implements OnInit,AfterViewInit {
     });
   }
   filterByCenter(center){
-
+    // Select2 can emit while its initial options are being populated.
+    if (!center || !center.data || !center.data.length) { return; }
     center = center.data[0];
     this.selectedCenter = center;
+    if (String(center.id) === String(this.center_id || '')) { return; }
     this.centerSelected.emit(center.id);
     
   }

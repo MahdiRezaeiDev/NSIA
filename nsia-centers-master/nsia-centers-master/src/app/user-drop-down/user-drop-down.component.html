@@ -1,14 +1,12 @@
-<div class="row">
-    <div class="col">
-      <div ngbDropdown class="d-inline-block">
-        <button class="btn btn-dark" id="dropdownBasic1" ngbDropdownToggle>{{user.name}}/{{user.role_dari}}</button>
-        <div ngbDropdownMenu aria-labelledby="dropdownBasic1">
-          <button ngbDropdownItem (click)="changePassword()">تغیر پاسورد</button>
-          <button ngbDropdownItem (click)="logout()">خروج از سیستم</button>
-
-        </div>
-      </div>
-    </div>
-  
-
+<div ngbDropdown placement="bottom-left" class="user-menu">
+  <button class="user-trigger" id="account-menu" ngbDropdownToggle>
+    <span class="user-avatar" aria-hidden="true"><i class="far fa-user"></i></span>
+    <span class="user-info"><span class="user-name">{{ user.name }}</span><small>{{ roleName }}</small></span>
+    <i class="fas fa-chevron-down menu-chevron" aria-hidden="true"></i>
+  </button>
+  <div ngbDropdownMenu aria-labelledby="account-menu" class="account-options">
+    <button ngbDropdownItem (click)="changePassword()"><i class="fas fa-key" aria-hidden="true"></i> تغییر رمز عبور</button>
+    <div class="dropdown-divider" role="separator"></div>
+    <button ngbDropdownItem (click)="logout()" class="logout-option"><i class="fas fa-sign-out-alt" aria-hidden="true"></i> خروج از سیستم</button>
   </div>
+</div>

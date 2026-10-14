@@ -1,47 +1,83 @@
-<div class="container">
-<div class="row mb-5 center" *ngFor="let center of centers">
-    <div class="col-md-12">
-        <h3 class="center_name">{{center.name}}</h3>
+<div class="centers-dashboard">
+  <header class="dashboard-heading">
+    <div>
+      <p class="eyebrow">مدیریت مراکز خدمات</p>
+      <h1>داشبورد مراکز</h1>
+      <p class="heading-description">نمای کلی درخواستی‌ها و وضعیت رسیدگی در مراکز شما.</p>
     </div>
-    <div class="col-md-12">
-        <h4 class="time-title">درخواستی های امروز</h4>
-    </div>
-    <div class="col-md-12">
-        <div class="row statusBox">
-            <div class="col-md-4 box" *ngFor="let ta of center.todayApplications">
-                <h1>{{ta.status_text}}</h1>
-                <h2> 
-                    <span class="family-count"><i class="fas fa-users"></i> {{ta.total_family}}</span>   
-                    <span class="individual-count"><i class="fas fa-user"></i> {{ta.total_individual}}</span>
-                </h2>
-                
-                <a class="btn btn-dark btn-block mt-5" href="/dashboard?center_id={{center.id}}&status={{ta.status}}">معلومات</a>
-            </div>
-            <h5 *ngIf="center.todayApplications.length ==0" class="notfound">درخواستی پیدا نشد</h5>
-        </div>
-    </div>
+    <a class="primary-action" routerLink="/dashboard"><i class="far fa-file-alt" aria-hidden="true"></i>مشاهدۀ درخواستی‌ها<i class="fas fa-arrow-left" aria-hidden="true"></i></a>
+  </header>
 
-    <div class="col-md-12">
-        <h4 class="time-title">درخواستی های قبلی</h4>
+  <div *ngIf="loading" class="dashboard-loading" role="status" aria-live="polite" aria-label="در حال دریافت معلومات مراکز" aria-busy="true">
+    <span class="sr-only">معلومات مراکز در حال بارگذاری است…</span>
+    <div class="summary-grid" aria-hidden="true">
+      <div class="summary-card skeleton-card" *ngFor="let item of placeholders">
+        <div class="skeleton skeleton-label"></div><div class="skeleton skeleton-number"></div><div class="skeleton skeleton-description"></div>
+      </div>
     </div>
-    <div class="col-md-12">
-        <div class="row statusBox">
-            <div class="col-md-4 box" *ngFor="let ta of center.oldApplications">
-                <h1>{{ta.status_text}}</h1>
-                <h2> 
-                    <span class="family-count"><i class="fas fa-users"></i> {{ta.total_family}}</span>   
-                    <span class="individual-count"><i class="fas fa-user"></i> {{ta.total_individual}}</span>
-                </h2>
-               
-                <a class="btn btn-dark btn-block mt-5" href="/dashboard?center_id={{center.id}}&status={{ta.status}}">معلومات</a>
-            </div>
-            <h5 *ngIf="center.oldApplications.length ==0" class="notfound">درخواستی پیدا نشد</h5>
-        </div>
+    <div class="skeleton skeleton-section" aria-hidden="true"></div>
+    <div class="center-card skeleton-center" *ngFor="let item of [0, 1]" aria-hidden="true">
+      <div class="skeleton skeleton-title"></div><div class="skeleton skeleton-row"></div><div class="skeleton skeleton-row"></div>
     </div>
+  </div>
 
-    <div class="col-md-12">
-        <a class="btn btn-primary btn-block mt-5" href="/dashboard?center_id={{center.id}}">معلومات بیشتر</a>
-    </div>
- 
-</div>
+  <div *ngIf="!loading && errorMessage" class="dashboard-error" role="alert">
+    <span class="state-icon"><i class="fas fa-exclamation-circle" aria-hidden="true"></i></span>
+    <div><h2>معلومات بارگذاری نشد</h2><p>{{ errorMessage }}</p></div>
+    <button type="button" class="secondary-action" (click)="getDashboard()"><i class="fas fa-redo" aria-hidden="true"></i>کوشش دوباره</button>
+  </div>
+
+  <ng-container *ngIf="!loading && !errorMessage && centers">
+    <section class="summary-grid" aria-label="خلاصۀ آمار مراکز">
+      <article class="summary-card summary-centers">
+        <span class="summary-icon"><i class="fas fa-building" aria-hidden="true"></i></span>
+        <p>مراکز قابل دسترس</p><strong>{{ number(centers.length) }}</strong><small>مراکز مربوط به حساب شما</small>
+      </article>
+      <article class="summary-card">
+        <span class="summary-icon"><i class="fas fa-users" aria-hidden="true"></i></span>
+        <p>فامیل‌های امروز</p><strong>{{ number(summary.familiesToday) }}</strong><small>براساس تاریخ مراجعه</small>
+      </article>
+      <article class="summary-card">
+        <span class="summary-icon"><i class="far fa-user" aria-hidden="true"></i></span>
+        <p>افراد امروز</p><strong>{{ number(summary.individualsToday) }}</strong><small>مجموع افراد در تمام مراحل</small>
+      </article>
+      <article class="summary-card">
+        <span class="summary-icon"><i class="far fa-calendar-alt" aria-hidden="true"></i></span>
+        <p>افراد سایر روزها</p><strong>{{ number(summary.individualsOther) }}</strong><small>تاریخ‌های پیش و پس از امروز</small>
+      </article>
+    </section>
+
+    <section class="centers-section" aria-labelledby="centers-title">
+      <div class="section-heading"><div><h2 id="centers-title">وضعیت مراکز</h2><p>تعداد فامیل‌ها و افراد به تفکیک مراحل رسیدگی.</p></div><span class="center-count">{{ number(centers.length) }} مرکز</span></div>
+      <div *ngIf="!centers.length" class="no-centers">
+        <span class="state-icon"><i class="far fa-building" aria-hidden="true"></i></span>
+        <h3>مرکزی برای نمایش موجود نیست</h3><p>در این حساب، معلومات مرکزی برای نمایش دریافت نشد.</p>
+      </div>
+
+      <article class="center-card" *ngFor="let center of centers; trackBy: trackCenter">
+        <header class="center-heading">
+          <div class="center-identity"><span class="center-icon"><i class="fas fa-building" aria-hidden="true"></i></span><div><span class="center-caption">مرکز خدمات</span><h3>{{ center.name }}</h3></div></div>
+          <a class="center-link" [href]="'/dashboard?center_id=' + center.id" [attr.aria-label]="'مشاهدۀ درخواستی‌های مرکز ' + center.name">مشاهدۀ درخواستی‌ها<i class="fas fa-arrow-left" aria-hidden="true"></i></a>
+        </header>
+        <div class="center-periods">
+          <section class="period" *ngFor="let period of periods" [attr.aria-label]="period.title + ' — ' + center.name">
+            <div class="period-heading"><i class="fas" [ngClass]="period.icon" aria-hidden="true"></i><div><h4>{{ period.title }}</h4><p>{{ period.description }}</p></div></div>
+            <table *ngIf="center[period.key].length" class="status-table">
+              <caption class="sr-only">{{ period.title }} در مرکز {{ center.name }}</caption>
+              <thead><tr><th scope="col">مرحلۀ رسیدگی</th><th scope="col" class="count-cell">فامیل</th><th scope="col" class="count-cell">نفر</th><th scope="col" class="action-cell"><span class="sr-only">مشاهده</span></th></tr></thead>
+              <tbody>
+                <tr *ngFor="let row of center[period.key]; trackBy: trackStatus">
+                  <th scope="row"><span class="status-label"><span aria-hidden="true"></span>{{ row.status_text }}</span></th>
+                  <td class="count-cell">{{ number(row.total_family) }}</td><td class="count-cell">{{ number(row.total_individual) }}</td>
+                  <td class="action-cell"><a class="status-link" [href]="'/dashboard?center_id=' + center.id + '&status=' + row.status" [attr.aria-label]="'مشاهدهٔ ' + row.status_text + ' در مرکز ' + center.name"><i class="fas fa-arrow-left" aria-hidden="true"></i></a></td>
+                </tr>
+              </tbody>
+            </table>
+            <div *ngIf="!center[period.key].length" class="period-empty"><i class="far fa-calendar-check" aria-hidden="true"></i><p>{{ period.empty }}</p></div>
+          </section>
+        </div>
+      </article>
+    </section>
+    <p class="dashboard-note"><i class="fas fa-info-circle" aria-hidden="true"></i>آمار بر اساس تاریخ مراجعه است؛ ستون «نفر» تمام اعضای فامیل را شامل می‌شود.</p>
+  </ng-container>
 </div>
