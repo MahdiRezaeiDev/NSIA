@@ -1,41 +1,90 @@
-<div class="row bg mt-5" >
-  <div class="col-md-4 offset-md-4">
-    <div class="card overflow-hidden w-full max-w-xs">
-      <div class="card-body" style="background-color:#11A89B;">
-      <div class="p-6 pb-0">
-        <div class="fill-current text-center">
-          <img style="width:100%" src="assets/images/logo.png">
-        </div>
+<div class="login-page" dir="rtl" lang="fa-AF">
+  <div class="login-layout">
+    <aside class="login-brand" aria-label="سیستم مراکز ادارهٔ ملی احصائیه و معلومات">
+      <img class="brand-logo" src="assets/images/logo.png" width="795" height="283" alt="ادارهٔ ملی احصائیه و معلومات">
+      <div class="brand-content">
+        <span class="brand-eyebrow"><span aria-hidden="true"></span> پنل کارمندان مراکز</span>
+        <h2>مدیریت خدمات،<br><span>رسیدگی بهتر.</span></h2>
+        <p>محیط کاری شما برای بررسی درخواستی‌ها و پیگیری خدمات تذکرهٔ الکترونیکی.</p>
+        <ul class="brand-services">
+          <li><span class="service-icon"><i class="far fa-file-alt" aria-hidden="true"></i></span><span>بررسی و پیگیری درخواستی‌ها</span></li>
+          <li><span class="service-icon"><i class="fas fa-users" aria-hidden="true"></i></span><span>رسیدگی به اعضای فامیل</span></li>
+          <li><span class="service-icon"><i class="fas fa-chart-bar" aria-hidden="true"></i></span><span>دسترسی به راپورهای مرکز</span></li>
+        </ul>
       </div>
-  
-      <div class="text-center mt-4">
-        <h2 class="title m-0">به سیستم خدمات اداره ملی احصایه و معلومات خوش آمدید</h2>
-     
-      </div>
-  
-      <form [formGroup]="form" class="p-6" (ngSubmit)="login()">
-        <div >
-          <div class="form-group">
-            <label>E-Mail</label>
-            <input formControlName="email" class="form-control" required>
-            <div *ngIf="form.get('email').hasError('required')">We need an email address to log you in</div>
-          </div>
-          <div class="form-group">
-            <label>Password</label>
-            <input type="password" formControlName="password" class="form-control" required>
-  
+      <p class="brand-footer">ادارهٔ ملی احصائیه و معلومات <span aria-hidden="true">/</span> مراکز خدمات</p>
+    </aside>
+
+    <section class="login-panel" aria-labelledby="login-title" [attr.aria-busy]="checkingSession || submitting">
+      <div class="form-content">
+        <div class="login-mark" aria-hidden="true"><i class="fas fa-fingerprint"></i></div>
+        <p class="form-eyebrow">خوش آمدید</p>
+        <h1 id="login-title">ورود به حساب کاربری</h1>
+        <p class="form-description">برای ورود به سیستم مراکز، معلومات حساب خود را وارد کنید.</p>
+
+        <div *ngIf="checkingSession" class="session-skeleton" role="status" aria-live="polite">
+          <span class="sr-only">در حال بررسی نشست شما…</span>
+          <div aria-hidden="true">
+            <div class="skeleton skeleton-label"></div><div class="skeleton skeleton-input"></div>
+            <div class="skeleton skeleton-label"></div><div class="skeleton skeleton-input"></div>
+            <div class="skeleton skeleton-button"></div>
           </div>
         </div>
-  
-        <button class="btn btn-primary btn-block" type="submit">
-          SIGN IN
-        </button>
-  
-     
-      </form>
-    </div>
-    </div>
+
+        <form *ngIf="!checkingSession" [formGroup]="form" (ngSubmit)="login()" novalidate>
+          <div *ngIf="errorMessage" class="login-alert" role="alert">
+            <i class="fas fa-exclamation-circle" aria-hidden="true"></i>
+            <p>{{ errorMessage }}</p>
+          </div>
+          <fieldset [disabled]="submitting">
+            <legend class="sr-only">معلومات ورود</legend>
+            <div class="login-field">
+              <label for="login-email">ایمیل</label>
+              <div class="input-wrap" [class.input-invalid]="fieldInvalid('email')">
+                <i class="far fa-envelope field-icon" aria-hidden="true"></i>
+                <input #emailInput id="login-email" type="email" formControlName="email"
+                       autocomplete="username" inputmode="email" dir="ltr" autocapitalize="none" spellcheck="false"
+                       placeholder="name@example.com" required [attr.aria-invalid]="fieldInvalid('email')"
+                       [attr.aria-describedby]="fieldInvalid('email') ? 'email-error' : null">
+              </div>
+              <p *ngIf="fieldInvalid('email')" id="email-error" class="field-error">
+                {{ form.get('email').hasError('required') ? 'ایمیل خود را وارد کنید.' : 'ایمیل را به شکل درست وارد کنید.' }}
+              </p>
+            </div>
+
+            <div class="login-field password-field">
+              <label for="login-password">رمز عبور</label>
+              <div class="input-wrap" [class.input-invalid]="fieldInvalid('password')">
+                <i class="fas fa-lock field-icon" aria-hidden="true"></i>
+                <input #passwordInput id="login-password" [type]="visible ? 'text' : 'password'"
+                       formControlName="password" autocomplete="current-password" dir="ltr" required
+                       [attr.aria-invalid]="fieldInvalid('password')"
+                       [attr.aria-describedby]="fieldInvalid('password') ? 'password-error' : null">
+                <button class="password-toggle" type="button" (click)="visible = !visible"
+                        [attr.aria-label]="visible ? 'پنهان کردن رمز عبور' : 'نمایش رمز عبور'"
+                        [attr.aria-pressed]="visible" aria-controls="login-password">
+                  <i class="far" [class.fa-eye]="!visible" [class.fa-eye-slash]="visible" aria-hidden="true"></i>
+                </button>
+              </div>
+              <p *ngIf="fieldInvalid('password')" id="password-error" class="field-error">رمز عبور خود را وارد کنید.</p>
+            </div>
+
+            <div class="login-options">
+              <a [href]="forgetPasswordLink" class="forgot-link">رمز عبور را فراموش کرده‌اید؟</a>
+            </div>
+            <button class="login-submit" type="submit" [disabled]="submitting">
+              <span>{{ submitting ? 'در حال ورود…' : 'ورود به سیستم' }}</span>
+              <i *ngIf="!submitting" class="fas fa-arrow-left" aria-hidden="true"></i>
+              <span *ngIf="submitting" class="submit-progress" aria-hidden="true"></span>
+            </button>
+          </fieldset>
+          <span class="sr-only" role="status" aria-live="polite">{{ submitting ? 'در حال بررسی معلومات ورود؛ لطفاً منتظر بمانید.' : '' }}</span>
+        </form>
+
+        <p class="login-help">برای دریافت حساب کاربری با مدیر مرکز تماس بگیرید.</p>
+      </div>
+      <p class="panel-footer"><i class="fas fa-id-badge" aria-hidden="true"></i> ویژهٔ کارمندان مراکز خدمات</p>
+    </section>
   </div>
-   
-  </div>
-  
+  <p class="page-footer">سیستم مدیریت مراکز <span aria-hidden="true">·</span> خدمات تذکرهٔ الکترونیکی</p>
+</div>

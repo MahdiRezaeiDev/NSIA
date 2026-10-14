@@ -1,10 +1,9 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-
+import { Subject } from 'rxjs';
+import { finalize, takeUntil, timeout } from 'rxjs/operators';
 import { Api } from '../Api';
-import { NgxSpinner } from 'ngx-spinner/lib/ngx-spinner.enum';
-import { NgxSpinnerService } from 'ngx-spinner';
 
 @Component({
   selector: 'login-page',
@@ -12,71 +11,117 @@ import { NgxSpinnerService } from 'ngx-spinner';
   styleUrls: ['./login.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent implements OnInit, OnDestroy {
+  @ViewChild('emailInput', { static: false }) emailInput: ElementRef;
+  @ViewChild('passwordInput', { static: false }) passwordInput: ElementRef;
 
   form: FormGroup;
-  forgetPasswordLink:string="";
-  inputType = 'password';
+  forgetPasswordLink: string;
   visible = false;
-  
+  checkingSession = false;
+  submitting = false;
+  submitted = false;
+  errorMessage = '';
+  private destroyed = new Subject<void>();
 
-  public errors:any=[];
-  constructor(private router: Router,
-              private fb: FormBuilder,
-              private cd: ChangeDetectorRef,
-              private api:Api,
-              private spinner:NgxSpinnerService
-    
-  ) {
-    this.forgetPasswordLink = this.api.endpoint.replace("api","password/reset");
-    this.spinner.show();
-    console.log('DETAILS',this.api.userDetails);
-    this.api.process('/isLoggedIn',{},"GET").subscribe((res:any)=>{
-      if(this.api.isAudit()){
-        this.router.navigate(["/audit-report"]);
-      }
-      if(this.api.userDetails.role =='admin' || this.api.userDetails.role =='team_leader' || this.api.userDetails.role =='center_manager'){
-        this.router.navigate(['/admin-dashboard']);
-      }else{
-        this.router.navigate(['/dashboard']);
-      }
-     
-      this.spinner.hide();
-    },(error)=>{
-        this.api.logout();
-        this.spinner.hide();
-    });
-
+  constructor(private router: Router, private fb: FormBuilder,
+              private cd: ChangeDetectorRef, private api: Api) {
+    this.forgetPasswordLink = this.api.endpoint.replace(/\/api\/?$/, '/password/reset');
   }
 
   ngOnInit() {
     this.form = this.fb.group({
-      email: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required]
     });
-  
-  }
-  login() {
-    //this.router.navigate(['/']);
-    this.api.clearLocalStorageInfo();
-    this.spinner.show();
-    this.api.process("/login",this.form.value).subscribe((res:any)=>{
-      this.api.setToken(res.token);
-      this.api.setUserDetails(res.user_details);
-      this.spinner.hide();
-      if(res.user_details.role == 'admin' || res.user_details.role == 'team_leader'  || res.user_details.role == 'center_manager'){
-        this.router.navigateByUrl("/admin-dashboard");
-      }else{
-        this.router.navigateByUrl("/dashboard");
-      }
-     
-    },(errors)=>{
-      this.spinner.hide();
-       this.api.displayErrors(errors.error.errors);
+
+    // New visitors can use the form immediately; only existing sessions need checking.
+    if (!this.api.isLoggedIn()) {
+      return;
+    }
+    this.checkingSession = true;
+    this.api.process('/isLoggedIn', {}, 'GET').pipe(
+      timeout(30000),
+      takeUntil(this.destroyed),
+      finalize(() => {
+        this.checkingSession = false;
+        this.cd.markForCheck();
+      })
+    ).subscribe(() => this.openDashboard(), () => {
+      this.api.logout();
     });
   }
 
+  fieldInvalid(name: string): boolean {
+    const control = this.form.get(name);
+    return control.invalid && (control.touched || this.submitted);
+  }
 
-  
+  login() {
+    if (this.submitting || this.checkingSession) {
+      return;
+    }
+    this.submitted = true;
+    this.errorMessage = '';
+    this.form.get('email').setValue((this.form.get('email').value || '').trim());
+    if (this.form.invalid) {
+      const input = this.form.get('email').invalid ? this.emailInput : this.passwordInput;
+      if (input) { input.nativeElement.focus(); }
+      return;
+    }
 
+    this.submitting = true;
+    this.api.clearLocalStorageInfo();
+    this.api.process('/login', this.form.value).pipe(
+      timeout(30000),
+      takeUntil(this.destroyed),
+      finalize(() => {
+        this.submitting = false;
+        this.cd.markForCheck();
+      })
+    ).subscribe((res: any) => {
+      this.api.setToken(res.token);
+      this.api.setUserDetails(res.user_details);
+      this.openDashboard();
+    }, (error: any) => {
+      this.errorMessage = this.loginError(error);
+    });
+  }
+
+  private openDashboard() {
+    const role = this.api.userDetails && this.api.userDetails.role;
+    if (role === 'audit') {
+      this.router.navigateByUrl('/audit-report');
+    } else if (['admin', 'team_leader', 'center_manager'].indexOf(role) !== -1) {
+      this.router.navigateByUrl('/admin-dashboard');
+    } else {
+      this.router.navigateByUrl('/dashboard');
+    }
+  }
+
+  private loginError(error: any): string {
+    if (error.status === 0 || error.name === 'TimeoutError') {
+      return 'ارتباط با سرور برقرار نشد. اتصال خود را بررسی کرده و دوباره کوشش کنید.';
+    }
+    if (error.status === 429) {
+      return 'تعداد تلاش‌های ورود زیاد شده است. کمی بعد دوباره کوشش کنید.';
+    }
+    if (error.status >= 500) {
+      return 'سیستم در حال حاضر پاسخ نمی‌دهد. لطفاً کمی بعد دوباره کوشش کنید.';
+    }
+    // Preserve specific server feedback, including restrictions on the center's IP.
+    const errors = error.error && error.error.errors;
+    if (Array.isArray(errors) && errors.length) {
+      return errors.join(' ');
+    }
+    if (error.status === 401 || error.status === 403) {
+      return 'ورود انجام نشد. معلومات حساب خود را بررسی کنید؛ اگر مشکل ادامه داشت با مدیر مرکز تماس بگیرید.';
+    }
+    return 'ورود انجام نشد. لطفاً دوباره کوشش کنید.';
+  }
+
+  ngOnDestroy() {
+    this.destroyed.next();
+    this.destroyed.complete();
+  }
 }
