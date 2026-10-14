@@ -1,22 +1,25 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input } from '@angular/core';
 import { Router, ActivatedRoute, ParamMap } from '@angular/router';
-import { switchMap } from 'rxjs/operators';
+import { switchMap, timeout } from 'rxjs/operators';
 import {Api} from '../services/Api';
 import {  ReCaptchaV3Service} from 'ng-recaptcha';
-import { NgxSpinnerService } from 'ngx-spinner';
+import { RequestState } from '../shared/RequestState';
 @Component({
   selector: 'app-tracking',
   templateUrl: './tracking.component.html',
   styleUrls: ['./tracking.component.css']
 })
-export class TrackingComponent implements OnInit {
+export class TrackingComponent implements OnInit, OnDestroy {
+  public loading = new RequestState();
+  public errorMessage = '';
+  ngOnDestroy() { this.loading.destroy(); }
 
   public tracking_no:string="";
   public contact_no:string="";
   public printLink:any="";
   public events:any=[];
   @Input() formName:string="";
-  constructor(private route:ActivatedRoute,private api:Api,private captcha:ReCaptchaV3Service,private spinner: NgxSpinnerService) {
+  constructor(private route:ActivatedRoute,private api:Api,private captcha:ReCaptchaV3Service) {
 
    }
 
@@ -30,19 +33,16 @@ export class TrackingComponent implements OnInit {
 
 
   track(){
-    this.spinner.show();
-    this.captcha.execute('tracking').subscribe((token)=>{
-  
-      this.api.process("/track",{token:token,tracking_no:this.tracking_no,contact_no:this.contact_no}).subscribe(res=>{
-        this.events = res;
-        this.spinner.hide();
-      },error=>{
-        this.spinner.hide();
-        console.log('ERROR',error);
-        alert(error.error.message);
-      });
-    },()=>{
-        this.spinner.hide();
+    if (this.loading.busy('tracking')) { return; }
+    this.errorMessage = '';
+    this.events = [];
+    this.loading.track('tracking', this.captcha.execute('tracking').pipe(
+      timeout(30000),
+      switchMap(token => this.api.process('/track', {token:token,tracking_no:this.tracking_no,contact_no:this.contact_no}))
+    )).subscribe(res => {
+      this.events = res;
+    }, error => {
+      this.errorMessage = (error.error && error.error.message) || 'loading.failed';
     });
       
   }

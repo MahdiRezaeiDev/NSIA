@@ -27,7 +27,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgbModalConfig, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { FormSavedConfirmationComponent } from './form-saved-confirmation/form-saved-confirmation.component';
 import { FileUploadModule } from 'ng2-file-upload';
-import { NgxSpinnerModule } from "ngx-spinner";
+import { LoadingComponent } from './loading/loading.component';
 import { NoticeComponent } from './notice/notice.component';
 export function createTranslateLoader(http: HttpClient) {
   return new TranslateHttpLoader(http, './assets/i18n/', '.json');
@@ -35,6 +35,7 @@ export function createTranslateLoader(http: HttpClient) {
 @NgModule({
   declarations: [
     AppComponent,
+    LoadingComponent,
     IndividualformComponent,
     HomepageComponent,
  
@@ -68,7 +69,6 @@ export function createTranslateLoader(http: HttpClient) {
     NgbModule,
     Select2Module,
     FileUploadModule,
-    NgxSpinnerModule,
     NgxMaskModule.forRoot({}),
     TranslateModule.forRoot({
       loader: {

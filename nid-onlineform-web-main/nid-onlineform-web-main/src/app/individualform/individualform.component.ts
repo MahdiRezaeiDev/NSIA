@@ -1,6 +1,7 @@
 import {
   Component,
   OnInit,
+  OnDestroy,
   Input,
   ViewChild,
   ViewChildren,
@@ -19,7 +20,10 @@ import {
   debounceTime,
   distinctUntilChanged,
   map,
-  switchMap
+  switchMap,
+  take,
+  finalize,
+  timeout
 } from 'rxjs/operators';
 import {
   text
@@ -47,14 +51,54 @@ import { NgbModalConfig, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { FormSavedConfirmationComponent} from '../form-saved-confirmation/form-saved-confirmation.component';
 import {Md5} from 'ts-md5/dist/md5';
 import { daysInJalaliMonth, isValidJalaliDate, jalaliNumber } from '../shared/JalaliDate';
-import { NgxSpinnerService } from 'ngx-spinner';
+import { RequestState } from '../shared/RequestState';
 
 @Component({
   selector: 'app-individualform',
   templateUrl: './individualform.component.html',
   styleUrls: ['./individualform.component.css']
 })
-export class IndividualformComponent implements OnInit {
+export class IndividualformComponent implements OnInit, OnDestroy {
+  public loading = new RequestState();
+  public initializationError = false;
+  public operationError = false;
+
+  get actionBusy(): boolean { return this.loading.busy('save', 'validate', 'submit'); }
+  get actionLabel(): string {
+    return this.loading.busy('submit') ? 'loading.submitting' :
+      this.loading.busy('validate') ? 'loading.validating' : 'loading.saving';
+  }
+  private viewTimers: number[] = [];
+  ngOnDestroy() {
+    this.loading.destroy();
+    this.viewTimers.forEach(timer => window.clearTimeout(timer));
+  }
+
+  private afterViewUpdate(callback: () => void, delay: number) {
+    const timer = window.setTimeout(() => {
+      this.viewTimers = this.viewTimers.filter(value => value !== timer);
+      callback();
+    }, delay);
+    this.viewTimers.push(timer);
+  }
+
+  retryInitialization() {
+    this.initializationError = false;
+    if (!this.application_id) { this.createNewForm(); }
+    if (!this.provinces.length) { this.setProvinces(); }
+  }
+
+  retryCenters() {
+    if (this.loading.failed('centerCountries')) { this.setCenterCountries(); }
+    if (this.loading.failed('centerProvinces')) { this.setCenterProvinces(this.centerCountry); }
+    if (this.loading.failed('centers')) { this.setCenters(this.centerProvince, this.model.center_id); }
+  }
+
+  showRequestError(error) {
+    this.errors = (error && error.error && error.error.errors) || {};
+    this.errorKeys = Object.keys(this.errors);
+    this.operationError = this.errorKeys.length === 0;
+  }
   currentForm = "";
   applicationNotFound: boolean = false;
   application_id: string = "";
@@ -121,7 +165,7 @@ export class IndividualformComponent implements OnInit {
   };
 
   
-  constructor(public api: Api, private translate: TranslateService, private recaptchaV3Service: ReCaptchaV3Service, private router: Router,config: NgbModalConfig, private modalService: NgbModal,private spinner:NgxSpinnerService) {
+  constructor(public api: Api, private translate: TranslateService, private recaptchaV3Service: ReCaptchaV3Service, private router: Router,config: NgbModalConfig, private modalService: NgbModal) {
 
     this.months = [];
     this.years = [];
@@ -136,11 +180,12 @@ export class IndividualformComponent implements OnInit {
       this.years.push(i);
     }
     this.setRelationships();
-    let state = this.router.getCurrentNavigation().extras.state;
+    const navigation = this.router.getCurrentNavigation();
+    const state = navigation && navigation.extras.state;
     if (state && state.hasOwnProperty('foundApplication')) {
-      setTimeout(()=>{
+      this.loading.track('initial', this.translate.get('relationships').pipe(take(1))).subscribe(() => {
         this.setSavedApplication(state.foundApplication);
-      },2000);
+      });
     
     } else {
       this.createNewForm();
@@ -208,41 +253,32 @@ export class IndividualformComponent implements OnInit {
 
   }
   submitForm() {
+    if (this.actionBusy) { return; }
     this.errors = [];
     this.errorKeys = [];
-    this.processing=true;
-    this.recaptchaV3Service.execute('new_id')
-      .subscribe(token => {
+    this.operationError = false;
+    this.processing = true;
+    this.loading.track('submit', this.recaptchaV3Service.execute('new_id').pipe(
+      timeout(30000),
+      switchMap(token => {
         this.model['token'] = token;
-
-        this.api.process('/submit-individual-form', this.getModelData()).subscribe(res => {
-          this.router.navigateByUrl("/individual-form-confirmation", {
-            state: {
-              submittedForm: res
-            }
-          });
-        }, error => {
-          try{
-            this.errors = error.error.errors;
-            this.errorKeys = Object.keys(this.errors);
-            this.processing=false;
-          }catch(error){
-            this.processing=false;
-          }
-          
-     
-
-        });
-      });
-
-    
+        return this.api.process('/submit-individual-form', this.getModelData());
+      }),
+      finalize(() => { this.processing = false; })
+    )).subscribe(res => {
+      this.router.navigateByUrl('/individual-form-confirmation', {state: {submittedForm: res}});
+    }, error => {
+      this.errors = (error.error && error.error.errors) || [];
+      this.errorKeys = Object.keys(this.errors);
+      this.operationError = this.errorKeys.length === 0;
+    });
   }
 
   saveForm() {
-    return this.api.process('/saveForm', {
+    return this.loading.track('save', this.api.process('/saveForm', {
       application_id: this.application_id,
       data: this.removeUploadedImages(this.getModelData(true))
-    });
+    }));
   }
 
   removeUploadedImages(data) {
@@ -271,7 +307,7 @@ export class IndividualformComponent implements OnInit {
         this.selectedCenter = searchedCenter[0];
       }
       this.getAppointments(this.model.center_id);
-      setTimeout(() => {
+      this.afterViewUpdate(() => {
         if (this.rows.hasOwnProperty('first')) {
           // this.rows.nativeElement.focus();
         }
@@ -283,12 +319,13 @@ export class IndividualformComponent implements OnInit {
 
   setProvinces() {
     let searchText = "";
-    this.spinner.show();
-    this.api.process("/searchProvinces?query=" + searchText, {}, 'GET').subscribe(res => {
+
+    this.loading.track('initial', this.api.process("/searchProvinces?query=" + searchText, {}, 'GET')).subscribe(res => {
       this.provinces = res;
-      this.spinner.hide();
+
     },(e)=>{
-      this.spinner.hide();
+      this.initializationError = true;
+
     });
 
     this.api.translateService.get('countries').subscribe(res => {
@@ -299,28 +336,28 @@ export class IndividualformComponent implements OnInit {
   }
   setCenterProvinces(country) {
     let promise = new Promise<void>((resolve, reject) => {
-      this.api.process("/searchCenters?field=province&country=" + country, {}, 'GET').subscribe(res => {
+      this.loading.track('centerProvinces', this.api.process("/searchCenters?field=province&country=" + country, {}, 'GET')).subscribe(res => {
         this.centerProvinces = res;
         if (this.application_id && this.model.center_id) {
           this.setCenters('unknown', this.model.center_id);
         }
         resolve();
-      });
+      }, () => resolve());
     });
 
     return promise;
 
   }
   setCenterCountries() {
-    //this.spinner.show();
-    this.api.process("/searchCenters?field=country", {}, 'GET').subscribe(res => {
+
+    this.loading.track('centerCountries', this.api.process("/searchCenters?field=country", {}, 'GET')).subscribe(res => {
        this.centerCountries = res;
-     // this.spinner.hide();
+
       if (this.application_id && this.model.center_id) {
         this.setCenters('unknown', this.model.center_id);
       }
     },(e)=>{
-      //this.spinner.hide();
+
     });
   }
 
@@ -329,12 +366,12 @@ export class IndividualformComponent implements OnInit {
     if (center_id == undefined) {
       center_id = 'unknown';
     }
-    this.spinner.show();
+
     console.log('setCenters center_id',center_id);
     console.log('province_name',province);
-    this.api.process("/searchCenters?field=name&province=" + province + "&id=" + center_id, {}, 'GET').subscribe(res => {
+    this.loading.track('centers', this.api.process("/searchCenters?field=name&province=" + province + "&id=" + center_id, {}, 'GET')).subscribe(res => {
       this.centerNames = res;
-      this.spinner.hide();
+
       for (let c of this.centerNames) {
         if (c.id == this.model.center_id) {
           this.centerProvince = c.province;
@@ -342,7 +379,7 @@ export class IndividualformComponent implements OnInit {
       }
 
     },(e)=>{
-      this.spinner.hide();
+
     });
   }
 
@@ -410,7 +447,7 @@ export class IndividualformComponent implements OnInit {
   }
 
   selectVillage(village, model) {
-    setTimeout(() => {
+    this.afterViewUpdate(() => {
       model.district = village.item.district;
       model.province = village.item.province;
       model.village = village.item.village;
@@ -462,20 +499,22 @@ export class IndividualformComponent implements OnInit {
   }
 
   nextStep() {
-    this.spinner.show();
+    if (this.actionBusy) { return; }
+    this.operationError = false;
+
     let data = this.getModelData(true);
 
     this.errors = [];
     this.errorKeys = [];
-    this.api.process("/validate?step=" + this.step, data).subscribe(res => {
-      this.spinner.hide();
+    this.loading.track('validate', this.api.process("/validate?step=" + this.step, data)).subscribe(res => {
+
       this.step = this.step + 1;
       this.saveForm().subscribe(res => {
         this.application_id = res['application_id'];
         this.errors = [];
        
       }, errors => {
-        this.errors = errors.error.errors;
+        this.showRequestError(errors);
       
 
       });
@@ -483,9 +522,9 @@ export class IndividualformComponent implements OnInit {
 
 
 
-        setTimeout(() => {
+        this.afterViewUpdate(() => {
           let element = document.getElementById('familymember-0');
-          element.scrollIntoView();
+          if (element) { element.scrollIntoView(); }
           //this.collapseAllMembers();
           this.model.members[0].open();
         }, 1000);
@@ -494,9 +533,8 @@ export class IndividualformComponent implements OnInit {
     
 
     }, error => {
-      this.spinner.hide();
-      this.errors = error.error.errors;
-      this.errorKeys = Object.keys(this.errors);
+
+      this.showRequestError(error);
     });
 
   }
@@ -533,12 +571,14 @@ export class IndividualformComponent implements OnInit {
   }
 
   nextMember(currentMemberIndex,increment) {
+    if (this.actionBusy) { return; }
+    this.operationError = false;
     console.log('NEXT MEMBER',currentMemberIndex);
     let data = this.getModelData();
     this.errorKeys = [];
-    this.spinner.show();
-    this.api.process("/validate?step=3&member=" + this.getActiveMemberIndex(), data).subscribe(res => {
-      this.spinner.hide();
+
+    this.loading.track('validate', this.api.process("/validate?step=3&member=" + this.getActiveMemberIndex(), data)).subscribe(res => {
+
       this.errors = [];
       if(increment){
         currentMemberIndex = currentMemberIndex+1;
@@ -554,8 +594,8 @@ export class IndividualformComponent implements OnInit {
         }
         let element = document.getElementById('familymember-' + (currentMemberIndex));
         this.updateRelationships(this.model.members[currentMemberIndex]);
-        setTimeout(() => {
-          element.scrollIntoView();
+        this.afterViewUpdate(() => {
+          if (element) { element.scrollIntoView(); }
         }, 1000);
 
       } else {
@@ -567,8 +607,8 @@ export class IndividualformComponent implements OnInit {
         */
         this.step = 2;
         let element = document.getElementById('top');
-        setTimeout(() => {
-          element.scrollIntoView();
+        this.afterViewUpdate(() => {
+          if (element) { element.scrollIntoView(); }
         }, 1000);
       }
       let member = this.model.members[currentMemberIndex];
@@ -585,14 +625,13 @@ export class IndividualformComponent implements OnInit {
         this.application_id = res['application_id'];
         this.errors = [];
       }, errors => {
-        this.errors = errors.error.errors;
+        this.showRequestError(errors);
 
       });
 
     }, error => {
-      this.spinner.hide();
-      this.errors = error.error.errors;
-      this.errorKeys = Object.keys(this.errors);
+
+      this.showRequestError(error);
     });
     this.updateCopyFrom();
   }
@@ -628,8 +667,8 @@ export class IndividualformComponent implements OnInit {
       this.step = 1;
     }
     let element = document.getElementById('familymember-' + (currentMemberIndex - 1));
-    setTimeout(() => {
-      element.scrollIntoView();
+    this.afterViewUpdate(() => {
+      if (element) { element.scrollIntoView(); }
     }, 1000);
 
     this.errors = [];
@@ -673,7 +712,7 @@ export class IndividualformComponent implements OnInit {
     this.step = 1;
     this.currentForm = 'new';
     this.setCenterCountries();
-    setTimeout(() => {
+    this.afterViewUpdate(() => {
       if(center_id){
         this.model['center_id'] = center_id;
       }
@@ -710,27 +749,29 @@ export class IndividualformComponent implements OnInit {
 
 
   createNewForm() {
-    this.spinner.show();
-    this.saveForm().subscribe(res => {
+
+    this.loading.track('initial', this.saveForm()).subscribe(res => {
       this.currentForm = 'new';
       this.step = 1;
       this.application_id = res['application_id'];
-      this.spinner.hide();
+
     }, error => {
-      this.spinner.hide();
-      alert('یک مشکل رخ داد. لطفاً دوباره کوشش کنید');
+
+      this.initializationError = true;
     });
 
   }
 
   saveWithMessage() {
-    this.spinner.show();
+    if (this.actionBusy) { return; }
+    this.operationError = false;
+
     this.saveForm().subscribe(res => {
-      this.spinner.hide();
+
       this.openFormSavedConfirmation(FormSavedConfirmationComponent);
     }, error => {
-      this.spinner.hide();
-      alert('یک مشکل رخ داد! لطفاً دوباره کوشش کنید!');
+
+      this.operationError = true;
     });
   }
 
@@ -780,7 +821,7 @@ export class IndividualformComponent implements OnInit {
   }
   searchForOldApplication() {
     this.currentForm = 'old';
-    setTimeout(() => {
+    this.afterViewUpdate(() => {
       this.searchBox.nativeElement.focus();
     }, 400);
   }
@@ -798,6 +839,8 @@ export class IndividualformComponent implements OnInit {
   }
 
   validateAndAddNewMember() {
+    if (this.actionBusy) { return; }
+    this.operationError = false;
    
     let data = this.getModelData();
     this.errorKeys = [];
@@ -805,18 +848,18 @@ export class IndividualformComponent implements OnInit {
     if (currentMemberIndex == -1) {
       return false;
     }
-    this.spinner.show();
-    this.api.process("/validate?step=3&member=" + currentMemberIndex, data).subscribe(res => {
+
+    this.loading.track('validate', this.api.process("/validate?step=3&member=" + currentMemberIndex, data)).subscribe(res => {
       this.errors = [];
-      this.spinner.hide();
+
       this.addFamilyMember();
-      setTimeout(() => {
-        document.getElementById('familymember-' + (currentMemberIndex + 1)).scrollIntoView();
+      this.afterViewUpdate(() => {
+        const element = document.getElementById('familymember-' + (currentMemberIndex + 1));
+        if (element) { element.scrollIntoView(); }
       }, 1000);
     }, error => {
-      this.spinner.hide();
-      this.errors = error.error.errors;
-      this.errorKeys = Object.keys(this.errors);
+
+      this.showRequestError(error);
     });
   }
 
@@ -885,7 +928,7 @@ export class IndividualformComponent implements OnInit {
           let relationshipValue = member.getFieldValue('relationship_with_head_of_family');
          
           relationshipField.setLanguageOption(this.api, 'relationships', true);
-          setTimeout(() => {
+          this.afterViewUpdate(() => {
             
             member.removeOption('relationship_with_head_of_family', 1);
             member.updateRequiredFiles();
@@ -939,9 +982,9 @@ export class IndividualformComponent implements OnInit {
     this.model.members[index].toggleCollapse();
 
     this.updateRelationships(this.model.members[index]);
-    setTimeout(() => {
+    this.afterViewUpdate(() => {
       let element = document.getElementById('familymember-' + index);
-      element.scrollIntoView();
+      if (element) { element.scrollIntoView(); }
     }, 1000);
 
 
@@ -1016,14 +1059,10 @@ export class IndividualformComponent implements OnInit {
     }
     console.log('fieldName',fieldName);
    console.log('PROVINCE',province);
- 
-   
-    
-  
-    this.spinner.show();
-    this.api.process("/searchDistricts?province=" + province, {}, "GET").subscribe((res:any) => {
+
+    this.loading.track('districts-' + memberKey + fieldName, this.api.process("/searchDistricts?province=" + province, {}, "GET")).subscribe((res:any) => {
       let fieldValue = this.model.members[memberKey].getFieldValue(fieldName);
-      this.spinner.hide();
+
       let selectedDistrict=this.model.members[memberKey].getFieldValue(fieldName);
       if(selectedDistrict.hasOwnProperty('district')){
         if( res.indexOf(selectedDistrict.district) == -1){
@@ -1035,7 +1074,7 @@ export class IndividualformComponent implements OnInit {
     
       this.districts[memberKey + fieldName] = res;
      
-      //setTimeout(() => {
+      //this.afterViewUpdate(() => {
         this.model.members[memberKey].setFieldValue(fieldName, fieldValue);
         if (typeof (fieldValue) == 'object' && fieldValue.hasOwnProperty('district')) {
            
@@ -1050,7 +1089,7 @@ export class IndividualformComponent implements OnInit {
      // }, 1000);
 
     },(error)=>{
-      this.spinner.hide();
+
     });
   }
 
@@ -1412,16 +1451,16 @@ public toEnglishNumber(val){
   }
 
   getAppointments(center_id){
-    this.spinner.show();
-    this.api.process("/getAppointments?center_id="+center_id,{},"GET").subscribe((res)=>{
-      this.spinner.hide();
+
+    this.loading.track('appointments', this.api.process("/getAppointments?center_id="+center_id,{},"GET")).subscribe((res)=>{
+
       this.appointments = res;
       if(this.savedAppointmentDate && center_id == this.savedAppointmentDate.center_id){
           this.appointments.unshift(this.savedAppointmentDate);
       }
       
     },(e)=>{
-      this.spinner.hide();
+
     });
   }
   selectAppointmentDate(a){

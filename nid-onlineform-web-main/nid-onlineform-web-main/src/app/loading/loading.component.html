@@ -1,0 +1,30 @@
+<div class="loading-view" [ngClass]="'loading-' + variant" role="status" aria-live="polite" aria-atomic="true">
+  <div class="loading-caption" [class.sr-only]="variant === 'control'">
+    <span class="loading-mark" aria-hidden="true"></span>
+    <span>{{label | translate}}</span>
+  </div>
+
+  <ng-container *ngIf="variant === 'form'">
+    <div class="skeleton-reference skeleton-panel" aria-hidden="true">
+      <span class="skeleton skeleton-title"></span>
+      <span class="skeleton skeleton-line"></span>
+    </div>
+    <div class="skeleton-steps" aria-hidden="true">
+      <span class="skeleton skeleton-input"></span><span class="skeleton skeleton-input"></span>
+    </div>
+    <div class="skeleton-panel" aria-hidden="true">
+      <div class="skeleton-heading"><span class="skeleton skeleton-title"></span></div>
+      <div class="skeleton-fields">
+        <div class="skeleton-field" *ngFor="let field of fields">
+          <span class="skeleton skeleton-label"></span>
+          <span class="skeleton skeleton-input"></span>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
+  <div *ngIf="variant === 'section'" class="skeleton-results" aria-hidden="true">
+    <span class="skeleton skeleton-input" *ngFor="let field of [0, 1, 2]"></span>
+  </div>
+  <span *ngIf="variant === 'control'" class="skeleton skeleton-input" aria-hidden="true"></span>
+</div>

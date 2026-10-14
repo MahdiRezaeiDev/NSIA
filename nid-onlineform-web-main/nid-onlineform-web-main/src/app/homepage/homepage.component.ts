@@ -1,17 +1,21 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import {Router} from "@angular/router";
 import { Api } from '../services/Api';
 import {  ReCaptchaV3Service} from 'ng-recaptcha';
-import { NgxSpinnerService } from 'ngx-spinner';
+import { RequestState } from '../shared/RequestState';
+import { switchMap, timeout } from 'rxjs/operators';
 
 @Component({
   selector: 'app-homepage',
   templateUrl: './homepage.component.html',
   styleUrls: ['./homepage.component.css']
 })
-export class HomepageComponent implements OnInit {
+export class HomepageComponent implements OnInit, OnDestroy {
+  public loading = new RequestState();
+  public searchFailed = false;
+  ngOnDestroy() { this.loading.destroy(); }
 
-  constructor(public api:Api,private router:Router,private captcha:ReCaptchaV3Service,private spinner: NgxSpinnerService) { 
+  constructor(public api:Api,private router:Router,private captcha:ReCaptchaV3Service) {
 
   }
   public formName="";
@@ -30,17 +34,17 @@ export class HomepageComponent implements OnInit {
   }
 
   findApplication() {
-    
+    if (this.loading.busy('search')) { return; }
     this.applicationNotFound=false;
-    this.spinner.show();
-    this.captcha.execute('find_application').subscribe((token)=>{
-      this.api.process("/findApplication", {reference_no:this.reference_no,token:token}).subscribe(res => {
-        this.router.navigateByUrl("/individual-form",{state:{foundApplication:res}});
-        this.spinner.hide();
-      }, error => {
-        this.applicationNotFound = true;
-        this.spinner.hide();
-      });
+    this.searchFailed = false;
+    this.loading.track('search', this.captcha.execute('find_application').pipe(
+      timeout(30000),
+      switchMap(token => this.api.process('/findApplication', {reference_no:this.reference_no,token:token}))
+    )).subscribe(res => {
+      this.router.navigateByUrl('/individual-form', {state:{foundApplication:res}});
+    }, error => {
+      this.applicationNotFound = error.status === 404;
+      this.searchFailed = !this.applicationNotFound;
     });
 
   }

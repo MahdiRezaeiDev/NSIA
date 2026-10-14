@@ -1,4 +1,15 @@
 <div id="top"></div>
+<app-loading *ngIf="loading.busy('initial')" variant="form" label="loading.form"></app-loading>
+<div *ngIf="initializationError && !loading.busy('initial')" class="loading-error" role="alert">
+  <p>{{'loading.failed'|translate}}</p>
+  <button type="button" class="btn btn-outline-primary" (click)="retryInitialization()">{{'loading.retry'|translate}}</button>
+</div>
+<div class="form-operation-status" *ngIf="actionBusy && !loading.busy('initial')">
+  <app-loading variant="status" [label]="actionLabel"></app-loading>
+</div>
+<div *ngIf="operationError" class="alert alert-danger" role="alert">{{'loading.action_failed'|translate}}</div>
+<fieldset class="form-content" [hidden]="loading.busy('initial') || initializationError"
+  [disabled]="actionBusy" [attr.inert]="actionBusy ? '' : null" [attr.aria-busy]="actionBusy">
 
 
 
@@ -372,6 +383,8 @@
                       </div>
 
                       <div *ngIf="field.type=='addressAutocomplete'" [formGroupName]="field.name" class="mt-2">
+                        <div [attr.inert]="loading.busy('districts-' + memberKey + field.name) ? '' : null"
+                          [attr.aria-busy]="loading.busy('districts-' + memberKey + field.name)">
                         <div class="row">
                           <div class="col-md-6">
                            
@@ -447,11 +460,14 @@
                               [ngClass]="{'form-control':true,'is-invalid':errors['members.'+memberKey+'.district']}"
                               *ngIf="member.form.get(field.name+'.country').value!=1" [maxlength]="field.maxLength">
 
-                              <select2  *ngIf="member.form.get(field.name+'.country').value==1"  [data]="districts[memberKey+field.name]" width="100%" height="200px"  
+                              <div class="loading-control-slot" *ngIf="member.form.get(field.name+'.country').value==1">
+                              <app-loading *ngIf="loading.busy('districts-' + memberKey + field.name)" variant="control" label="loading.districts"></app-loading>
+                              <select2 [style.visibility]="loading.busy('districts-' + memberKey + field.name) ? 'hidden' : null" [data]="districts[memberKey+field.name]" width="100%" height="200px"
                                     [value]="field.value.district" (valueChanged)="districtSelected($event,field.name+'.district',member)"
                                      >
                                   <option value=""></option>
                                 </select2>
+                              </div>
                      
 
                             <div class="invalid-feedback"
@@ -477,6 +493,11 @@
                         </div>
                         
                       </div>
+                        </div>
+                        <div class="loading-error" *ngIf="field.type=='addressAutocomplete' && loading.failed('districts-' + memberKey + field.name)">
+                          <span role="alert">{{'loading.failed'|translate}}</span>
+                          <button type="button" class="btn btn-outline-primary" (click)="setDistricts(member.form.get(field.name+'.province').value,field.name,memberKey)">{{'loading.retry'|translate}}</button>
+                        </div>
                       <div *ngIf="field.type=='title'" class="mt-5">
                         <div class="card-header bg_main">
                           <h3> {{field.name|translate}}</h3>
@@ -604,9 +625,9 @@
         <div class="row mb-5">
             <div class="col-md-4">
                 <div class="mt-5">
-                <button class="btn btn-outline-success btn-block" (click)="saveWithMessage()">
+                <button class="btn btn-outline-success btn-block" [disabled]="actionBusy" (click)="saveWithMessage()">
                     <i class="fas fa-save"></i>
-                      {{'save_form_info'|translate}}
+                      {{(loading.busy('save') ? 'loading.saving' : 'save_form_info')|translate}}
   
                   </button>
                 </div>
@@ -614,7 +635,7 @@
             <div class="col-md-4">
              
                 <div class="mt-5">
-                  <button class="btn btn-outline-success btn-block" (click)="validateAndAddNewMember()" ngbTooltip="{{'click_here_to_add_family_member'|translate}}"> 
+                  <button class="btn btn-outline-success btn-block" [disabled]="actionBusy" (click)="validateAndAddNewMember()" ngbTooltip="{{'click_here_to_add_family_member'|translate}}">
                     <i class="fas fa-user-friends"></i>
                     {{'add_family_member'|translate}}
                   
@@ -625,7 +646,7 @@
 
           <div class="col-md-4">
               <div class="mt-5">
-              <button class="btn btn-outline-success btn-block" (click)="nextMember(memberKey,true)">
+              <button class="btn btn-outline-success btn-block" [disabled]="actionBusy" (click)="nextMember(memberKey,true)">
                    {{'verify_and_send'|translate}} <i class="fas fa-arrow-circle-left"></i>
                 </button>
               </div>
@@ -658,7 +679,12 @@
     
       <div class="card-body" *ngIf="step==2" >
    
-              <div class="row" *ngIf="is_new_application">
+              <app-loading *ngIf="is_new_application && loading.busy('centerCountries','centerProvinces','centers')" variant="section" label="loading.centers"></app-loading>
+              <div *ngIf="is_new_application && loading.failed('centerCountries','centerProvinces','centers')" class="loading-error" role="alert">
+                <p>{{'loading.failed'|translate}}</p>
+                <button type="button" class="btn btn-outline-primary" (click)="retryCenters()">{{'loading.retry'|translate}}</button>
+              </div>
+              <div class="row" *ngIf="is_new_application" [hidden]="loading.busy('centerCountries','centerProvinces','centers')">
                   <div class="col-md-12">
                     <div class="card">
                       <div class="card-header bg_main pointer">
@@ -698,19 +724,24 @@
                   </div>
                 </div>
                
-                <div class="row mt-5 mb-3" *ngIf="model.center_id && appointments.length>0 && selectedCenter.enable_appointments == 1">
+                <app-loading *ngIf="loading.busy('appointments') && selectedCenter.enable_appointments == 1" variant="section" label="loading.appointments"></app-loading>
+                <div *ngIf="loading.failed('appointments') && selectedCenter.enable_appointments == 1" class="loading-error" role="alert">
+                  <p>{{'loading.failed'|translate}}</p>
+                  <button type="button" class="btn btn-outline-primary" (click)="getAppointments(model.center_id)">{{'loading.retry'|translate}}</button>
+                </div>
+                <div class="row mt-5 mb-3" *ngIf="!loading.busy('appointments') && model.center_id && appointments.length>0 && selectedCenter.enable_appointments == 1">
                   <div class="col-md-12">
                     <h4>{{'select_appointment_date'|translate}}</h4>
                     <div class="invalid-feedback" *ngFor="let e of errors?.selectedAppointmentTime?.appointment_date"> {{e}} </div>
                   </div>
                 </div>
-                <div class="row mt-5 mb-5" *ngIf="model.center_id && appointments.length == 0  && selectedCenter.enable_appointments == 1">
+                <div class="row mt-5 mb-5" *ngIf="!loading.busy('appointments') && !loading.failed('appointments') && model.center_id && appointments.length == 0 && selectedCenter.enable_appointments == 1">
                     <div class="col-md-12">
                       <div class="alert alert-danger"> {{'no_appointments_found'|translate}} </div>
                     </div>
                 </div>
              
-                <div class="row" *ngIf="model.center_id && appointments.length>0 && selectedCenter.enable_appointments == 1">
+                <div class="row" *ngIf="!loading.busy('appointments') && model.center_id && appointments.length>0 && selectedCenter.enable_appointments == 1">
                   <div class="col-md-3 mt-3" *ngFor="let a of appointments">
                       <button [ngClass]="{'btn btn-default btn-block':true,active:selectedAppointmentDate==a.month}" (click)="selectAppointmentDate(a)"> <i class="fas fa-calendar-alt"></i> {{a.month}} </button> 
                   </div>
@@ -785,14 +816,10 @@
               
             </div>
           </div>
-          <p *ngIf="processing"><ngb-progressbar type="danger" [value]="100" [striped]="true">{{'please_wait'|translate}}...</ngb-progressbar></p>
-        <button class="btn btn-primary btn-block" [disabled]="!model.confirmation|| processing" (click)="submitForm()"> <i
-            class="fas fa-envelope"></i> {{'check_and_send'|translate}} </button>
+        <button class="btn btn-primary btn-block" [disabled]="!model.confirmation || actionBusy" [attr.aria-busy]="loading.busy('submit')" (click)="submitForm()"> <i
+            class="fas fa-envelope"></i> {{(loading.busy('submit') ? 'loading.submitting' : 'check_and_send')|translate}} </button>
       </div>
     </div>
  
 </div>
-
-
-
-
+</fieldset>

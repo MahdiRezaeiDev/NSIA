@@ -75,9 +75,9 @@ export class FamilyMember{
                     ]).setColumnWidth(12),
                     new FormField('marital_status','','btn-group',true,'').setColumnWidth(12).setLanguageOption(this.api,'marital_status_options').setCondition('apply_for_new_id','بلی'),
                     new FormField('dob','','dob_auto',true,"",[
-                        new FieldOption('birthday_day',"",""),
-                        new FieldOption('birthday_month',"",""),
                         new FieldOption('birthday_year',"",""),
+                        new FieldOption('birthday_month',"",""),
+                        new FieldOption('birthday_day',"",""),
                     ]).setColumnWidth(12).setCondition('apply_for_new_id','بلی').setShowConversion(true),
                     new FormField('has_digital_id','','btn-group',true,'0',[
                         new FieldOption("yes",'1').setIcon('fas fa-check').setColumnWidth(6),
@@ -187,9 +187,9 @@ export class FamilyMember{
                     ]).setColumnWidth(12).setCondition('identification_type','تذکره  دارد').setCondition('apply_for_new_id','بلی'),
                     
                     new FormField('id_issue_date','','date',true,"",[
-                        new FieldOption('id_issue_date_day',"","",3).setColumnWidth(4),
-                        new FieldOption('id_issue_date_month',"","",3).setColumnWidth(4),
                         new FieldOption('id_issue_date_year',"","",3).setType('textNumber').setMask('0000').setColumnWidth(4),
+                        new FieldOption('id_issue_date_month',"","",3).setColumnWidth(4),
+                        new FieldOption('id_issue_date_day',"","",3).setColumnWidth(4),
                     
                     ]).setColumnWidth(12).setCondition('identification_type','تذکره  دارد').setCondition('apply_for_new_id','بلی'),
 
@@ -199,9 +199,9 @@ export class FamilyMember{
                     new FormField('first_gurantor_father_name','').setCondition('apply_for_new_id','بلی').setCondition('identification_type','تذکره ندارد',true),
                     new FormField('first_gurantor_father_surname','','text',false).setCondition('apply_for_new_id','بلی').setCondition('identification_type','تذکره ندارد',true),
                     new FormField('first_gurantor_dob','','dob_auto',true,"",[
-                        new FieldOption('first_gurantor_dob_day',"",""),
-                        new FieldOption('first_gurantor_dob_month',"",""),
                         new FieldOption('first_gurantor_dob_year',"",""),
+                        new FieldOption('first_gurantor_dob_month',"",""),
+                        new FieldOption('first_gurantor_dob_day',"",""),
                     ]).setColumnWidth(12).setCondition('apply_for_new_id','بلی').setCondition('identification_type','تذکره ندارد',true),      
                     new FormField('first_gurantor_identity_type','','btn-group',false,'',[
                         new FieldOption("digital_id","تذکره الکترونیکی").setIcon('fas fa-address-card').setMask('0000-0000-00000'),
@@ -232,9 +232,9 @@ export class FamilyMember{
                     new FormField('first_gurantor_id_issue_place','','addressAutocomplete',true,{village:"",district:"",province:"",country:"1"}).setCondition('apply_for_new_id','بلی').hideField('country').setCondition('first_gurantor_identity_type','تذکره کاغذی').setCondition('identification_type','تذکره ندارد',true).setColumnWidth(12),
                     
                     new FormField('first_gurantor_id_issue_date','','date',true,"",[
-                        new FieldOption('first_gurantor_id_issue_date_day',"","",3).setColumnWidth(4),
-                        new FieldOption('first_gurantor_id_issue_date_month',"","",3).setColumnWidth(4),
                         new FieldOption('first_gurantor_id_issue_date_year',"","",3).setColumnWidth(4),
+                        new FieldOption('first_gurantor_id_issue_date_month',"","",3).setColumnWidth(4),
+                        new FieldOption('first_gurantor_id_issue_date_day',"","",3).setColumnWidth(4),
                     
                     ]).setCondition('apply_for_new_id','بلی').setCondition('first_gurantor_identity_type','تذکره کاغذی').setCondition('identification_type','تذکره ندارد',true).setColumnWidth(12),
                    
@@ -248,9 +248,9 @@ export class FamilyMember{
                     new FormField('second_gurantor_father_name','').setCondition('apply_for_new_id','بلی').setCondition('identification_type','تذکره ندارد',true),
                     new FormField('second_gurantor_father_surname','','text',false).setCondition('apply_for_new_id','بلی').setCondition('identification_type','تذکره ندارد',true),
                     new FormField('second_gurantor_dob','','dob_auto',true,"",[
-                        new FieldOption('second_gurantor_dob_day',"",""),
-                        new FieldOption('second_gurantor_dob_month',"",""),
                         new FieldOption('second_gurantor_dob_year',"",""),
+                        new FieldOption('second_gurantor_dob_month',"",""),
+                        new FieldOption('second_gurantor_dob_day',"",""),
                     ]).setColumnWidth(12).setCondition('apply_for_new_id','بلی').setCondition('identification_type','تذکره ندارد',true),                   
                     new FormField('second_gurantor_identity_type','','btn-group',false,'',[
                         new FieldOption("digital_id","تذکره الکترونیکی","").setIcon('fas fa-address-card'),
@@ -269,9 +269,9 @@ export class FamilyMember{
                 
                     new FormField('second_gurantor_id_issue_place','','addressAutocomplete',true,{village:"",district:"",province:"",country:"1"}).hideField('country').setCondition('apply_for_new_id','بلی').setCondition('second_gurantor_identity_type','تذکره کاغذی').setCondition('identification_type','تذکره ندارد',true).setColumnWidth(12),
                     new FormField('second_gurantor_id_issue_date','','date',true,"",[
-                        new FieldOption('second_gurantor_id_issue_date_day',"","",4).setColumnWidth(4),
-                        new FieldOption('second_gurantor_id_issue_date_month',"","",4).setColumnWidth(4),
                         new FieldOption('second_gurantor_id_issue_date_year',"","",4).setColumnWidth(4),
+                        new FieldOption('second_gurantor_id_issue_date_month',"","",4).setColumnWidth(4),
+                        new FieldOption('second_gurantor_id_issue_date_day',"","",4).setColumnWidth(4),
                     
                     ]).setCondition('apply_for_new_id','بلی').setCondition('second_gurantor_identity_type','تذکره کاغذی').setCondition('identification_type','تذکره ندارد',true).setColumnWidth(12),
                   

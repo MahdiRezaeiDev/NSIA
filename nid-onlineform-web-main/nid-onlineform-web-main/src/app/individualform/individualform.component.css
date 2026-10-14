@@ -317,6 +317,14 @@ button {
   max-width: 100%;
 }
 
+:host .form-content { border: 0; padding: 0; margin: 0; min-width: 0; }
+:host .form-content[inert] { pointer-events: none; }
+:host .form-operation-status { position: sticky; top: 12px; z-index: 1000; margin-block: 12px; }
+:host .loading-error { padding: 18px; margin-block: 16px; border: 1px solid #ebc7c7; border-radius: 8px; background: #fff7f7; color: #8b2929; }
+:host .loading-error .btn { margin-inline-start: 12px; }
+:host .loading-control-slot { position: relative; min-height: 46px; }
+:host .loading-control-slot app-loading { position: absolute; inset: 0; }
+
 :host .upload-btn-wrapper {
   max-width: 100%;
 }

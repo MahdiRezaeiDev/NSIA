@@ -61,15 +61,17 @@
                         <div *ngIf="formName=='find'" class="mt-3 mb-3">
                             <form action="/findApplication" method="GET" (ngSubmit)="findApplication()">
                               <div class="input-group mb-3">
-                                <input type="text" name="reference_no" [(ngModel)]="reference_no" class="form-control"
+                                <input type="text" name="reference_no" [(ngModel)]="reference_no" class="form-control" [disabled]="loading.busy('search')"
                                   #searchApplicationId placeholder="{{'forms.reference_no_placeholder'|translate}}"
                                   aria-describedby="button-addon2">
                                 <div class="input-group-append">
-                                  <button class="c-btn-outline-blue" type="submit"
-                                    id="button-addon2">{{'buttons.application_search_label'|translate}}</button>
+                                  <button class="c-btn-outline-blue" type="submit" [disabled]="loading.busy('search')" [attr.aria-busy]="loading.busy('search')"
+                                    id="button-addon2">{{(loading.busy('search') ? 'loading.searching' : 'buttons.application_search_label')|translate}}</button>
                                 </div>
                               </div>
                             </form>
+                            <app-loading *ngIf="loading.busy('search')" variant="section" label="loading.searching"></app-loading>
+                            <div *ngIf="searchFailed" class="alert alert-danger" role="alert">{{'loading.failed'|translate}}</div>
                             <div class="alert alert-danger mt-3 mb-3" *ngIf="applicationNotFound">
                                 {{'applicationNotFound'|translate}}
                               </div>
