@@ -4,7 +4,7 @@
   "clients": [],
   "database": "redis",
   "databaseConfig": {
-    "redis": {"host": "127.0.0.1", "port": 6379, "keyPrefix": "nsia_database_"}
+    "redis": {"host": "127.0.0.1", "port": 6379, "keyPrefix": "laravel_database_"}
   },
   "devMode": false,
   "host": "127.0.0.1",

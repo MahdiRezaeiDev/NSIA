@@ -3,6 +3,7 @@
 /.agents/
 /.codex/
 node_modules/
+laravel-echo-server.lock
 vendor/
 dist/
 coverage/

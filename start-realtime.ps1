@@ -3,10 +3,13 @@
 param()
 . "$PSScriptRoot/local-env.ps1"
 $realtimeDirectory = Join-Path $projectRoot 'local-realtime'
+$configDirectory = Join-Path $projectRoot '.runtime/realtime-config'
 $echoEntry = Join-Path $realtimeDirectory 'node_modules/laravel-echo-server/bin/server.js'
 if (!(Test-Path -LiteralPath $echoEntry)) {
     throw 'Realtime dependencies are missing. Run: npm --prefix local-realtime ci --ignore-scripts'
 }
+& "$phpDirectory/php.exe" "$realtimeDirectory/write-config.php"
+if ($LASTEXITCODE -ne 0) { throw 'Could not prepare local realtime configuration.' }
 if (!(Get-Command docker -ErrorAction SilentlyContinue)) { throw 'Docker Desktop is required for local Redis.' }
 $ErrorActionPreference = 'Continue'
 $null = & docker info --format '{{.ServerVersion}}' 2>&1
@@ -36,7 +39,7 @@ if (Test-RealtimePort) {
     }
     throw 'Port 3001 is already in use by another process.'
 }
-$server = Start-Process -FilePath "$nodeDirectory/node.exe" -ArgumentList @('node_modules/laravel-echo-server/bin/server.js', 'start') -WorkingDirectory $realtimeDirectory -WindowStyle Hidden -RedirectStandardOutput "$projectRoot/.runtime/realtime.stdout.log" -RedirectStandardError "$projectRoot/.runtime/realtime.stderr.log" -PassThru
+$server = Start-Process -FilePath "$nodeDirectory/node.exe" -ArgumentList @('node_modules/laravel-echo-server/bin/server.js', 'start', ('--dir="' + $configDirectory + '"')) -WorkingDirectory $realtimeDirectory -WindowStyle Hidden -RedirectStandardOutput "$projectRoot/.runtime/realtime.stdout.log" -RedirectStandardError "$projectRoot/.runtime/realtime.stderr.log" -PassThru
 Set-Content -LiteralPath $pidFile -Value $server.Id -Encoding ASCII
 $deadline = (Get-Date).AddSeconds(30)
 while ((Get-Date) -lt $deadline) {
