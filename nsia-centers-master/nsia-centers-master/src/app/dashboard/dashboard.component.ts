@@ -3,6 +3,7 @@ import { Api } from '../Api';
 import { NgxSpinnerService } from "ngx-spinner";
 import { map } from "rxjs/operators";
 import { Router, ActivatedRoute } from '@angular/router';
+import { environment } from '../../environments/environment';
 
 
 
@@ -13,7 +14,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 })
 export class DashboardComponent implements OnInit, OnDestroy {
   private routeSubscription: any;
-  private readonly applicationChannel = 'nsia_database_private-applications';
+  private readonly applicationChannel = environment.applicationsChannel;
   public family_form_reference_no ="";
   private httpRequest:any;
   public showDatePicker=false;

@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Center;
 use App\CurrentReport;
+use App\FamilyReport;
 use App\User;
 use App\Http\Controllers\AppointmentsController;
 use App\Http\Controllers\MainController;
@@ -134,7 +135,7 @@ class CentersWorkflowTest extends TestCase
         $this->assertEquals(['WORKFLOW-OTHER-3', 'WORKFLOW-OTHER-4'], array_column($members->items(), 'reference_no'));
     }
 
-    public function testCalendarUsesSelectedCenterAndCachesEachScopeSeparately()
+    public function testCalendarUsesSelectedCenterAndKeepsEachScopeSeparate()
     {
         $this->user();
         $this->family('WORKFLOW-C18', 18, 4);
@@ -195,5 +196,107 @@ class CentersWorkflowTest extends TestCase
         $legacy = (new CurrentReport($date, $date, 18, 0))->getQuery()->get();
         $this->assertCount(1, $legacy);
         $this->assertEquals(4, $legacy[0]->total_applicants);
+    }
+
+    public function testBothFamilyExportsEnforceTheSameCenterAndStatusPermissionsAsTheList()
+    {
+        foreach ([13, 14, 18, 19, 88, 89] as $center) {
+            $this->family('WORKFLOW-EXPORT-'.$center, $center, 4);
+        }
+        $this->family('WORKFLOW-EXPORT-HIDDEN', 18, 2, '15');
+        $date = \Hijri::fromFormat('Y-m-d', $this->date);
+        foreach (['admin', 'center_manager', 'team_leader', 'document_checker', 'audit', 'unknown'] as $role) {
+            $this->user($role);
+            foreach ([false, 13, 14, 18, 19, 88, 89] as $center) {
+                $params = ['status' => 0];
+                if ($center !== false) { $params['center_id'] = $center; }
+                $expected = array_column($this->listing($params)->items(), 'family_form_reference_no');
+                foreach ([new FamilyReport($date, $date, $center, 0), new CurrentReport($date, $date, $center, 0)] as $report) {
+                    $actual = $report->getQuery()->get()->pluck('family_form_reference_no')->all();
+                    $this->assertEquals($expected, $actual, $role.' / '.$center.' / '.get_class($report));
+                }
+            }
+        }
+        $this->user('center_manager');
+        $this->assertCount(0, (new FamilyReport($date, $date, 18, 15))->getQuery()->get());
+        \Auth::logout();
+        $this->assertCount(0, (new FamilyReport($date, $date, false, false))->getQuery()->get());
+        $this->assertCount(0, (new CurrentReport($date, $date, false, 0))->getQuery()->get());
+    }
+
+    public function testFamilyWorkbookContainsOneRowWithCorrectCountAndHeadOfFamily()
+    {
+        $this->user();
+        $this->family('WORKFLOW-XLSX', 18, 5);
+        DB::table('individualforms')->where('reference_no', 'WORKFLOW-XLSX-5')->update(['apply_for_new_id' => 'نخیر']);
+        DB::table('individualforms')->where('reference_no', 'WORKFLOW-XLSX-1')
+            ->update(['reference_no' => 'WORKFLOW-XLSX-Z', 'name' => 'Head of family']);
+        $date = \Hijri::fromFormat('Y-m-d', $this->date);
+        $report = new FamilyReport($date, $date, 18, 0);
+        $rows = $report->getQuery()->get();
+        $this->assertCount(1, $rows);
+        $this->assertEquals(4, $rows[0]->total_applicants);
+        $this->assertEquals('Head of family', $rows[0]->name);
+        $file = tempnam(sys_get_temp_dir(), 'nsia-report-');
+        try {
+            file_put_contents($file, \Maatwebsite\Excel\Facades\Excel::raw($report, \Maatwebsite\Excel\Excel::XLSX));
+            $book = \PhpOffice\PhpSpreadsheet\IOFactory::load($file);
+            $sheet = $book->getActiveSheet();
+            $this->assertTrue($sheet->getRightToLeft());
+            $this->assertEquals(3, $sheet->getHighestDataRow());
+            $this->assertEquals('WORKFLOW-XLSX', $sheet->getCell('A3')->getValue());
+            $this->assertEquals(4, $sheet->getCell('B3')->getValue());
+            $this->assertEquals('Head of family', trim($sheet->getCell('G3')->getValue()));
+            $this->assertEquals('تاریخ مراجعه', $sheet->getCell('H2')->getValue());
+            $book->disconnectWorksheets();
+        } finally { unlink($file); }
+        DB::table('individualforms')->where('reference_no', 'WORKFLOW-XLSX-Z')->update(['apply_for_new_id' => 'نخیر']);
+        $rows = $report->getQuery()->get();
+        $this->assertCount(1, $rows);
+        $this->assertEquals(3, $rows[0]->total_applicants);
+        $this->assertEquals('WORKFLOW-XLSX-2', $rows[0]->reference_no);
+    }
+
+    public function testFamilyExportMatchesSelectedStatusAndHandlesEmptyResults()
+    {
+        $this->user();
+        $this->family('WORKFLOW-STATUS4', 18, 2, '4');
+        $this->family('WORKFLOW-STATUS5', 18, 3, '5');
+        $date = \Hijri::fromFormat('Y-m-d', $this->date);
+        foreach ([false, 0, 4, 5] as $status) {
+            $report = new FamilyReport($date, $date, 18, $status);
+            $rows = $report->getQuery()->get();
+            $params = ['center_id' => 18];
+            if ($status !== false) { $params['status'] = $status; }
+            $this->assertEquals(array_column($this->listing($params)->items(), 'family_form_reference_no'), $rows->pluck('family_form_reference_no')->all());
+            if ($status === 0) {
+                $this->assertCount(0, $rows);
+                $this->assertCount(2, $report->generateReport());
+                $this->assertNotEmpty(\Maatwebsite\Excel\Facades\Excel::raw($report, \Maatwebsite\Excel\Excel::XLSX));
+            }
+        }
+    }
+
+    public function testCalendarImmediatelyReflectsStatusChangesNewRegistrationsAndTransfers()
+    {
+        $this->user();
+        $this->family('WORKFLOW-FRESH', 18, 4);
+        $filter = ['center_id' => 18, 'status' => 0];
+        $this->assertSame([1, 4], $this->calendar($filter));
+        DB::table('individualforms')->where('family_form_reference_no', 'WORKFLOW-FRESH')->update(['status' => '1']);
+        $this->assertSame([0, 0], $this->calendar($filter));
+        $this->family('WORKFLOW-NEW', 18, 2);
+        $this->assertSame([1, 2], $this->calendar($filter));
+        DB::table('individualforms')->where('family_form_reference_no', 'WORKFLOW-NEW')->update(['center_id' => 19]);
+        $this->assertSame([0, 0], $this->calendar($filter));
+        $this->assertSame([1, 2], $this->calendar(['center_id' => 19, 'status' => 0]));
+        DB::table('appointments')->where('family_form_reference_no', 'WORKFLOW-NEW')->update(['appointment_date' => '1440-02-02']);
+        $this->assertSame([0, 0], $this->calendar(['center_id' => 19, 'status' => 0]));
+        DB::flushQueryLog();
+        DB::enableQueryLog();
+        $this->calendar($filter);
+        $queries = DB::getQueryLog();
+        DB::disableQueryLog();
+        $this->assertCount(1, $queries, 'Fresh calendar should still need just one aggregate query.');
     }
 }

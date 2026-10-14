@@ -5,6 +5,8 @@
 export const environment = {
   production: false,
   url: 'http://127.0.0.1:8088',
+  echoUrl: 'http://127.0.0.1:3001',
+  applicationsChannel: 'private-applications',
   // url: 'http://forms.sulayman.com.au'
 };
 

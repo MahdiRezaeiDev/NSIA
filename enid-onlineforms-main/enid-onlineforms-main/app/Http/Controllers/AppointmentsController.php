@@ -79,21 +79,12 @@ class AppointmentsController extends Controller
         if ($center_id === 'false') {
             $center_id = false;
         }
-        // Include names and scope in the key, and bypass results cached before center filtering was fixed.
-        $cacheName = 'appointment-dates:v2:'.sha1(json_encode([
-            'user' => $user->id, 'role' => $user->role, 'center' => $center_id,
-            'statuses' => $user->getApplicationAccessStatus(), 'status' => $r->input('status', false),
-            'today' => \Hijri::now()->format('Y-m-d'),
-        ]));
-        $result = \Cache::remember($cacheName,7200,function() use ($r,$center_id){
-            $today = \Hijri::now();
-            return [
-                'today'=>['today_text'=>$today->format('Y-m-d'),'day'=>$today->format('d'),'month'=>$today->format('m'),'year'=>$today->format('Y')],
-                'list'=>Appointment::getAppointments($r->user(),'individualforms',$center_id,$r->input('status',false))
-            ];
-        });
-     
-
-        return $result;
+        // Status changes, transfers and new registrations use several write paths.
+        // A single aggregate query avoids stale counts after any of those changes.
+        $today = \Hijri::now();
+        return [
+            'today'=>['today_text'=>$today->format('Y-m-d'),'day'=>$today->format('d'),'month'=>$today->format('m'),'year'=>$today->format('Y')],
+            'list'=>Appointment::getAppointments($user,'individualforms',$center_id,$r->input('status',false))
+        ];
     }
 }

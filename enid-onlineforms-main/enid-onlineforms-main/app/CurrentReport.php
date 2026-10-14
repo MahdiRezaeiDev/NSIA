@@ -67,17 +67,16 @@ class CurrentReport{
         if ($this->individual) {
             return $this->getIndividualQuery();
         }
-        $query = \DB::table('familyapplications')->where('apply_for_new_id','بلی')->orderBy('family_form_reference_no');
+        $query = \App\Services\ApplicationReports::scopeApplications(\DB::table('familyapplications'))
+            ->where('apply_for_new_id','بلی')->orderBy('family_form_reference_no');
         $query=$query->selectRaw('name,surname,father_name,current_residence,father_surname,grand_father_name,grand_father_surname,appointment_date,reference_no,status,family_form_reference_no,relationship_with_head_of_family,primary_contact_no,secondary_contact_no,center_name,count(reference_no) as total_applicants,created_at');
         $filterFieldName='appointment_date';
         $query=$query
         ->where($filterFieldName,'>=',$this->start_date->format('Y-m-d'))
         ->where($filterFieldName,'<=',$this->end_date->format('Y-m-d'));
         
-        if($this->center_id && in_array( \Auth::user()->role,['admin','center_manager'] )){
+        if($this->center_id){
             $query = $query->where('center_id',$this->center_id);
-        }else{
-            $query = $query->where('center_id',\Auth::user()->center_id);
         }
        
         if($this->status == false){
@@ -91,18 +90,10 @@ class CurrentReport{
     }
 
     private function getIndividualQuery(){
-        $user = \Auth::user();
-        $query = \DB::table('familyapplications')->where('apply_for_new_id', 'بلی')
+        $query = \App\Services\ApplicationReports::scopeApplications(\DB::table('familyapplications'))
+            ->where('apply_for_new_id', 'بلی')
             ->where('appointment_date', '>=', $this->start_date->format('Y-m-d'))
             ->where('appointment_date', '<=', $this->end_date->format('Y-m-d'));
-        if ($user->role !== 'admin') {
-            $query->whereIn('status', $user->getApplicationAccessStatus());
-            if ($user->role === 'center_manager') {
-                $query->where('center_id', '>', 13)->where('center_id', '<', 89);
-            } else {
-                $query->where('center_id', $user->center_id);
-            }
-        }
         if ($this->center_id) {
             $query->where('center_id', $this->center_id);
         }

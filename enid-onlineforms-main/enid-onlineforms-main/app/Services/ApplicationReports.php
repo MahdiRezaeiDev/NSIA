@@ -4,6 +4,22 @@ namespace App\Services;
 
 class ApplicationReports
 {
+    public static function scopeApplications($query)
+    {
+        $user = \Auth::user();
+        if (!$user) {
+            return $query->whereRaw('1 = 0');
+        }
+        if ($user->role === 'admin') {
+            return $query;
+        }
+        $query->whereIn('status', $user->getApplicationAccessStatus());
+        if ($user->role === 'center_manager') {
+            return $query->where('center_id', '>', 13)->where('center_id', '<', 89);
+        }
+        return $query->where('center_id', $user->center_id);
+    }
+
     public static function events()
     {
         $user = \Auth::user();

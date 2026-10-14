@@ -45,7 +45,7 @@ export const echoConfig: EchoConfig = {
       key: '',
       wsHost: environment.url,
       authEndpoint: environment.url+'/broadcasting/auth',
-      host: environment.url+':3001',
+      host: environment.echoUrl,
       wsPort: 3001,
       disableStats: true,
       namespace: '',

@@ -23,7 +23,7 @@ function load(file, name) {
       if (id === 'rxjs') {return {Subject, BehaviorSubject};}
       if (id === 'rxjs/operators') {return operators;}
       if (id === 'file-saver') {return {saveAs() {}};}
-      return {environment: {url: 'http://test.invalid'}};
+      return {environment: {url: 'http://test.invalid', applicationsChannel: 'private-applications'}};
     }}, {filename: file});
   return exports[name];
 }
@@ -98,7 +98,7 @@ callbacks['.opened']({application: {family_form_reference_no: 'QA-FAMILY', usern
 assert.equal(card.canOpen(), true, 'The owning employee can reopen their application');
 assert.equal(zoneRuns, 5);
 dashboard.ngOnDestroy();
-assert.equal(left, 'nsia_database_private-applications');
+assert.equal(left, 'private-applications');
 assert.equal(route.observers.length, 0);
 
 const date = {y: 1405, m: 7, d: 22};

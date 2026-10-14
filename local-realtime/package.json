@@ -1,0 +1,8 @@
+{
+  "name": "nsia-local-realtime",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Local Socket.IO service compatible with the existing centers client",
+  "scripts": {"start": "laravel-echo-server start"},
+  "dependencies": {"laravel-echo-server": "1.6.3"}
+}

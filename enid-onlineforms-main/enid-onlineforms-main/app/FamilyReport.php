@@ -12,7 +12,7 @@ use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Color;
 use Illuminate\Contracts\View\View;
 use Maatwebsite\Excel\Concerns\FromView;
-class FamilyReport  implements FromView, ShouldAutoSize,WithStyles{
+class FamilyReport  implements FromView, ShouldAutoSize,WithStyles,WithEvents{
     protected $start_date;
     protected $end_date;
     protected $center_id=false;
@@ -49,7 +49,7 @@ class FamilyReport  implements FromView, ShouldAutoSize,WithStyles{
         $applications = $this->getQuery();
         $applications=$applications->orderBy('created_at')->get();
         $result[]=[
-            $applications->first()->center_name
+            $applications->isEmpty() ? '' : $applications->first()->center_name
         ];
         $header= [
             'شماره درخواستی فامیلی',
@@ -76,24 +76,29 @@ class FamilyReport  implements FromView, ShouldAutoSize,WithStyles{
     }
 
     public function getQuery($excludeNew=false){
-        $query = \DB::table('familyapplications')->where('apply_for_new_id','بلی')->orderBy('family_form_reference_no');
+        $query = \App\Services\ApplicationReports::scopeApplications(\DB::table('familyapplications'))
+            ->where('apply_for_new_id','بلی');
         $query=$query
-        ->whereDate('appointment_date','>=',$this->start_date)
-        ->whereDate('appointment_date','<=',$this->end_date);
+        ->where('appointment_date','>=',$this->start_date->format('Y-m-d'))
+        ->where('appointment_date','<=',$this->end_date->format('Y-m-d'));
         
         if($this->center_id){
             $query = $query->where('center_id',$this->center_id);
         }
-        if($this->status!==false){
-            if($this->status == 4 || $this->status == 5){
-                $query = $query->whereIn('status',[4,5]);
-            }else{
-                $query = $query->where('status',$this->status);
-            }
-
+        if($this->status !== false && $this->status !== null && $this->status !== ''){
+            $query = $query->where('status',$this->status);
         }
-      
-       return $query;
+        // Count only the filtered, authorized applicants. Prefer the head of family
+        // for the displayed name; if absent, choose a stable eligible member.
+        $families = (clone $query)->selectRaw('family_form_reference_no as family_key,
+            count(distinct reference_no) as total_applicants,
+            coalesce(min(case when relationship_with_head_of_family = 1 then reference_no end), min(reference_no)) as representative_reference')
+            ->groupBy('family_form_reference_no');
+        return $query->joinSub($families, 'report_families', function ($join) {
+            $join->on('familyapplications.family_form_reference_no', '=', 'report_families.family_key')
+                ->on('familyapplications.reference_no', '=', 'report_families.representative_reference');
+        })->select('familyapplications.*', 'report_families.total_applicants')
+            ->orderBy('familyapplications.family_form_reference_no');
     }
 
 

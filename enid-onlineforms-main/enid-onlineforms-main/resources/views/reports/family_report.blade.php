@@ -2,7 +2,7 @@
     <thead>
     <tr>
         @if($applications->first())
-        <th colspan="6" style="text-align:center;font-size:30px">{{$applications->first()->center_name}}</th>
+        <th colspan="8" style="text-align:center;font-size:30px">{{$applications->pluck('center_name')->unique()->count() === 1 ? $applications->first()->center_name : 'راپور مراکز انتخاب‌شده'}}</th>
         @endif
     </tr>
     <tr>
@@ -15,7 +15,7 @@
         <th>حالت فعلی</th>
         <th>ولد</th>
         <th>اسم</th>
-        <th>تاریخ تثبیت هویت</th>
+        <th>تاریخ مراجعه</th>
       
      
     </tr>
