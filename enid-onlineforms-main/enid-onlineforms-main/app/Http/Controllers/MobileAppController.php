@@ -256,20 +256,32 @@ class MobileAppController extends Controller
     }
 
     public function moveToVipCenter(Request $r){
-        $applicationExists=  \App\Individualform::where('family_form_reference_no',$r->input('family_form_reference_no'))->first();        
+        $r->validate(['family_form_reference_no' => 'required|string|max:128']);
         if($r->user()->role !='team_leader'){
             return response(['status'=>'error','message'=>'You do not have access!'],403);
         }
         $newCenter=\App\Center::where('id',$r->user()->center_id)->first();
-        $newCenterName = $newCenter->name;
+        if (!$newCenter) {
+            return response(['status'=>'error','message'=>'Center not found'],404);
+        }
+
+        return \DB::transaction(function () use ($r, $newCenter) {
+        $applicationExists = \App\Individualform::where('family_form_reference_no',$r->input('family_form_reference_no'))->lockForUpdate()->first();
+        if (!$applicationExists) {
+            return response(['status'=>'error','message'=>'Application not found'],404);
+        }
         $oldCenter = $applicationExists->center()->first();
+        $appointment = $applicationExists->appointment()->lockForUpdate()->first();
+        if (!$oldCenter || !$appointment) {
+            return response(['status'=>'error','message'=>'Center or appointment not found'],422);
+        }
+        $newCenterName = $newCenter->name;
         $oldCenterName = $applicationExists->centerName();
         $today = \Hijri::now()->format('Y-m-d');
         if($applicationExists){
             if( \App\Individualform::where('family_form_reference_no',$r->input('family_form_reference_no'))->update(['center_id'=>$r->user()->center_id]) ){
                 $applications = \App\Individualform::where('family_form_reference_no',$r->input('family_form_reference_no'))->get();
                 $application = \App\Individualform::where('family_form_reference_no',$r->input('family_form_reference_no'))->first();
-                $appointment = $application->appointment()->first();
                 $isCenterChanged=false;
                 foreach($applications as $application):
                     if($oldCenter->id !=$newCenter->id){
@@ -304,6 +316,7 @@ class MobileAppController extends Controller
         }
 
         return response(['status'=>'error'],404);
+        });
     }
 
     public function handleVerificationHook(\App\Http\Requests\VerificationRequest $r){

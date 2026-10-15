@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { TranslateService } from '@ngx-translate/core';
+import { environment } from '../../environments/environment';
 @Injectable()
 export class Api {
-  public endpoint="http://127.0.0.1:8088/api";
+  public endpoint=environment.apiUrl;
   public processing:boolean=false;
   public lang={selected:'fa'};
   constructor(private http: HttpClient,public translateService:TranslateService) { 

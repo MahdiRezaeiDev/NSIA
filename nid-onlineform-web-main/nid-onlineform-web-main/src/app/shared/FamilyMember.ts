@@ -277,37 +277,33 @@ export class FamilyMember{
                   
                     new FormField('second_gurantor_contact_no','','mask',true).setCondition('apply_for_new_id','بلی').setCondition('identification_type','تذکره ندارد',true).setMask('0000-0000-000-000').setPlaceholder("0093-0000-000-000"),
                 ];
-                this.form = new FormGroup(this.toFormGroup(this.fields),{ updateOn: 'change' ,validators:ValidIssueDateValidator});
-             
-        if(data==undefined){
-            return;
+        if (data) {
+            this.fields.forEach(field => {
+                if (field.type === 'date' || field.type === 'dob_auto') {
+                    const nested = data[field.name] && typeof data[field.name] === 'object'
+                        ? data[field.name] : {};
+                    const restored = {};
+                    field.options.forEach(option => {
+                        const value = Object.prototype.hasOwnProperty.call(data, option.id)
+                            ? data[option.id] : nested[option.id];
+                        if (field.type === 'date') {
+                            if (value !== undefined) {
+                                option.setValue(value === null ? '' : value);
+                            }
+                        } else {
+                            restored[option.id] = value == null ? '' : value;
+                        }
+                    });
+                    if (field.type === 'dob_auto') {
+                        field.value = restored;
+                    }
+                } else if (Object.prototype.hasOwnProperty.call(data, field.name)) {
+                    field.value = data[field.name];
+                }
+            });
         }
 
-        for(let fieldName in data){
-           
-            let field = this.getFieldByName(fieldName);
-            if(field){
-        
-            if(field.type =='date'){
-                //console.log('field options',field.options);
-                for(let o of field.options){
-                    //console.log('field Name',fieldName,"Option id",o.id);
-                    if(data[fieldName]!=null && data[fieldName].hasOwnProperty(o.id)){
-                        o.setValue(data[fieldName][o.id]);
-              
-                    }
-                    
-                }
-            }else{
-                field.value = data[fieldName];
-                
-            }
-                
-        }
-           
-        }
- 
-        this.form = new FormGroup(this.toFormGroup(this.fields),{ updateOn: 'change' });
+        this.form = new FormGroup(this.toFormGroup(this.fields), { updateOn: 'change', validators: ValidIssueDateValidator });
       
     }
      

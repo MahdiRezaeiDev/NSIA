@@ -39,13 +39,24 @@ export class Api {
   public generalReport:any=[];
   public statusList:any=[];
   constructor(private http: HttpClient,private modalService:NgbModal,public echoService:EchoService,private spinner:NgxSpinnerService) {    
-    if(localStorage && localStorage.hasOwnProperty('_token')){
-        this.setToken(localStorage._token);
-  
-        this.setUserDetails(JSON.parse(localStorage.user_details));
-    }
-
     this.isLoggedInEvent = new BehaviorSubject<boolean>(false);
+    const storedToken = localStorage.getItem('_token');
+    const storedDetails = localStorage.getItem('user_details');
+    let userDetails:any = null;
+    if (storedToken && storedDetails) {
+      try {
+        userDetails = JSON.parse(storedDetails);
+      } catch (error) {
+        userDetails = null;
+      }
+    }
+    if (storedToken && userDetails && typeof userDetails === 'object' && !Array.isArray(userDetails) && userDetails.role) {
+      this.setToken(storedToken);
+      this.setUserDetails(userDetails);
+    } else if (storedToken || storedDetails) {
+      localStorage.removeItem('_token');
+      localStorage.removeItem('user_details');
+    }
   }
 
   public process(action:String,data:any,type:String="post"){

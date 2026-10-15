@@ -1,4 +1,11 @@
-<div *ngIf="submittedForm.reference_no">
+<div *ngIf="!submittedForm || !submittedForm.reference_no" class="card my-4" role="status">
+  <div class="card-body text-center">
+    <h3 *ngIf="api.lang.selected == 'fa'">معلومات تأیید درخواست در دسترس نیست</h3>
+    <h3 *ngIf="api.lang.selected == 'ps'">د غوښتنې د تایید معلومات نشته</h3>
+    <a routerLink="/tracking" class="btn btn-primary mt-3">{{api.lang.selected == 'ps' ? 'خپله غوښتنه تعقیب کړئ' : 'درخواست خود را تعقیب کنید'}}</a>
+  </div>
+</div>
+<div *ngIf="submittedForm && submittedForm.reference_no">
   <div class="card">
 
     <div class="card-body">
