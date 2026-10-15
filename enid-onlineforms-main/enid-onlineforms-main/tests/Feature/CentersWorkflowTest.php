@@ -8,6 +8,7 @@ use App\FamilyReport;
 use App\User;
 use App\Http\Controllers\AppointmentsController;
 use App\Http\Controllers\MainController;
+use App\Http\Controllers\MobileAppController;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -298,5 +299,38 @@ class CentersWorkflowTest extends TestCase
         $queries = DB::getQueryLog();
         DB::disableQueryLog();
         $this->assertCount(1, $queries, 'Fresh calendar should still need just one aggregate query.');
+    }
+
+    public function testVipTransferRejectsMissingRecordsBeforeChangingTheFamily()
+    {
+        $this->family('WORKFLOW-VIP-TARGET', 19);
+        $this->user('team_leader', 19);
+        $request = Request::create('/api/moveToVipCenter', 'GET', ['family_form_reference_no' => 'WORKFLOW-VIP-ABSENT']);
+        $request->setUserResolver(function () { return \Auth::user(); });
+        $response = app(MobileAppController::class)->moveToVipCenter($request);
+        $this->assertSame(404, $response->getStatusCode());
+
+        $this->family('VIP-NO-APPT', 18, 4);
+        DB::table('appointments')->where('family_form_reference_no', 'VIP-NO-APPT')->delete();
+        $request = Request::create('/api/moveToVipCenter', 'GET', ['family_form_reference_no' => 'VIP-NO-APPT']);
+        $request->setUserResolver(function () { return \Auth::user(); });
+        $response = app(MobileAppController::class)->moveToVipCenter($request);
+        $this->assertSame(422, $response->getStatusCode());
+        $this->assertSame(4, DB::table('individualforms')->where('family_form_reference_no', 'VIP-NO-APPT')
+            ->where('center_id', 18)->count());
+    }
+
+    public function testVipTransferUpdatesAnExistingAppointment()
+    {
+        $this->family('VIP-SAME', 18, 2);
+        $this->user('team_leader', 18);
+        $request = Request::create('/api/moveToVipCenter', 'GET', ['family_form_reference_no' => 'VIP-SAME']);
+        $request->setUserResolver(function () { return \Auth::user(); });
+        $result = app(MobileAppController::class)->moveToVipCenter($request);
+        $this->assertSame('ok', $result['status']);
+        $this->assertSame(2, DB::table('individualforms')->where('family_form_reference_no', 'VIP-SAME')
+            ->where('center_id', 18)->count());
+        $this->assertSame(\Hijri::now()->format('Y-m-d'), DB::table('appointments')
+            ->where('family_form_reference_no', 'VIP-SAME')->value('appointment_date'));
     }
 }
